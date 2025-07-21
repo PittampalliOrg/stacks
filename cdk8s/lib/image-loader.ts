@@ -27,7 +27,7 @@ export class ImageLoader {
     this.currentEnvironment = process.env.ENVIRONMENT || 'dev';
     
     // Load images.json
-    const imagesPath = path.join(__dirname, '..', '.env-files', 'images.json');
+    const imagesPath = path.join(__dirname, '../..', '.env-files', 'images.json');
     
     try {
       const fileContent = fs.readFileSync(imagesPath, 'utf8');

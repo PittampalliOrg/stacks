@@ -1,5 +1,5 @@
 {
-  "name": "cdk8s",
+  "name": "cdk8s-project",
   "version": "1.0.0",
   "main": "main.js",
   "types": "main.ts",
@@ -7,26 +7,42 @@
   "private": true,
   "scripts": {
     "import": "cdk8s import",
-    "synth": "cdk8s synth",
+    "synth": "source ../.env-files/wi.env && npx cdk8s synth",
+    "synth:dagger": "command -v dagger >/dev/null 2>&1 || (echo 'Dagger not installed. Visit https://docs.dagger.io/install' && exit 1) && dagger --mod . call synthesize --source . export --path ./dist",
+    "synth:prod": "dagger call synthesize-with-env-file --source . --environment=production --env-file=.env-files/production.env export --path ./dist",
+    "synth:dev": "dagger call synthesize-with-env-file --source . --environment=dev --env-file=.env-files/wi.env export --path ./dist",
+    "synth:env": "dagger call synthesize-with-env-file --source . --environment=\"${ENV:-production}\" --env-file=\".env-files/${ENV:-production}.env\" export --path ./dist",
     "compile": "tsc --build",
     "watch": "tsc --build -w",
     "test": "jest",
-    "build": "npm run compile && npm run test && npm run synth",
+    "build": "npm run synth",
+    "build:dagger": "npm run compile && npm run synth:dagger",
+    "build:prod": "npm run compile && npm run synth:prod",
+    "build:dev": "npm run compile && npm run synth:dev",
     "upgrade": "npm i cdk8s@latest cdk8s-cli@latest",
-    "upgrade:next": "npm i cdk8s@next cdk8s-cli@next"
+    "upgrade:next": "npm i cdk8s@next cdk8s-cli@next",
+    "update-env": "kubectl apply -f bootstrap/cdk8s-applications.yaml",
+    "show-env": "kubectl get app -n argocd cdk8s-applications -o jsonpath='{.spec.source.plugin.env[*]}' | jq -s '.'",
+    "refresh-app": "kubectl patch app -n argocd cdk8s-applications --type merge -p '{\"metadata\":{\"annotations\":{\"argocd.argoproj.io/refresh\":\"hard\"}}}'",
+    "reset-apps": "make -C .devcontainer/ github-auth-bootstrap SKIP_DEPS=1 && make -C .devcontainer/ gitops-private-apps SKIP_DEPS=1",
+    "synth:openfeature": "dagger --mod . call synthesize-with-feature-flags --source . export --path ./dist",
+    "feature-flags:list": "kubectl get featureflagconfiguration -A",
+    "feature-flags:get": "kubectl get featureflagconfiguration cdk8s-env-config -o yaml",
+    "feature-flags:update": "kubectl apply -f dist/FeatureFlagConfiguration.cdk8s-env-config.k8s.yaml"
   },
   "dependencies": {
-    "cdk8s": "^2.70.1",
-    "cdk8s-plus-28": "^2.5.6",
-    "constructs": "^10.4.2"
+    "@anthropic-ai/claude-code": "^1.0.56",
+    "@opencdk8s/cdk8s-argocd-resources": "^0.0.8",
+    "cdk8s": "^2.69.73",
+    "cdk8s-plus-32": "^2.1.6",
+    "constructs": "^10.3.0",
+    "devspace": "^6.3.15"
   },
   "devDependencies": {
-    "cdk8s-cli": "^2.200.133",
-    "@types/node": "^14",
-    "@types/jest": "^27",
-    "jest": "^27",
-    "ts-jest": "^27",
-    "typescript": "^4.9.5",
-    "ts-node": "^10"
+    "@types/node": "^20",
+    "cdk8s-cli": "^2.200.136",
+    "ts-morph": "^26.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }
