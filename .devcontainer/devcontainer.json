@@ -1,0 +1,54 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-in-docker
+{
+	"name": "Docker in Docker",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
+
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/itsmechlark/features/1password:1": {},
+		"ghcr.io/devcontainers/features/azure-cli:1": {},
+		"ghcr.io/devcontainers/features/node:1": {},
+		"ghcr.io/devcontainers/features/python": {},
+		"ghcr.io/devcontainers-extra/features/poetry": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"ms-python.python",
+				"GitHub.copilot",
+				"ms-kubernetes-tools.vscode-kubernetes-tools",
+				"ms-kubernetes-tools.vscode-aks-tools",
+				"ms-azuretools.vscode-azure-github-copilot",
+				"ms-azuretools.azure-dev",
+				"ms-vscode.vscode-node-azure-pack",
+				"mtxr.sqltools",
+				"mtxr.sqltools-driver-pg",
+				"mikeedjones.copy-file-to-chat"
+			]
+		}
+	},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	"postCreateCommand": ".devcontainer/postCreateCommand.sh && .devcontainer/install-tools.sh",
+	"postStartCommand": ".devcontainer/postStartCommand.sh",
+	"workspaceFolder": "/home/vscode/stacks",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/stacks,type=bind",
+	"hostRequirements": {
+		"cpus": 4
+	},
+	"remoteEnv": {
+		"PATH": "${containerEnv:PATH}:/home/vscode/stacks",
+		"GIT_COMMITER_NAME": "${localEnv:GIT_COMMITER_NAME}",
+		"GIT_COMMITER_EMAIL": "${localEnv:GIT_COMMITER_EMAIL}"
+	}
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
