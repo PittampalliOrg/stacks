@@ -11,7 +11,7 @@ export class KargoClaudeCodeUiPipelineAppChart extends ArgoCdApplicationChart {
     this.createApplication('kargo-claudecodeui-pipeline', {
       resourcePath: 'kargo-claudecodeui-pipeline',
       namespace: 'gitops-pipelines',
-      project: 'platform',
+      project: 'default',
       syncWave: '25',
       repoURL: 'https://github.com/PittampalliOrg/cdk8s-project.git',
       targetRevision: process.env.ENVIRONMENT || 'dev',

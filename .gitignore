@@ -1,1 +1,7 @@
 idpbuilder.tar.gz
+cdk8s/.tsbuild/.tsbuildinfo
+.gitignore
+ref-implementation/keys/jwks.json
+cdk8s/datree.tar.gz
+ref-implementation/keys/sa.key
+ref-implementation/keys/sa.pub

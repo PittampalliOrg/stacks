@@ -46,7 +46,7 @@ export class Context7MCPServerChart extends Chart {
             containers: [
               {
                 name: 'context7',
-                image: 'mcp/context7:latest',
+                image: 'mcp/context7:1.0.0',
                 imagePullPolicy: 'IfNotPresent',
                 ports: [
                   {

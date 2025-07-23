@@ -13,7 +13,7 @@ export class KGatewayHTTPGatewayAppChart extends ArgoCdApplicationChart {
     this.createApplication('kgateway-http-gateway', {
       resourcePath: 'kgateway-http-gateway',
       namespace: 'kgateway-system',
-      project: 'platform',
+      project: 'default',
       syncWave: '86', // After kgateway itself
       labels: {
         'app.kubernetes.io/component': 'http-gateway',

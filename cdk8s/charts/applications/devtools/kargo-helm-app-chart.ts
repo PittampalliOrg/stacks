@@ -31,7 +31,7 @@ export class KargoHelmAppChart extends ArgoCdApplicationChart {
         finalizers: ['resources-finalizer.argocd.argoproj.io']
       },
       spec: {
-        project: 'platform',
+        project: 'default',
         source: {
           repoUrl: 'ghcr.io/akuity/kargo-charts',
           chart: 'kargo',

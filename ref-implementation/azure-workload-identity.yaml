@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: azure-workload-identity
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-90"  # Very early deployment
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: cnoe://azure-workload-identity/manifests
+    targetRevision: HEAD
+    path: "."
+    include: "install.yaml"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: azure-workload-identity-system
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - Replace=true

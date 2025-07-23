@@ -23,7 +23,7 @@ export class GatewayApiAppChart extends Chart {
         finalizers: ['resources-finalizer.argocd.argoproj.io']
       },
       spec: {
-        project: 'platform',
+        project: 'default',
         source: {
           repoURL: 'https://github.com/kubernetes-sigs/gateway-api',
           targetRevision: 'v1.2.1',

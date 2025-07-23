@@ -1,0 +1,22 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraMounts:
+    - hostPath: /home/vscode/stacks/ref-implementation/keys/sa.key
+      containerPath: /etc/kubernetes/pki/sa.key
+      readOnly: true
+    - hostPath: /home/vscode/stacks/ref-implementation/keys/sa.pub
+      containerPath: /etc/kubernetes/pki/sa.pub
+      readOnly: true
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        service-account-issuer: "https://oidcissuer65846b7df97b.z13.web.core.windows.net/"
+        service-account-key-file: /etc/kubernetes/pki/sa.pub
+        service-account-signing-key-file: /etc/kubernetes/pki/sa.key
+    controllerManager:
+      extraArgs:
+        service-account-private-key-file: /etc/kubernetes/pki/sa.key

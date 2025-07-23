@@ -12,7 +12,7 @@ export class PlatformRbacAppChart extends ArgoCdApplicationChart {
     this.createApplication('platform-rbac', {
       resourcePath: 'platform-prerequisites', // Contains ServiceAccounts and RBAC
       namespace: 'default', // RBAC resources are often cluster-scoped
-      project: 'platform',
+      project: 'default',
       syncWave: '-90', // Very early - RBAC needs to exist before resources that use it
       labels: {
         'app.kubernetes.io/component': 'rbac',

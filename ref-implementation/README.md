@@ -27,8 +27,11 @@ and be configured with the new host and port. you can use the [replace.sh](repla
 
 ```bash
 idpbuilder create --use-path-routing \
+  --kind-config kind-config.yaml \
   --package https://github.com/cnoe-io/stacks//ref-implementation
 ```
+
+**Note**: The `kind-config.yaml` file configures the Kubernetes cluster with a custom service-account-issuer for Azure Workload Identity support.
 
 This will take ~6 minutes for everything to come up. To track the progress, you can go to the [ArgoCD UI](https://cnoe.localtest.me:8443/argocd/applications).
 

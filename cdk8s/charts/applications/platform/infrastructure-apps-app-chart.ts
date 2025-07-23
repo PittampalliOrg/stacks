@@ -13,7 +13,7 @@ export class InfrastructureAppsAppChart extends ArgoCdApplicationChart {
     this.createApplication('infrastructure-apps', {
       resourcePath: 'infrastructure-apps',
       namespace: 'argocd', // Application itself lives in argocd namespace
-      project: 'platform',
+      project: 'default',
       syncWave: '-95', // Deploy very early, before any apps that need ingress
       labels: {
         'app.kubernetes.io/component': 'infrastructure',

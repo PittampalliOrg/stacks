@@ -13,7 +13,7 @@ export class HttpbinAppChart extends ArgoCdApplicationChart {
     this.createApplication('httpbin', {
       resourcePath: 'httpbin',
       namespace: 'default',
-      project: 'platform',
+      project: 'default',
       syncWave: '87', // After http-gateway (86)
       labels: {
         'app.kubernetes.io/component': 'httpbin',

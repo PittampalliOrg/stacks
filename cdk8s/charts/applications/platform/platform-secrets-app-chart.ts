@@ -12,7 +12,7 @@ export class PlatformSecretsAppChart extends ArgoCdApplicationChart {
     this.createApplication('platform-secrets', {
       resourcePath: 'all-secrets', // Contains all ExternalSecrets
       namespace: 'nextjs', // The all-secrets file contains nextjs namespace resources
-      project: 'platform',
+      project: 'default',
       syncWave: '-50', // After namespaces but before apps that need secrets
       labels: {
         'app.kubernetes.io/component': 'secrets',

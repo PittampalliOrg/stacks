@@ -265,7 +265,7 @@ export class KGatewayMCPServersChart extends Chart {
           spec: {
             containers: [{
               name: 'grafana-mcp',
-              image: 'mcp/grafana:latest',
+              image: 'mcp/grafana:1.0.0',
               args: [
                 '--transport', 'sse', // Use SSE mode for HTTP server
                 '--base-path', '/',

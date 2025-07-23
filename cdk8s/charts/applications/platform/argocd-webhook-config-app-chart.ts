@@ -12,7 +12,7 @@ export class ArgoCDWebhookConfigAppChart extends ArgoCdApplicationChart {
     this.createApplication('argocd-webhook-config', {
       resourcePath: 'argocd-webhook-config',
       namespace: 'argocd',
-      project: 'platform',
+      project: 'default',
       syncWave: '-90', // After argocd-config
       labels: {
         'app.kubernetes.io/component': 'argocd-webhook-config',

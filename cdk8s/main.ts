@@ -58,7 +58,6 @@ import { KGatewayHTTPGatewayChart } from './charts/kgateway-http-gateway-chart';
 import { KGatewayGrafanaDashboardsChart } from './charts/kgateway-grafana-dashboards-chart';
 import { KGatewayObservabilityChart } from './charts/kgateway-observability-chart';
 import { OpenFeatureConfigChart } from './charts/openfeature-config-chart';
-import { FlagdUiChart } from './charts/flagd-ui-chart';
 import { FlagdUiNextJsChart } from './charts/flagd-ui-nextjs-chart';
 import { FlagdServiceChart } from './charts/flagd-service-chart';
 import { ClaudeCodeUIChart } from './charts/claudecodeui-chart';
@@ -70,7 +69,6 @@ import { McpInspectorDockerChart } from './charts/mcp-inspector-docker-chart';
 // import { WebScrapingAgentChart } from './charts/web-scraping-agent-chart'; // DEPRECATED: Using KGateway instead
 import { EnvironmentResolver } from './lib/environment-resolver';
 // import { BootstrapPresyncChart } from './charts/bootstrap-presync-chart'; // File doesn't exist
-import { CrdProvidersChart } from './charts/crd-providers-chart';
 import { ArgoCDConfigChart } from './charts/argocd-config-chart';
 import { ArgoCDWebhookConfigChart } from './charts/argocd-webhook-config';
 import { BootstrapSecretsChart } from './charts/bootstrap-secrets-chart';
@@ -95,12 +93,19 @@ import { HttpbinAppChart } from './charts/applications/platform/httpbin-app-char
 import { KGatewayHTTPGatewayAppChart } from './charts/applications/platform/kgateway-http-gateway-app-chart';
 import { BackstageAppChart } from './charts/applications/platform/backstage-app-chart';
 import { BackstageSecretsAppChart } from './charts/applications/platform/backstage-secrets-app-chart';
+import { WorkloadIdentityAppChart } from './charts/applications/platform/workload-identity-app-chart';
 import { BackstageChart } from './charts/backstage-chart';
 import { BackstageSecretsChart } from './charts/backstage-secrets-chart';
 import { HeadlampSecretsChart } from './charts/headlamp-secrets-chart';
 import { K8sDependencyTrackerChart } from './charts/k8s-dependency-tracker-chart';
 import { K8sDependencyTrackerDeploymentChart } from './charts/k8s-dependency-tracker-deployment-chart';
 import { K8sDependencyTrackerAppChart } from './charts/applications/platform/k8s-dependency-tracker-app-chart';
+
+// Azure Workload Identity charts
+// import { WorkloadIdentityWebhookChart } from './charts/workload-identity-webhook-chart'; // Now handled via Helm in WorkloadIdentityAppChart
+import { WorkloadIdentityServiceAccountsChart } from './charts/workload-identity-serviceaccounts-chart';
+import { AzureKeyVaultSecretStoreChart } from './charts/azure-keyvault-secretstore-chart';
+import { WorkloadIdentityBootstrapChart } from './charts/workload-identity-bootstrap-chart';
 
 // CRD Provider apps 
 import { CertManagerAppChart } from './charts/applications/platform/cert-manager-app-chart';
@@ -122,7 +127,6 @@ import { VClusterAppChart } from './charts/applications/devtools/vcluster-app-ch
 import { KargoAppChart } from './charts/applications/devtools/kargo-app-chart';
 import { KargoHelmAppChart } from './charts/applications/devtools/kargo-helm-app-chart';
 import { KargoIngressAppChart } from './charts/applications/devtools/kargo-ingress-app-chart';
-import { KargoPipelineAppChart } from './charts/applications/devtools/kargo-pipeline-app-chart';
 import { KargoNextjsPipelineAppChart } from './charts/applications/devtools/kargo-nextjs-pipeline-app-chart';
 import { KargoBackstagePipelineAppChart } from './charts/applications/devtools/kargo-backstage-pipeline-app-chart';
 import { KargoFlagdUiPipelineAppChart } from './charts/applications/devtools/kargo-flagd-ui-pipeline-app-chart';
@@ -173,7 +177,7 @@ const app = new App({
     // BackstageKubernetesResolver removed - labels are added by the deterministic catalog
   ],
   // Generate one file per chart with stable naming based on chart ID
-  yamlOutputType: YamlOutputType.FOLDER_PER_CHART_FILE_PER_RESOURCE,
+  yamlOutputType: YamlOutputType.FILE_PER_CHART,
   outdir: outputDir,
 });
 
@@ -221,10 +225,18 @@ argoCDConfig.addDependency(platformPrereqs);
 // const argoCDSyncFixes = new ArgoCDSyncFixesChart(app, 'argocd-sync-fixes'); // REMOVED: Fixes applied directly in app definitions
 // argoCDSyncFixes.addDependency(argoCDConfig);
 
-// Phase 0.6: Bootstrap Secrets (GitHub repository credentials, ClusterSecretStore)
+// Phase 0.6-0.75: Azure Workload Identity Setup (KIND only)
+// These charts generate the actual resources that WorkloadIdentityAppChart references via ArgoCD Applications
+// Note: The webhook is now deployed as a Helm chart through WorkloadIdentityAppChart
+// const workloadIdentityWebhook = new WorkloadIdentityWebhookChart(app, 'workload-identity-webhook');
+const workloadIdentityServiceAccounts = new WorkloadIdentityServiceAccountsChart(app, 'workload-identity-serviceaccounts');
+const azureKeyVaultSecretStore = new AzureKeyVaultSecretStoreChart(app, 'azure-keyvault-secretstore');
+const workloadIdentityBootstrap = new WorkloadIdentityBootstrapChart(app, 'workload-identity-bootstrap');
+
+// Phase 0.8: Bootstrap Secrets (GitHub repository credentials, ClusterSecretStore)
 // These are required for ArgoCD to access private repositories
 const bootstrapSecrets = new BootstrapSecretsChart(app, 'bootstrap-secrets');
-bootstrapSecrets.addDependency(argoCDConfig);
+bootstrapSecrets.addDependency(argoCDConfig); // Now depends on ArgoCD since workload identity is managed by App of Apps
 
 // Phase 1: Platform Core (namespaces, configmaps, RBAC)
 const platformCore = new PlatformCoreChart(app, 'platform-core', {
@@ -641,6 +653,7 @@ new OpenFeatureOperatorAppChart(appOfApps, 'openfeature-operator-app');
 // Platform foundation applications (sync waves -100 to -1)
 new ArgoCDConfigAppChart(appOfApps, 'argocd-config-app');
 new ArgoCDWebhookConfigAppChart(appOfApps, 'argocd-webhook-config-app');
+new WorkloadIdentityAppChart(appOfApps, 'workload-identity-app'); // Azure Workload Identity components
 new BootstrapSecretsAppChart(appOfApps, 'bootstrap-secrets-app');
 new InfrastructureAppsAppChart(appOfApps, 'infrastructure-apps-app'); // NGINX ingress controller and other core infra
 new PlatformSecretsAppChart(appOfApps, 'platform-secrets-app'); // Manages all-secrets for nextjs namespace

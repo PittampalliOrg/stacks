@@ -15,7 +15,7 @@ export class CertManagerIssuersAppChart extends ArgoCdApplicationChart {
     this.createApplication('cert-manager-issuers', {
       resourcePath: 'cert-manager-issuers',
       namespace: 'default', // ClusterIssuers are cluster-scoped
-      project: 'platform',
+      project: 'default',
       syncWave: '-290', // After cert-manager (-295)
       
       // No helm configuration needed - this is a directory-based app

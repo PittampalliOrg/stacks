@@ -37,7 +37,7 @@ export class CertManagerAppChart extends Chart {
         finalizers: ['resources-finalizer.argocd.argoproj.io']
       },
       spec: {
-        project: 'platform',
+        project: 'default',
         source: {
           repoURL: 'https://charts.jetstack.io',
           targetRevision: 'v1.15.1',

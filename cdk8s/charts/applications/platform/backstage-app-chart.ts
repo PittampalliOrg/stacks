@@ -12,7 +12,7 @@ export class BackstageAppChart extends ArgoCdApplicationChart {
     this.createApplication('backstage', {
       resourcePath: 'backstage',
       namespace: 'backstage',
-      project: 'platform',
+      project: 'default',
       syncWave: '95', // After databases are ready
       labels: {
         'app.kubernetes.io/component': 'portal',

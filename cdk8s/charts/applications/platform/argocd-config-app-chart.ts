@@ -12,7 +12,7 @@ export class ArgoCDConfigAppChart extends ArgoCdApplicationChart {
     this.createApplication('argocd-config', {
       resourcePath: 'argocd-config',
       namespace: 'argocd',
-      project: 'platform',
+      project: 'default',
       syncWave: '-95', // Very early - ArgoCD needs its config before other resources
       labels: {
         'app.kubernetes.io/component': 'argocd-config',

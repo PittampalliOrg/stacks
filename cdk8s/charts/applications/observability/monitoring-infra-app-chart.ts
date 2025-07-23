@@ -13,7 +13,7 @@ export class MonitoringInfraAppChart extends ArgoCdApplicationChart {
     this.createApplication('monitoring-infra', {
       resourcePath: 'monitoring-helm-apps',
       namespace: 'argocd', // Applications are created in argocd namespace
-      project: 'platform', // Use platform project as these are infrastructure components
+      project: 'default', // Use platform project as these are infrastructure components
       syncWave: '-10', // Deploy early as other apps depend on monitoring
       labels: {
         'app.kubernetes.io/component': 'monitoring',

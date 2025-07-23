@@ -12,7 +12,7 @@ export class FlagdPlatformAppChart extends ArgoCdApplicationChart {
     this.createApplication('flagd-platform', {
       resourcePath: 'flagd-service', // Core flagd service resources
       namespace: 'default',
-      project: 'platform',
+      project: 'default',
       syncWave: '20', // After platform foundation but before applications
       labels: {
         'app.kubernetes.io/component': 'feature-flags',

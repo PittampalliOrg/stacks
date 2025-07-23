@@ -1,4 +1,8 @@
 language: typescript
-app: node .build/main.js
+app: ts-node main.ts
 imports:
-  - k8s
+  - k8s@1.32.0
+# validations:
+#   - package: '@datreeio/datree-cdk8s'
+#     class: DatreeValidation
+#     version: 1.3.5

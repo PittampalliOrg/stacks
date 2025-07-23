@@ -15,7 +15,7 @@ export class PlatformConfigAppChart extends ArgoCdApplicationChart {
     this.createApplication('platform-config', {
       resourcePath: 'platform-core', // Contains all platform core resources
       namespace: 'default',
-      project: 'platform',
+      project: 'default',
       syncWave: '-80', // After RBAC but before other resources
       labels: {
         'app.kubernetes.io/component': 'configuration',
@@ -58,7 +58,7 @@ export class PlatformConfigAppChart extends ArgoCdApplicationChart {
     this.createApplication('openfeature-config', {
       resourcePath: 'openfeature-config', // OpenFeature ConfigMaps and FeatureFlags
       namespace: 'default',
-      project: 'platform',
+      project: 'default',
       syncWave: '-75', // After platform-config
       labels: {
         'app.kubernetes.io/component': 'feature-flags-config',
@@ -89,7 +89,7 @@ export class PlatformConfigAppChart extends ArgoCdApplicationChart {
     this.createApplication('flagd-ui-nextjs', {
       resourcePath: 'flagd-ui-nextjs', // Flagd UI deployment for NextJS
       namespace: 'nextjs',
-      project: 'platform',
+      project: 'default',
       syncWave: '-70', // After OpenFeature config
       labels: {
         'app.kubernetes.io/component': 'feature-flag-ui',

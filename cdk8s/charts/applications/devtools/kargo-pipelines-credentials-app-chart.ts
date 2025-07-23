@@ -25,7 +25,7 @@ export class KargoPipelinesCredentialsAppChart extends Chart {
         }
       },
       spec: {
-        project: 'platform',
+        project: 'default',
         source: {
           repoUrl: 'https://github.com/PittampalliOrg/cdk8s-project.git',
           targetRevision: process.env.ENVIRONMENT || 'dev',

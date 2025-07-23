@@ -29,7 +29,7 @@ export class K8sDependencyTrackerAppChart extends ArgoCdApplicationChart {
         finalizers: ['resources-finalizer.argocd.argoproj.io']
       },
       spec: {
-        project: 'platform',
+        project: 'default',
         source: {
           repoUrl: 'https://github.com/PittampalliOrg/cdk8s-project.git',
           targetRevision: 'HEAD',

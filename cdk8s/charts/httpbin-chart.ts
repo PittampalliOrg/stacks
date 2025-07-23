@@ -43,7 +43,7 @@ export class HttpbinChart extends Chart {
           spec: {
             containers: [{
               name: 'httpbin',
-              image: 'docker.io/kennethreitz/httpbin:latest',
+              image: 'docker.io/kennethreitz/httpbin:0.9.2',
               ports: [{
                 name: 'http',
                 containerPort: 80,

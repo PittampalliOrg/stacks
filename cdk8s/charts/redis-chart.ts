@@ -34,7 +34,7 @@ export class RedisChart extends Chart {
             containers: [
               {
                 name: 'redis',
-                image: 'redis/redis-stack:latest',
+                image: 'redis/redis-stack:7.4.1-v1',
                 ports: [{ containerPort: 6379 }],
                 livenessProbe: {
                   tcpSocket: {

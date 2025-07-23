@@ -19,7 +19,7 @@ export class ArgoRolloutsHelmAppChart extends ArgoCdApplicationChart {
     this.createHelmApplication('argo-rollouts', {
       resourcePath: 'argo-rollouts',
       namespace: 'argo-rollouts',
-      project: 'platform',
+      project: 'default',
       syncWave: '-45',
       helmRepoURL: 'https://argoproj.github.io/argo-helm',
       chart: 'argo-rollouts',

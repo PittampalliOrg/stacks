@@ -12,7 +12,7 @@ export class BootstrapSecretsAppChart extends ArgoCdApplicationChart {
     this.createApplication('bootstrap-secrets', {
       resourcePath: 'bootstrap-secrets',
       namespace: 'argocd', // GitHub creds go in argocd namespace
-      project: 'platform',
+      project: 'default',
       syncWave: '-92', // After ArgoCD config but before other secrets
       labels: {
         'app.kubernetes.io/component': 'bootstrap-secrets',

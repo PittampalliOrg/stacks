@@ -38,7 +38,7 @@ export class OpenFeatureOperatorAppChart extends Chart {
         finalizers: ['resources-finalizer.argocd.argoproj.io']
       },
       spec: {
-        project: 'platform',
+        project: 'default',
         source: {
           repoURL: 'https://open-feature.github.io/open-feature-operator',
           targetRevision: 'v0.8.0',

@@ -13,7 +13,7 @@ export class InfraSecretsAppChart extends ArgoCdApplicationChart {
     this.createApplication('infra-secrets', {
       resourcePath: 'infra-secrets', // ACR credentials for NextJS
       namespace: 'nextjs',
-      project: 'platform',
+      project: 'default',
       syncWave: '15', // After platform secrets but before most services
       labels: {
         'app.kubernetes.io/component': 'secrets',
@@ -88,7 +88,7 @@ export class InfraSecretsAppChart extends ArgoCdApplicationChart {
     this.createApplication('crossplane-secrets', {
       resourcePath: 'infra-secrets', // Crossplane provider configs
       namespace: 'crossplane-system',
-      project: 'platform',
+      project: 'default',
       syncWave: '18', // After infra-secrets
       labels: {
         'app.kubernetes.io/component': 'provider-secrets',

@@ -12,7 +12,7 @@ export class AppStackSecretsAppChart extends ArgoCdApplicationChart {
     this.createApplication('app-stack-secrets', {
       resourcePath: 'app-stack-secrets',
       namespace: 'nextjs', // Deploy secrets to the application namespace
-      project: 'platform', // Platform project allows ExternalSecret resources
+      project: 'default', // Platform project allows ExternalSecret resources
       syncWave: '-30', // Deploy early, before applications
       labels: {
         'app.kubernetes.io/component': 'secrets',

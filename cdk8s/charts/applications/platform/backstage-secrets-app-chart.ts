@@ -12,7 +12,7 @@ export class BackstageSecretsAppChart extends ArgoCdApplicationChart {
     this.createApplication('backstage-secrets', {
       resourcePath: 'backstage-secrets',
       namespace: 'backstage',
-      project: 'platform',
+      project: 'default',
       syncWave: '80', // Before Backstage deployment
       labels: {
         'app.kubernetes.io/component': 'secrets',

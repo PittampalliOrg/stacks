@@ -59,7 +59,7 @@ export class ArgoWorkflowsCrdsAppChart extends Chart {
         finalizers: ['resources-finalizer.argocd.argoproj.io']
       },
       spec: {
-        project: 'platform',
+        project: 'default',
         source: {
           repoURL: 'https://argoproj.github.io/argo-helm',
           targetRevision: '0.41.1',
