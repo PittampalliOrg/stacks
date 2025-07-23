@@ -1,0 +1,2539 @@
+{
+  "lastUpdated": "2025-07-23T00:42:03.918Z",
+  "charts": [
+    {
+      "name": "AllSecretsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/all-secrets-chart.ts",
+      "dependencies": [
+        "InfrastructureAppsChart"
+      ],
+      "dependents": [
+        "VClusterApplicationSetChart",
+        "KargoPipelinesCredentialsChart",
+        "KargoNextjsPipelineChart",
+        "KargoBackstagePipelineChart",
+        "KargoFlagdUiPipelineChart",
+        "KargoClaudeCodeUiPipelineChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "AlloyChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/alloy-chart.ts",
+      "dependencies": [
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [
+        "KGatewayAlloyObservabilityChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "AppStackSecretsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/app-stack-secrets-chart.ts",
+      "dependencies": [
+        "InfraSecretsChart"
+      ],
+      "dependents": [
+        "PostgresChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "ArgoWorkflowTemplatesChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/argo-workflow-templates-chart.ts",
+      "dependencies": [
+        "ArgoWorkflowsUiChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "ArgoWorkflowsIngressChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/argo-workflows-ingress-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart",
+        "InfrastructureAppsChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "ArgoWorkflowsUiChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/argo-workflows-ui-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart"
+      ],
+      "dependents": [
+        "ArgoWorkflowTemplatesChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "ArgoCDConfigChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/argocd-config-chart.ts",
+      "dependencies": [
+        "PlatformPrerequisitesChart"
+      ],
+      "dependents": [
+        "BootstrapSecretsChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "ArgoCDTokenGeneratorJob",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/argocd-token-generator-job.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "ArgoCDTokenRotationCronJob",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/argocd-token-rotation-cronjob.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "ArgoCDWebhookConfigChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/argocd-webhook-config.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "BackstageChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/backstage-chart.ts",
+      "dependencies": [
+        "PostgresChart",
+        "BootstrapSecretsChart",
+        "BackstageSecretsChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "BackstageSecretsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/backstage-secrets-chart.ts",
+      "dependencies": [
+        "InfraSecretsChart"
+      ],
+      "dependents": [
+        "BackstageChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "BaseChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/base-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "BootstrapSecretsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/bootstrap-secrets-chart.ts",
+      "dependencies": [
+        "ArgoCDConfigChart"
+      ],
+      "dependents": [
+        "PlatformCoreChart",
+        "BackstageChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "CertManagerIssuersChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/cert-manager-issuers-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "ClaudeCodeUIChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/claudecodeui-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "Context7MCPServerChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/context7-mcp-server-chart.ts",
+      "dependencies": [
+        "KGatewayMCPServersChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "CoreDNSConfigChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/coredns-config-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "CrdProvidersChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/crd-providers-chart.ts",
+      "dependencies": [],
+      "dependents": [
+        "PlatformPrerequisitesChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "CriticalInfraChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/critical-infra-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "DaggerInfraChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/dagger-infra-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "DNSHealthChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/dns-health-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "DnsValidationChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/dns-validation-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "FeatureFlagsDemoChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/feature-flags-demo-chart.ts",
+      "dependencies": [
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [
+        "FlagdServiceChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "FlagdServiceChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/flagd-service-chart.ts",
+      "dependencies": [
+        "OpenFeatureConfigChart",
+        "FeatureFlagsDemoChart",
+        "NextJsFeatureFlagsChart"
+      ],
+      "dependents": [
+        "FlagdUiChart",
+        "FlagdUiNextJsChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "FlagdUiChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/flagd-ui-chart.ts",
+      "dependencies": [
+        "FlagdServiceChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "FlagdUiNextJsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/flagd-ui-nextjs-chart.ts",
+      "dependencies": [
+        "FlagdServiceChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "GrafanaSetupChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/grafana-setup-chart.ts",
+      "dependencies": [
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "HeadlampSecretsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/headlamp-secrets-chart.ts",
+      "dependencies": [
+        "InfraSecretsChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "HttpbinChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/httpbin-chart.ts",
+      "dependencies": [
+        "KGatewayHTTPGatewayChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "HubbleUIChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/hubble-ui-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "InfraSecretsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/infra-secrets-chart.ts",
+      "dependencies": [
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [
+        "NextJsEnhancedChart",
+        "NextJsChart",
+        "HeadlampSecretsChart",
+        "AppStackSecretsChart",
+        "RedisChart",
+        "BackstageSecretsChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "InfrastructureAppsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/infrastructure-apps-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart"
+      ],
+      "dependents": [
+        "AllSecretsChart",
+        "ArgoWorkflowsIngressChart",
+        "K8sDependencyTrackerChart",
+        "K8sDependencyTrackerDeploymentChart"
+      ],
+      "imports": [
+        "Chart",
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "K8sDependencyTrackerChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/k8s-dependency-tracker-chart.ts",
+      "dependencies": [
+        "InfrastructureAppsChart",
+        "PlatformCoreChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "K8sDependencyTrackerDeploymentChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/k8s-dependency-tracker-deployment-chart.ts",
+      "dependencies": [
+        "InfrastructureAppsChart",
+        "PlatformCoreChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KagentAgentsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kagent-agents-chart.ts",
+      "dependencies": [
+        "KagentModelsChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KagentCoreChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kagent-core-chart.ts",
+      "dependencies": [
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [
+        "KagentModelsChart",
+        "KGatewayKagentToolServersChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KagentIngressChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kagent-ingress-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KagentModelsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kagent-models-chart.ts",
+      "dependencies": [
+        "KagentCoreChart"
+      ],
+      "dependents": [
+        "KagentAgentsChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoBackstagePipelineChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kargo-backstage-pipeline-chart.ts",
+      "dependencies": [
+        "KargoPipelinesCredentialsChart",
+        "AllSecretsChart"
+      ],
+      "dependents": [
+        "KargoWebhookConfigChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kargo-chart.ts",
+      "dependencies": [
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [
+        "KargoPipelinesProjectChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoClaudeCodeUiPipelineChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kargo-claudecodeui-pipeline-chart.ts",
+      "dependencies": [
+        "KargoPipelinesCredentialsChart",
+        "AllSecretsChart"
+      ],
+      "dependents": [
+        "KargoWebhookConfigChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoFlagdUiPipelineChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kargo-flagd-ui-pipeline-chart.ts",
+      "dependencies": [
+        "KargoPipelinesCredentialsChart",
+        "AllSecretsChart"
+      ],
+      "dependents": [
+        "KargoWebhookConfigChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoNextjsPipelineChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kargo-nextjs-pipeline-chart.ts",
+      "dependencies": [
+        "KargoPipelinesCredentialsChart",
+        "AllSecretsChart"
+      ],
+      "dependents": [
+        "KargoWebhookConfigChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoPipelineChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kargo-pipeline-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoPipelinesCredentialsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kargo-pipelines-credentials-chart.ts",
+      "dependencies": [
+        "KargoPipelinesProjectChart",
+        "AllSecretsChart"
+      ],
+      "dependents": [
+        "KargoNextjsPipelineChart",
+        "KargoBackstagePipelineChart",
+        "KargoFlagdUiPipelineChart",
+        "KargoClaudeCodeUiPipelineChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoPipelinesProjectChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kargo-pipelines-project-chart.ts",
+      "dependencies": [
+        "KargoChart"
+      ],
+      "dependents": [
+        "KargoPipelinesCredentialsChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoWebhookConfigChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kargo-webhook-config.ts",
+      "dependencies": [
+        "KargoNextjsPipelineChart",
+        "KargoBackstagePipelineChart",
+        "KargoFlagdUiPipelineChart",
+        "KargoClaudeCodeUiPipelineChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KGatewayAlloyObservabilityChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kgateway-alloy-observability-chart.ts",
+      "dependencies": [
+        "AlloyChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KGatewayGrafanaDashboardsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kgateway-grafana-dashboards-chart.ts",
+      "dependencies": [
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KGatewayHTTPGatewayChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kgateway-http-gateway-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart"
+      ],
+      "dependents": [
+        "HttpbinChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KGatewayKagentToolServersChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kgateway-kagent-toolservers-chart.ts",
+      "dependencies": [
+        "KagentCoreChart",
+        "KGatewayMCPServersChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KGatewayMCPGatewayChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kgateway-mcp-gateway-chart.ts",
+      "dependencies": [
+        "KGatewayMCPServersChart"
+      ],
+      "dependents": [
+        "KGatewayMCPRoutesChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KGatewayMCPRoutesChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kgateway-mcp-routes-chart.ts",
+      "dependencies": [
+        "KGatewayMCPGatewayChart",
+        "KGatewayMCPServersChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KGatewayMCPServersChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kgateway-mcp-servers-chart.ts",
+      "dependencies": [
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [
+        "KGatewayMCPGatewayChart",
+        "KGatewayMCPRoutesChart",
+        "KGatewayKagentToolServersChart",
+        "MCPTestServersChart",
+        "MCPEchoServerChart",
+        "MCPTextToolsChart",
+        "Context7MCPServerChart",
+        "McpInspectorDockerChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KGatewayObservabilityChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/kgateway-observability-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "MCPEchoServerChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/mcp-echo-server-chart.ts",
+      "dependencies": [
+        "KGatewayMCPServersChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "McpInspectorChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/mcp-inspector-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "McpInspectorDockerChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/mcp-inspector-docker-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart",
+        "KGatewayMCPServersChart"
+      ],
+      "dependents": [
+        "McpInspectorUiChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "McpInspectorUiChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/mcp-inspector-ui-chart.ts",
+      "dependencies": [
+        "McpInspectorDockerChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "MCPTestServersChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/mcp-test-servers-chart.ts",
+      "dependencies": [
+        "KGatewayMCPServersChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "MCPTextToolsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/mcp-text-tools-chart.ts",
+      "dependencies": [
+        "KGatewayMCPServersChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "NextJsEnhancedChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/nextjs-chart-enhanced.ts",
+      "dependencies": [
+        "InfraSecretsChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart",
+        "InfraSecretsChart"
+      ]
+    },
+    {
+      "name": "NextJsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/nextjs-chart.ts",
+      "dependencies": [
+        "InfraSecretsChart",
+        "PostgresChart",
+        "RedisChart"
+      ],
+      "dependents": [
+        "NextJsFeatureFlagsChart"
+      ],
+      "imports": [
+        "Chart",
+        "InfraSecretsChart"
+      ]
+    },
+    {
+      "name": "NextJsFeatureFlagsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/nextjs-feature-flags-chart.ts",
+      "dependencies": [
+        "NextJsChart",
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [
+        "FlagdServiceChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "OpenFeatureConfigChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/openfeature-config-chart.ts",
+      "dependencies": [
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [
+        "FlagdServiceChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "PlatformCoreChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/platform-core-chart.ts",
+      "dependencies": [
+        "BootstrapSecretsChart"
+      ],
+      "dependents": [
+        "InfrastructureAppsChart",
+        "CertManagerIssuersChart",
+        "VClusterApplicationSetChart",
+        "ArgoWorkflowsUiChart",
+        "ArgoWorkflowsIngressChart",
+        "DaggerInfraChart",
+        "KGatewayObservabilityChart",
+        "HubbleUIChart",
+        "KagentIngressChart",
+        "KGatewayHTTPGatewayChart",
+        "McpInspectorDockerChart",
+        "K8sDependencyTrackerChart",
+        "K8sDependencyTrackerDeploymentChart",
+        "ClaudeCodeUIChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "PlatformPrerequisitesChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/platform-prerequisites-chart.ts",
+      "dependencies": [
+        "CrdProvidersChart"
+      ],
+      "dependents": [
+        "ArgoCDConfigChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "PostgresChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/postgres-chart.ts",
+      "dependencies": [
+        "AppStackSecretsChart"
+      ],
+      "dependents": [
+        "BackstageChart",
+        "NextJsChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "PrometheusChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/prometheus-chart.ts",
+      "dependencies": [
+        "MonitoringHelmAppChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "RedisChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/redis-chart.ts",
+      "dependencies": [
+        "InfraSecretsChart"
+      ],
+      "dependents": [
+        "NextJsChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "VClusterApplicationSetChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/vcluster-applicationset-chart.ts",
+      "dependencies": [
+        "PlatformCoreChart",
+        "AllSecretsChart"
+      ],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "VClusterAppsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/vcluster-apps-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "VClusterArgocdRegistrationChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/vcluster-argocd-registration-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "VClusterManagementChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/vcluster-management-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "AppProjectsChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/app-projects-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "Context7MCPServerAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/context7-mcp-server-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KagentAgentsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/kagent-agents-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KagentConfigAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/kagent-config-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KagentCoreAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/kagent-core-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KagentHelmAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/kagent-helm-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KagentToolServersAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/kagent-toolservers-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "MCPEchoServerAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-echo-server-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "McpGatewayAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-gateway-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "McpInspectorAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-inspector-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "MCPRoutesAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-routes-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "MCPServersAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-servers-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "MCPTestServersAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-test-servers-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "MCPTextToolsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-text-tools-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "ClaudeCodeUIAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/apps/claudecodeui-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "FeatureFlagsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/apps/feature-flags-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "NextJsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/apps/nextjs-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "PostgresAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/apps/postgres-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "RedisAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/apps/redis-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "ArgoRolloutsHelmAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/argo-rollouts-helm-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "ArgoWorkflowsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/argo-workflows-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "HeadlampAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/headlamp-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KargoAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KargoBackstagePipelineAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-backstage-pipeline-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoClaudeCodeUiPipelineAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-claudecodeui-pipeline-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KargoFlagdUiPipelineAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-flagd-ui-pipeline-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoHelmAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-helm-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KargoIngressAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-ingress-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KargoNextjsPipelineAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-nextjs-pipeline-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoPipelineAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-pipeline-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KargoPipelinesCredentialsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-pipelines-credentials-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoPipelinesProjectAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-pipelines-project-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoWebhookConfigAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-webhook-config-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "VClusterAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/devtools/vcluster-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "AlloyAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/observability/alloy-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "GrafanaAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/observability/grafana-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "HeadlampSecretsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/observability/headlamp-secrets-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KGatewayObservabilityAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/observability/kgateway-observability-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "MonitoringHelmAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/observability/monitoring-helm-app-chart.ts",
+      "dependencies": [],
+      "dependents": [
+        "OpenFeatureConfigChart",
+        "FeatureFlagsDemoChart",
+        "InfraSecretsChart",
+        "AlloyChart",
+        "PrometheusChart",
+        "KGatewayGrafanaDashboardsChart",
+        "GrafanaSetupChart",
+        "KargoChart",
+        "KagentCoreChart",
+        "KGatewayMCPServersChart",
+        "NextJsFeatureFlagsChart"
+      ],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "MonitoringInfraAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/observability/monitoring-infra-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "PrometheusAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/observability/prometheus-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "AppStackSecretsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/app-stack-secrets-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "ArgoWorkflowsCrdsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/argo-workflows-crds-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "ArgoCDConfigAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/argocd-config-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "ArgoCDWebhookConfigAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/argocd-webhook-config-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "BackstageAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/backstage-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "BackstageSecretsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/backstage-secrets-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "BootstrapSecretsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/bootstrap-secrets-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "CertManagerAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/cert-manager-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "CertManagerIssuersAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/cert-manager-issuers-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart",
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "FlagdPlatformAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/flagd-platform-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "GatewayApiAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/gateway-api-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "HttpbinAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/httpbin-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "InfraSecretsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/infra-secrets-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "InfrastructureAppsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/infrastructure-apps-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "K8sDependencyTrackerAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/k8s-dependency-tracker-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "KGatewayHTTPGatewayAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/kgateway-http-gateway-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "OpenFeatureOperatorAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/openfeature-operator-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "PlatformConfigAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/platform-config-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "PlatformRbacAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/platform-rbac-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    },
+    {
+      "name": "PlatformSecretsAppChart",
+      "filePath": "/home/vscode/stacks/cdk8s/charts/applications/platform/platform-secrets-app-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "ArgoCdApplicationChart"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "source": "NextJsEnhancedChart",
+      "target": "InfraSecretsChart",
+      "type": "import-dependency",
+      "isOptional": true
+    },
+    {
+      "source": "NextJsChart",
+      "target": "InfraSecretsChart",
+      "type": "import-dependency",
+      "isOptional": true
+    },
+    {
+      "source": "PlatformPrerequisitesChart",
+      "target": "CrdProvidersChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "ArgoCDConfigChart",
+      "target": "PlatformPrerequisitesChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "BootstrapSecretsChart",
+      "target": "ArgoCDConfigChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "PlatformCoreChart",
+      "target": "BootstrapSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "InfrastructureAppsChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "CertManagerIssuersChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "AllSecretsChart",
+      "target": "InfrastructureAppsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "OpenFeatureConfigChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "FlagdUiChart",
+      "target": "FlagdServiceChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "FlagdUiNextJsChart",
+      "target": "FlagdServiceChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "FeatureFlagsDemoChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "InfraSecretsChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "VClusterApplicationSetChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "VClusterApplicationSetChart",
+      "target": "AllSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "ArgoWorkflowsUiChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "ArgoWorkflowsIngressChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "ArgoWorkflowsIngressChart",
+      "target": "InfrastructureAppsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "DaggerInfraChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "ArgoWorkflowTemplatesChart",
+      "target": "ArgoWorkflowsUiChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "AlloyChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "PrometheusChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KGatewayObservabilityChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KGatewayAlloyObservabilityChart",
+      "target": "AlloyChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KGatewayGrafanaDashboardsChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "GrafanaSetupChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "HubbleUIChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "HeadlampSecretsChart",
+      "target": "InfraSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KagentCoreChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KagentIngressChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KagentModelsChart",
+      "target": "KagentCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KagentAgentsChart",
+      "target": "KagentModelsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KGatewayMCPServersChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KGatewayMCPGatewayChart",
+      "target": "KGatewayMCPServersChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KGatewayMCPRoutesChart",
+      "target": "KGatewayMCPGatewayChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KGatewayMCPRoutesChart",
+      "target": "KGatewayMCPServersChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KGatewayKagentToolServersChart",
+      "target": "KagentCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KGatewayKagentToolServersChart",
+      "target": "KGatewayMCPServersChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "MCPTestServersChart",
+      "target": "KGatewayMCPServersChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "MCPEchoServerChart",
+      "target": "KGatewayMCPServersChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "MCPTextToolsChart",
+      "target": "KGatewayMCPServersChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "Context7MCPServerChart",
+      "target": "KGatewayMCPServersChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KGatewayHTTPGatewayChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "HttpbinChart",
+      "target": "KGatewayHTTPGatewayChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "McpInspectorDockerChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "McpInspectorDockerChart",
+      "target": "KGatewayMCPServersChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "McpInspectorUiChart",
+      "target": "McpInspectorDockerChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "AppStackSecretsChart",
+      "target": "InfraSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "PostgresChart",
+      "target": "AppStackSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "RedisChart",
+      "target": "InfraSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "BackstageSecretsChart",
+      "target": "InfraSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "BackstageChart",
+      "target": "PostgresChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "BackstageChart",
+      "target": "BootstrapSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "BackstageChart",
+      "target": "BackstageSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "K8sDependencyTrackerChart",
+      "target": "InfrastructureAppsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "K8sDependencyTrackerChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "K8sDependencyTrackerDeploymentChart",
+      "target": "InfrastructureAppsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "K8sDependencyTrackerDeploymentChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "NextJsChart",
+      "target": "PostgresChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "NextJsChart",
+      "target": "RedisChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "NextJsFeatureFlagsChart",
+      "target": "NextJsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "NextJsFeatureFlagsChart",
+      "target": "MonitoringHelmAppChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "ClaudeCodeUIChart",
+      "target": "PlatformCoreChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoPipelinesProjectChart",
+      "target": "KargoChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoPipelinesCredentialsChart",
+      "target": "KargoPipelinesProjectChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoPipelinesCredentialsChart",
+      "target": "AllSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoNextjsPipelineChart",
+      "target": "KargoPipelinesCredentialsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoNextjsPipelineChart",
+      "target": "AllSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoBackstagePipelineChart",
+      "target": "KargoPipelinesCredentialsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoBackstagePipelineChart",
+      "target": "AllSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoFlagdUiPipelineChart",
+      "target": "KargoPipelinesCredentialsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoFlagdUiPipelineChart",
+      "target": "AllSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoClaudeCodeUiPipelineChart",
+      "target": "KargoPipelinesCredentialsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoClaudeCodeUiPipelineChart",
+      "target": "AllSecretsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoWebhookConfigChart",
+      "target": "KargoNextjsPipelineChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoWebhookConfigChart",
+      "target": "KargoBackstagePipelineChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoWebhookConfigChart",
+      "target": "KargoFlagdUiPipelineChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "KargoWebhookConfigChart",
+      "target": "KargoClaudeCodeUiPipelineChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "FlagdServiceChart",
+      "target": "OpenFeatureConfigChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "FlagdServiceChart",
+      "target": "FeatureFlagsDemoChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    },
+    {
+      "source": "FlagdServiceChart",
+      "target": "NextJsFeatureFlagsChart",
+      "type": "explicit-dependency",
+      "isOptional": false
+    }
+  ],
+  "fileHashes": [
+    [
+      "/home/vscode/stacks/cdk8s/charts/vcluster-management-chart.ts",
+      "f76fa4b727eb2f55d21dec58e7597c747440597471a532ed1118e3618dfe389e"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/vcluster-argocd-registration-chart.ts",
+      "5d6f431e2e23ac810db60ca87f806024f1a32876346d5529b94e44a0da950863"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/vcluster-apps-chart.ts",
+      "c1abc7e43148bea7e4f50f959af4b04ded9b35a403e8dda8e351253f758ffd5f"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/vcluster-applicationset-chart.ts",
+      "f3ecf49a8ac065dbdf35de9fbc8f43596877da4e21f7395f931b2cb2578a0f51"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/redis-chart.ts",
+      "546725fa8bbc72a4c055e89ccb40cd161ee9ebb7199abb9c7f0b94d9220e5ea2"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/prometheus-chart.ts",
+      "90476d0a3f67825a8acaf956095ed4bc06ffc52d5e4bd4dd6dd5d2cf86f9b9c9"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/postgres-chart.ts",
+      "29c4c312970fabd3c08107b9ac52094bf91d0ddf64460cd3215e7fb8755fe8f3"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/platform-prerequisites-chart.ts",
+      "a5f4cbbed8501e2df10a0a0b320fe0fd854c9777861d243af566a339524a226f"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/platform-core-chart.ts",
+      "14ecea069e5af20b87a082eaf188e4b9a6191b19984542737b2a3af7eb272d30"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/openfeature-config-chart.ts",
+      "cc343467d684b8b2ac3a44516ced04491571055729e9de5f143c7857f969e939"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/nextjs-feature-flags-chart.ts",
+      "ca5d34008c081723e9c982f65b28346ff845bff8fdccb78e52da13025c5fa732"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/nextjs-chart.ts",
+      "bba48b27c4fad9fbb0597f72a9cd22f6a3bf0f6de2ccab9dd7ddac9b777bdde6"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/nextjs-chart-enhanced.ts",
+      "f3eba7fb44d5e719da1a97b73b0521188f24462180ed3fc5f01f858160b5348b"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/mcp-text-tools-chart.ts",
+      "2d7a4f2b40b18b371d4ab2a31d695cbff291a0faa5920262facd2249e27cf673"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/mcp-test-servers-chart.ts",
+      "4017dc1c539314794a33e16e131c0e08c985dce7b6a42a0dc30655bac77ef0f8"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/mcp-inspector-ui-chart.ts",
+      "878329c6423e5c0b7d7765178704633cbd2fe7eb88f6aee62c42a06cab920dae"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/mcp-inspector-docker-chart.ts",
+      "765e37485e5e35dfb07869d11c1a2fb09981f71d9b942121cf430e4a32a28967"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/mcp-inspector-chart.ts",
+      "45004f2ec66d887d9449a87568ef60922f5dbb387a0a08a3621ce2622da8d653"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/mcp-echo-server-chart.ts",
+      "e92ba9d5d5b85e81d27d4693bae37496e0e19a5b8d51943da95aa7b51bc19367"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kgateway-observability-chart.ts",
+      "7d28843b4c3aae0dcf3499e003703f23d7e969c265cb4dfab2b53cdc1fa70f62"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kgateway-mcp-servers-chart.ts",
+      "05e51fbe46039bc431cfe65113d3d1092f10085b77af4c5787c334a3c3f82613"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kgateway-mcp-routes-chart.ts",
+      "cb5e8e69d061b6851a9a95e6c2be1ce4c5f0fd95d489bd93ddad3e1b98a9c47e"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kgateway-mcp-gateway-chart.ts",
+      "337cb39e5ea66125d87caf19d3e2801c1015e31201ecd717a05c2a1e8011b9f4"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kgateway-kagent-toolservers-chart.ts",
+      "2e0ab6d925ed6dd9445bb8b8f7183aa7558a6929168a02cf5051aff81b090442"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kgateway-http-gateway-chart.ts",
+      "c5cb70d8a1887db293331c3aa307cc142fc69607c3556ba107c0552ecc657400"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kgateway-grafana-dashboards-chart.ts",
+      "823534a3a43ab3b4151ccc407b05eecf8339c6c3abcdb0a1508ff41d2aea0531"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kgateway-alloy-observability-chart.ts",
+      "0f84f6deafeb056b80f88ff515c22bf1165c61ee92e64a6a05c83f0e0e26ab28"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kargo-webhook-config.ts",
+      "7e96676cb50f5202fd1d3983c9dff13d84f9ca7785e017654c83bb99c40c6b8d"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kargo-pipelines-project-chart.ts",
+      "2aa9163db07aa8e2db7e29655e8c741439b8b1272cddc1794ddfb78669575304"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kargo-pipelines-credentials-chart.ts",
+      "df6307f6b5395997be8a472fe2cdc982ed5a01c146ac87ef0dc114832e85d09a"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kargo-pipeline-chart.ts",
+      "5135f233d41116178eb286f4e645c34aac0bb688bd718ddc634a2718ab16a8f9"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kargo-nextjs-pipeline-chart.ts",
+      "29dd90d95c755779f2dc3a14a6cee842addc1dd295626aa828cae0842e802d6f"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kargo-flagd-ui-pipeline-chart.ts",
+      "f9e477204bef9729e5c06fe90c00ad71a1c1caeb3c4205a572cb4c9385f048a6"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kargo-claudecodeui-pipeline-chart.ts",
+      "db1f27bf1e90c402c7793f3dd6bb41e0e4bc9e7f0de6d152a61dcaff333e8b43"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kargo-chart.ts",
+      "d27aa8cff84966554cd045f8ff2dcd1f51803157180be0b5ebcaf4c86052f697"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kargo-backstage-pipeline-chart.ts",
+      "67b2ade8f57884a5320ed1d039abad66b4ffc231ff3ae961915c0a1d44844bff"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kagent-models-chart.ts",
+      "b1b2f6d90afbbe34050ec84670f33e22e52e88a8a560fbaded957ff77a08c29a"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kagent-ingress-chart.ts",
+      "ff74c3717f718bd44621a5a5641501a0b755f4cb6272ce6c36d27ad905a34829"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kagent-core-chart.ts",
+      "7b26a3cadbe4cbee173ba39196666f8b43cdbebc8dd1558f45ce0e12ea9649b8"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/kagent-agents-chart.ts",
+      "7853c5410e9674735b5ec89b697d5f0317cc4d7fbab3fec2bd91fee4cf425a79"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/k8s-dependency-tracker-deployment-chart.ts",
+      "da1872359de7a3fbbb4259de3871f3df25842510e68943fdba111e90efd06033"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/k8s-dependency-tracker-chart.ts",
+      "7603f916594fa7e83c8671d5d3f11c0d236acff5c9b2770210a461ce3a9bd24f"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/infrastructure-apps-chart.ts",
+      "25483df030ea2128484827d563aba0ce4612229d656ab7309cdf985e8a9e2a10"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/infra-secrets-chart.ts",
+      "5dfac0fdbc91a279b6e4601cbd6de7677e66ba6752d9719c5fd3758cb78b709b"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/hubble-ui-chart.ts",
+      "bcaac9a21c4c91e1a1cd7b80f3282d388fccda303500a67e514d70de7d13ed67"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/httpbin-chart.ts",
+      "6e31ee73e80e30d48ad35604f0265f365bfba266f340f0e47ba4b06428b83ef4"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/headlamp-secrets-chart.ts",
+      "c675264302efd7d0023fb15f8b86dd88afb14c1932d253eb915286405a49304e"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/grafana-setup-chart.ts",
+      "a2f8b1564431301dc703b8824663e4778a206aa518df7f397f5003f0f776a1db"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/flagd-ui-nextjs-chart.ts",
+      "4ebaf9792d63bf92a068d4e6d756d2479f231a7f8e1fe0256a0bcd880ec65b55"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/flagd-ui-chart.ts",
+      "ef5cbfb2b33a2f1a42bd91477d84ac014e8e32c092223118fc0e7e225dd77f96"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/flagd-service-chart.ts",
+      "76023d706a221cea7b41bb7f4fc4c6b087208c4195f623ce75932a77d7f6a2d3"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/feature-flags-demo-chart.ts",
+      "4539c397ed6141844a1fa2091dd223493e7bab54549548bb7ea76b7ca782d76d"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/dns-validation-chart.ts",
+      "ea5fe837feb9918943c2d536460a230ed471467e07ede618b95b0299020110fd"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/dns-health-chart.ts",
+      "ddf95168e7a817d41b0fffddc450aed5409e424c703f198d0061bd11c9557922"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/dagger-infra-chart.ts",
+      "46981375884b44a794a6991116a56da548c6bdae8ec208fc4b07e8bb200c82b1"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/critical-infra-chart.ts",
+      "068126a4c1adb9057926c15c5c4e0df12437f03482093197ffe94c4cc46d27bb"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/crd-providers-chart.ts",
+      "68e5c2a15ac61c4c970b246924aa2ea37ac7924617bacf67a3b2f611271b2d5e"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/coredns-config-chart.ts",
+      "9d84aea92514f623e6a3548fbbf31337b9f05f5298e123c97f62332149664110"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/context7-mcp-server-chart.ts",
+      "f70a146a5b1495bcd20561975ea64f5999e6a236090a5114c7f259c788153ec3"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/claudecodeui-chart.ts",
+      "c49a9d894575f492d0b0840610feb49317937389e15f8b912e8059494846c442"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/cert-manager-issuers-chart.ts",
+      "a3675b01868952ae5b7cb4e934c0d293d2e03c7aea0d7125058b229a7ee6d0e1"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/bootstrap-secrets-chart.ts",
+      "36503b60aa220e622f7ef3c0c513c2dfe750c6902eeaea6584d3f0241e3ce3e3"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/base-chart.ts",
+      "6a9729416101247c547a833b7ef9a7f3052c7cf0cff9ca78b01c95337b76c75f"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/backstage-secrets-chart.ts",
+      "2bbbb60c2fdc99df895dd27a2abbcc1229ca461adf5f9639ababee849a6452ec"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/backstage-chart.ts",
+      "3337f09e2e37467d26a45ede1b88b818948b193877b063743fdd757404212591"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/argocd-webhook-config.ts",
+      "a62e1cdb791c4d97905a0c20c8caf3d013641e71f56304211b6b1f28250ef0b6"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/argocd-token-rotation-cronjob.ts",
+      "ca26df0a9e17566adf631906a4aa000b43c9c149b9b4976f1f21bc71b6d709f9"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/argocd-token-generator-job.ts",
+      "40b3ca9d89c63671d9ebfdfacf36b10ddfe04ddc532768d1a7189a7cb86cf1ee"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/argocd-config-chart.ts",
+      "b101539aa7bcacf96ce089c5252189731220cbd5f1780a23742343d76b1212ce"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/argo-workflows-ui-chart.ts",
+      "2a85e9e9b0c59307abe33aa49677621d80eb1cf9f331976a2e848f92e65b625b"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/argo-workflows-ingress-chart.ts",
+      "6313460be2e301dd49ce9284fd826da4ea21960c7012d9ab2e0c30ebee242e16"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/argo-workflow-templates-chart.ts",
+      "610bf535b3f85a7309e95f69fd375501b321bc065bb5c42b25b9b178c746ff0b"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/app-stack-secrets-chart.ts",
+      "a34b0d3a586e0ccae72293cf8b6b4267218a031cc201c69f68ddb6cee07ffad3"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/alloy-chart.ts",
+      "3237b3ca0fa1d7f1f0209189eec60e8601269d5088a5024ba14866a620185d0c"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/all-secrets-chart.ts",
+      "f87e7644e70cde78b67429666b873eba1417e8ed1a477ec31a0dbf6a9bf4d6e8"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/app-projects-chart.ts",
+      "1f1e594accb49a53880dd8839aab32185bf7a7b6440a936be23dfa0f27d1a2bf"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/platform-secrets-app-chart.ts",
+      "c0a0c864215cd846f8b1bc24e80f8e7436607b0a2b2385d0301316165a1c090d"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/platform-rbac-app-chart.ts",
+      "3d7c4ade83ce79a9c2ac43a83762e9e79e00aa8a06800cf02b2f266f062083ed"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/platform-config-app-chart.ts",
+      "30e3b44fb011e5a82850d4ef85b72480ac61dd4fbbe7cdc291a377fd1de7aafb"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/openfeature-operator-app-chart.ts",
+      "1dd9d169b1712018f7d209efcf237bfee6fdcf157a5356e7e3482b660eb270d9"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/kgateway-http-gateway-app-chart.ts",
+      "1b922cb7c0c8f27a985923050e703526eb7c7a7b17034a208f542898e6880149"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/k8s-dependency-tracker-app-chart.ts",
+      "1139510ce67b82fc9f0f914d221dacea71c28290fa10f3dafd9c82261fef3796"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/infrastructure-apps-app-chart.ts",
+      "53d435264ececdcbc6c14a95b8c7274a5f5263d081ad9c30fca5eeb34fb3fd4a"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/infra-secrets-app-chart.ts",
+      "d3da7d45efd9ce15bca6db03e064af17c709ad461425b498796d8fa36265d48c"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/httpbin-app-chart.ts",
+      "56b64bd7efd7255c02be3f3578d9f16653cd6941a2235833c705850e8f50d0a6"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/gateway-api-app-chart.ts",
+      "e70581b91535227919231d139da622ea689fe2cb00ca81f2cc3a23d502be405c"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/flagd-platform-app-chart.ts",
+      "0c85b1bce18f3f2c3c7eba1c36c21e20f7acd43488efeae9aef0c461b427ad2e"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/cert-manager-issuers-app-chart.ts",
+      "064dfcbde6559ad3550b4758ceb4a0cb89afebd9798295f8234c327614ec865d"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/cert-manager-app-chart.ts",
+      "7a4a0e1589d36cf98145fbaa4ce0dfedc24058fed68e1b6f599383ddfe8663c7"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/bootstrap-secrets-app-chart.ts",
+      "6347982eaa4e5e4d28878d7d98ebb1321b6b256d2f57fdc10175277042b06f90"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/backstage-secrets-app-chart.ts",
+      "b461b933926d434d695f6f923163447a1bbbe86952094dca88531a5c087a556c"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/backstage-app-chart.ts",
+      "2a176f815769b6c7e375e3888d96424163cbc10eda199c258ca65903bae34167"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/argocd-webhook-config-app-chart.ts",
+      "04d29e5f56bb2c4d4e98024c8662fa35cc87a54503c397e593aa7de2e6a091fd"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/argocd-config-app-chart.ts",
+      "6725f9879ecdaa4ee4c26b9faa7417922739a921f4759478e1362adb72b37e93"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/argo-workflows-crds-app-chart.ts",
+      "c86f5d486e6a1bf86712c3762c594d175707495b77dded28665a6cb35d2868e2"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/platform/app-stack-secrets-app-chart.ts",
+      "b1d562e5a09a61920572e4a21ff9e2c83f79e4b8782a32bdae1ca174bb15ce4d"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/observability/prometheus-app-chart.ts",
+      "09c58cf88a77209ac69995fadc7ed68cedf45a2013a337ee4d96beacdbfe8b1c"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/observability/monitoring-infra-app-chart.ts",
+      "c035b160dc2367f85a1e529661193afcfc52ca0c516f6e17b08d59f904c2efa9"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/observability/monitoring-helm-app-chart.ts",
+      "811b3820b329ebd3a562a958d9698d7afe8d5a0e8cc57bc12366aee99643bd16"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/observability/kgateway-observability-app-chart.ts",
+      "54bae0d7b1fa98624d756d79716ffb67e514b34eb56608bdf8335fb875cb632d"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/observability/headlamp-secrets-app-chart.ts",
+      "e865e67dc891f0ce4ad2c6ca74f7033b3b29014c1d78a4e564337f269daf152c"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/observability/grafana-app-chart.ts",
+      "f36bdc1acf31eb9dfb8cf259389f65236363b97332f00cc4486113f2cae260f9"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/observability/alloy-app-chart.ts",
+      "d192405c1f591fa20ace3ef137e36d62a5d62d7f44f6a7bf9e58909a2f9e147a"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/vcluster-app-chart.ts",
+      "ec464b2d316ed86aba595f8948b8edf81fdd6c890a7a331a38e28a9e7ad4b03e"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-webhook-config-app-chart.ts",
+      "3d3975a7b3c0a0acbd54462e81f946b039e2355e931951e9e118f82139762255"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-pipelines-project-app-chart.ts",
+      "b20e365575c690860b8b18b2b02d00e25c629392be0bd6cae1c0c082b0fc25a5"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-pipelines-credentials-app-chart.ts",
+      "d9c96bb2d16e0cef2768cdf91c562f7dd1f64ed8f6c382f54ea09a03bdbc07e4"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-pipeline-app-chart.ts",
+      "7739b8b593f44c616f5680558e2f0eae963c1b06a24315bfff740684333a6056"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-nextjs-pipeline-app-chart.ts",
+      "21306aa66392a267876a16e233fad51882659b3e030570844a7e5aa36be30476"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-ingress-app-chart.ts",
+      "1064612cf93f4cc2d00c2dd07da02c947606e356413f03a69584e382157fa302"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-helm-app-chart.ts",
+      "d89f2814b4ead907159a2c6633ac54feab797ca7bfec0f2f35f04ea709cab91b"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-flagd-ui-pipeline-app-chart.ts",
+      "0eef45c1da11b14d91e88d1a04b03f3f9e84bc245ad3ebd944bd984efc55bf6a"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-claudecodeui-pipeline-app-chart.ts",
+      "453b841a71c994ee567580c26112967a746e71c37233d09061e57dca3a94a98c"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-backstage-pipeline-app-chart.ts",
+      "15db388b91ac15b41fc56177ee0f58fed15373b18d01e51a2f30e30c1024d6f9"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/kargo-app-chart.ts",
+      "b96b7c510a2ac8095da9db2dd74aead9cf6584ee387f53f2dbcc09a6974074f7"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/headlamp-app-chart.ts",
+      "abaa5dcc0c4f6299e7d3d978f95094ef91a86b8172955a3481a1e6d8e60d5505"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/argo-workflows-app-chart.ts",
+      "76463c8c9953598e56069ee62391bce8b9a957ae3725c4ea955c8ab0a0b35448"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/devtools/argo-rollouts-helm-app-chart.ts",
+      "68944d522c5e9b68184a9361a19fe890a33cb40e867013f8989d6949103b2ce1"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/apps/redis-app-chart.ts",
+      "2908d3a94d0a957be28a3cdf265b0ef0b57652459fe7d81989451dd849f91a44"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/apps/postgres-app-chart.ts",
+      "58d28481dba0e848969e547ef58d7638ea550a3b88129b70155ac067b7ee6b7f"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/apps/nextjs-app-chart.ts",
+      "d3ab0e2f14328e881e1c2c3b1f9e76b12885c788ed584ad57f9e69bd81455e57"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/apps/feature-flags-app-chart.ts",
+      "c7be6406c0772a542659efdf1f2f560813f42a41428ca3ca97b0f914f8b25bd6"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/apps/claudecodeui-app-chart.ts",
+      "ad5b36af23c2c5441d1b637c984fdc158e7e75b1f3a1dd9dbc06c7467ddcad37"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-text-tools-app-chart.ts",
+      "e509b4d8f60a55f165be601028021b52606f6a475169d4045f51225a2a056cc6"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-test-servers-app-chart.ts",
+      "057cee631ba400e7d47d6043881f9e66cfbc9a628153ba6f07c8930ee4303c86"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-servers-app-chart.ts",
+      "30a7613d5314f05769ba4d76b2dab2f2a1862a5c3011cde1a5338ce89c5d1f7b"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-routes-app-chart.ts",
+      "085d88b7627cb0e1597308aaabd653ffc4ce42af3d3f7160ac96edec8240b220"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-inspector-app-chart.ts",
+      "bd7c8b386f9f8c3e7b3cc280b71b82a09f865ff3bf3cba3ef2c66e3d2b07bfa0"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-gateway-app-chart.ts",
+      "9c653510bb3cb387dc8454c0de55af0eae1a45406178cc85900e2cf3eb8b9bdc"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/mcp-echo-server-app-chart.ts",
+      "c35acd8610ce95bd7f42f08104a74dc4848a06ec0a5b865bf30975b820d6150c"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/kagent-toolservers-app-chart.ts",
+      "a6c1e63a2fcf2da54d271753a896712bf5331df7cb16e58aef05e7b8848f84d1"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/kagent-helm-app-chart.ts",
+      "44e222526d7155b4d903cef796b506887baad80c8f0107387408e25e1e80bdb4"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/kagent-core-app-chart.ts",
+      "46dcacb5cc098e2f79ac88f525f2d9dd0dfb6a169a3e89103e8e44042eb3af66"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/kagent-config-app-chart.ts",
+      "446bae92cedb263dd1266e3948aa23a3a1f7cd8f8ba613534fcaa9567d8672b4"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/kagent-agents-app-chart.ts",
+      "6673600255dfe950d4595688b779d18a2a7ccd30ed9fa196b92fd6b0adc6bd59"
+    ],
+    [
+      "/home/vscode/stacks/cdk8s/charts/applications/ai/context7-mcp-server-app-chart.ts",
+      "5aa2ac61957665cb8360b69bac74350dc4cda4679f5cc8a898ad76f37f459516"
+    ]
+  ]
+}

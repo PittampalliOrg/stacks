@@ -4,7 +4,9 @@
 	"name": "Docker in Docker",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
-
+    "runArgs": [
+        "--env-file", "${localWorkspaceFolder}/.env-files/wi.env"
+    ], 
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
 		"ghcr.io/devcontainers/features/github-cli:1": {},
@@ -45,10 +47,24 @@
 		"PATH": "${containerEnv:PATH}:/home/vscode/stacks",
 		"GIT_COMMITER_NAME": "${localEnv:GIT_COMMITER_NAME}",
 		"GIT_COMMITER_EMAIL": "${localEnv:GIT_COMMITER_EMAIL}"
+	},
+	"containerEnv": {
 	}
 	// Configure tool-specific properties.
 	// "customizations": {},
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
+	// ,"mounts": [
+	// 	{
+	// 		"source": "/home/vpittamp/.kube/config",
+	// 		"target": "/home/vscode/.kube/config",
+	// 		"type": "bind"
+	// 	},
+	// 	{
+	// 		"source": "/var/run/docker.sock",
+	// 		"target": "/var/run/docker.sock",
+	// 		"type": "bind"
+	// 	}
+	// ]
 }

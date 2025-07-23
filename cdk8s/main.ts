@@ -173,7 +173,7 @@ const app = new App({
     // BackstageKubernetesResolver removed - labels are added by the deterministic catalog
   ],
   // Generate one file per chart with stable naming based on chart ID
-  yamlOutputType: YamlOutputType.FILE_PER_CHART,
+  yamlOutputType: YamlOutputType.FOLDER_PER_CHART_FILE_PER_RESOURCE,
   outdir: outputDir,
 });
 

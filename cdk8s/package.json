@@ -14,6 +14,11 @@
     "synth:env": "dagger call synthesize-with-env-file --source . --environment=\"${ENV:-production}\" --env-file=\".env-files/${ENV:-production}.env\" export --path ./dist",
     "compile": "tsc --build",
     "watch": "tsc --build -w",
+    "watch:synth": "nodemon --watch charts --ext ts --exec '. ../.env-files/wi.env && npx cdk8s synth'",
+    "watch:smart": "ts-node scripts/watch-smart.ts",
+    "analyze:deps": "ts-node scripts/analyze-dependencies.ts",
+    "synth:selective": "ts-node scripts/synth-selective.ts",
+    "deps:visualize": "ts-node scripts/analyze-dependencies.ts --format=mermaid",
     "test": "jest",
     "build": "npm run synth",
     "build:dagger": "npm run compile && npm run synth:dagger",
@@ -39,8 +44,14 @@
     "devspace": "^6.3.15"
   },
   "devDependencies": {
+    "@types/minimatch": "^5.1.2",
     "@types/node": "^20",
     "cdk8s-cli": "^2.200.136",
+    "chokidar": "^4.0.3",
+    "esbuild": "^0.25.8",
+    "glob": "^11.0.3",
+    "minimatch": "^10.0.3",
+    "nodemon": "^3.1.10",
     "ts-morph": "^26.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
