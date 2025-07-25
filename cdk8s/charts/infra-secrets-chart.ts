@@ -2,10 +2,9 @@
 import { Chart, ApiObject, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
 import { 
-  ExternalSecret,
-  ExternalSecretSpecTargetCreationPolicy,
-  ExternalSecretSpecTargetTemplateEngineVersion,
-  ExternalSecretSpecDataFromSourceRefGeneratorRefKind
+  ExternalSecretV1Beta1 as ExternalSecret,
+  ExternalSecretV1Beta1SpecTargetCreationPolicy as ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretV1Beta1SpecTargetTemplateEngineVersion as ExternalSecretSpecTargetTemplateEngineVersion
 } from '../imports/external-secrets.io';
 
 export class InfraSecretsChart extends Chart {
@@ -38,22 +37,6 @@ export class InfraSecretsChart extends Chart {
 
     // Removed ACR ServiceAccount for argocd namespace - using public Docker image for CDK8s plugin
     // The nextjs namespace still needs ACR access for the chat-frontend image
-
-    // ServiceAccount for mcp-tools namespace
-    const acrServiceAccountMcpTools = new ApiObject(this, 'acr-sa-mcp-tools', {
-      apiVersion: 'v1',
-      kind: 'ServiceAccount',
-      metadata: {
-        name: 'acr-sa',
-        namespace: 'mcp-tools',
-        labels: { 'azure.workload.identity/use': 'true' },
-        annotations: {
-          'azure.workload.identity/client-id': process.env.AZURE_CLIENT_ID || '',
-          'azure.workload.identity/tenant-id': process.env.AZURE_TENANT_ID || '0c4da9c5-40ea-4e7d-9c7a-e7308d4f8e38',
-          'argocd.argoproj.io/sync-wave': '-20', // Deploy early to setup workload identity
-        },
-      },
-    });
 
     /* ---------------------------------------------------------------------
      * 2. ClusterSecretStore – Created by github-auth-chart.ts
@@ -104,7 +87,7 @@ export class InfraSecretsChart extends Chart {
             sourceRef: {
               generatorRef: {
                 apiVersion: 'generators.external-secrets.io/v1alpha1',
-                kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.ACR_ACCESS_TOKEN,
+                kind: 'ACRAccessToken',
                 name: 'vpittamp-acr-token',
               },
             },
@@ -149,7 +132,7 @@ export class InfraSecretsChart extends Chart {
             sourceRef: {
               generatorRef: {
                 apiVersion: 'generators.external-secrets.io/v1alpha1',
-                kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.ACR_ACCESS_TOKEN,
+                kind: 'ACRAccessToken',
                 name: 'vpittamp-acr-token',
               },
             },
@@ -176,74 +159,6 @@ export class InfraSecretsChart extends Chart {
       },
     });
 
-    // ACR resources for mcp-tools namespace
-    const acrAccessTokenMcpTools = new ApiObject(this, 'acr-access-token-mcp-tools', {
-      apiVersion: 'generators.external-secrets.io/v1alpha1',
-      kind: 'ACRAccessToken',
-      metadata: { 
-        name: 'vpittamp-acr-token-mcp-tools', 
-        namespace: 'mcp-tools',
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-15', // After service account, before external secret
-        },
-      },
-      spec: {
-        tenantId: '0c4da9c5-40ea-4e7d-9c7a-e7308d4f8e38',
-        registry: 'vpittamp.azurecr.io',
-        environmentType: 'PublicCloud',
-        auth: {
-          workloadIdentity: {
-            serviceAccountRef: {
-              name: 'acr-sa',
-              namespace: 'mcp-tools',
-              audiences: ['api://AzureADTokenExchange'],
-            },
-          },
-        },
-      },
-    });
-
-    const acrSecretMcpTools = new ExternalSecret(this, 'acr-exsecret-mcp-tools', {
-      metadata: { 
-        name: 'vpittamp-acr-credentials-mcp-tools', 
-        namespace: 'mcp-tools',
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-10', // Creates the actual docker pull secret
-        },
-      },
-      spec: {
-        refreshInterval: '3h',
-        dataFrom: [
-          {
-            sourceRef: {
-              generatorRef: {
-                apiVersion: 'generators.external-secrets.io/v1alpha1',
-                kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.ACR_ACCESS_TOKEN,
-                name: 'vpittamp-acr-token-mcp-tools',
-              },
-            },
-          },
-        ],
-        target: {
-          name: 'vpittamp-acr-dockercfg',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
-          template: {
-            type: 'kubernetes.io/dockerconfigjson',
-            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
-            data: {
-              '.dockerconfigjson': `{
-                "auths": {
-                  "vpittamp.azurecr.io": {
-                    "username": "{{ .username }}",
-                    "password": "{{ .password }}"
-                  }
-                }
-              }`,
-            },
-          },
-        },
-      },
-    });
 
     // Removed ACR resources for ArgoCD namespace - using public Docker image for CDK8s plugin
     // The nextjs namespace still has ACR resources above for the chat-frontend image
@@ -275,12 +190,6 @@ export class InfraSecretsChart extends Chart {
     acrAccessToken.addDependency(acrServiceAccount);
     acrSecret.addDependency(acrAccessToken);
     kargoAcrSecret.addDependency(acrAccessToken); // Kargo secret also needs the ACR token
-    
-    // Dependencies for mcp-tools namespace
-    acrAccessTokenMcpTools.addDependency(acrServiceAccountMcpTools);
-    acrSecretMcpTools.addDependency(acrAccessTokenMcpTools);
-    
-    // Dependency removed - kv-vault is now managed by all-secrets-chart.ts
     
     // Note: The acr-sa ServiceAccount depends on:
     // 1. The nextjs namespace existing (created by platform-core-chart)

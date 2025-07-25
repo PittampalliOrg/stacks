@@ -15,6 +15,11 @@ curl -fsSL https://raw.githubusercontent.com/cnoe-io/idpbuilder/main/hack/instal
 echo "Installing dagger..."
 curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=$HOME/.local/bin sh
 
+# Setup dagger bash completion
+echo "Setting up dagger bash completion..."
+mkdir -p /home/vscode/.local/share/bash-completion/completions
+dagger completion bash > /home/vscode/.local/share/bash-completion/completions/dagger 2>/dev/null || echo "Warning: Could not setup dagger completion"
+
 # Install claude-code
 echo "Installing claude-code..."
 npm install -g @anthropic-ai/claude-code
@@ -35,6 +40,26 @@ curl -sLO 'https://github.com/argoproj/argo-workflows/releases/download/v3.6.7/a
 gunzip argo-linux-amd64.gz
 chmod +x argo-linux-amd64
 mv argo-linux-amd64 ~/.local/bin/argo
+
+# Install Azure Workload Identity CLI (azwi)
+echo "Installing azwi..."
+if curl -sLO 'https://github.com/Azure/azure-workload-identity/releases/latest/download/azwi-v1.3.0-linux-amd64.tar.gz'; then
+    if tar -xzf azwi-v1.3.0-linux-amd64.tar.gz 2>/dev/null; then
+        chmod +x azwi
+        mv azwi ~/.local/bin/azwi
+        rm azwi-v1.3.0-linux-amd64.tar.gz
+        echo "azwi installed successfully"
+    else
+        echo "Warning: Failed to extract azwi tar.gz, trying direct binary download..."
+        curl -sL 'https://github.com/Azure/azure-workload-identity/releases/latest/download/azwi-v1.3.0-linux-amd64' -o ~/.local/bin/azwi || {
+            echo "Warning: Could not install azwi, skipping..."
+        }
+        chmod +x ~/.local/bin/azwi 2>/dev/null || true
+        rm -f azwi-v1.3.0-linux-amd64.tar.gz
+    fi
+else
+    echo "Warning: Could not download azwi, skipping..."
+fi
 
 # Install npm packages
 echo "Installing npm packages (devspace, cdk8s-cli)..."
@@ -63,10 +88,11 @@ fi
 echo "All tools installation completed!"
 echo "Installed tools:"
 echo "  - idpbuilder"
-echo "  - dagger"
+echo "  - dagger (with bash completion)"
 echo "  - claude-code (with MCP servers: fetch, context7)"
 echo "  - vcluster" 
 echo "  - argo"
+echo "  - azwi (if available)"
 echo "  - devspace"
 echo "  - cdk8s-cli"
 echo "  - jq"

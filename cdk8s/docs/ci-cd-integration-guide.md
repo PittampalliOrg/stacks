@@ -472,14 +472,14 @@ spec:
                         script {
                             def changes = sh(
                                 script: """
-                                git diff --name-only origin/${env.CHANGE_TARGET}...HEAD | \
+                                git diff --name-only origin/${process.env.CHANGE_TARGET}...HEAD | \
                                 grep -E "charts/.*\\.ts\$" | \
                                 xargs -I {} basename {} .ts | \
                                 paste -sd "," - || echo ""
                                 """,
                                 returnStdout: true
                             ).trim()
-                            env.CHARTS_CHANGED = changes
+                            process.env.CHARTS_CHANGED = changes
                         }
                     }
                 }
@@ -510,7 +510,7 @@ spec:
                     when {
                         allOf {
                             changeRequest()
-                            expression { env.CHARTS_CHANGED != '' }
+                            expression { process.env.CHARTS_CHANGED != '' }
                         }
                     }
                     steps {
@@ -519,7 +519,7 @@ spec:
                             unstash 'deps'
                             sh """
                                 npm run synth:selective -- \
-                                    --charts ${env.CHARTS_CHANGED} \
+                                    --charts ${process.env.CHARTS_CHANGED} \
                                     --include-deps
                             """
                         }

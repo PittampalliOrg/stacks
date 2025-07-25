@@ -1,24 +1,30 @@
-import { Chart } from 'cdk8s';
+import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
-import { KubeDeployment, KubeService, IntOrString } from '../imports/k8s';
+import * as k8s from '../imports/k8s';
+
+export interface RedisChartProps extends ChartProps {
+  // Additional props can be added here as needed
+  replicas?: number;
+}
 
 export class RedisChart extends Chart {
-  constructor(scope: Construct, id: string) {
-    super(scope, id);
+  constructor(scope: Construct, id: string, props: RedisChartProps = {}) {
+    super(scope, id, props);
 
     const namespace = 'nextjs';
+    const replicas = props.replicas ?? 1; // Default to 1 replica for local dev
     
-    // Create deployment using raw API object to avoid default security contexts
-    new KubeDeployment(this, 'redis-deployment', {
+    // Create deployment for Redis
+    new k8s.KubeDeployment(this, 'redis-deployment', {
       metadata: {
         name: 'redis-deployment',
         namespace: namespace,
         annotations: {
-          'argocd.argoproj.io/sync-wave': '5', // Deploy after external secrets are ready
+          'argocd.argoproj.io/sync-wave': '60', // Deploy after postgres but before nextjs
         },
       },
       spec: {
-        replicas: 2,
+        replicas: replicas,
         selector: {
           matchLabels: {
             app: 'redis',
@@ -34,11 +40,23 @@ export class RedisChart extends Chart {
             containers: [
               {
                 name: 'redis',
-                image: 'redis/redis-stack:7.4.1-v1',
+                // Use public Redis image
+                image: 'redis:7-alpine',
+                imagePullPolicy: 'IfNotPresent',
                 ports: [{ containerPort: 6379 }],
+                resources: {
+                  requests: {
+                    cpu: k8s.Quantity.fromString('50m'),
+                    memory: k8s.Quantity.fromString('128Mi'),
+                  },
+                  limits: {
+                    cpu: k8s.Quantity.fromString('200m'),
+                    memory: k8s.Quantity.fromString('256Mi'),
+                  },
+                },
                 livenessProbe: {
                   tcpSocket: {
-                    port: IntOrString.fromNumber(6379),
+                    port: k8s.IntOrString.fromNumber(6379),
                   },
                   initialDelaySeconds: 30,
                   periodSeconds: 10,
@@ -57,7 +75,7 @@ export class RedisChart extends Chart {
                 },
                 startupProbe: {
                   tcpSocket: {
-                    port: IntOrString.fromNumber(6379),
+                    port: k8s.IntOrString.fromNumber(6379),
                   },
                   initialDelaySeconds: 0,
                   periodSeconds: 10,
@@ -67,13 +85,14 @@ export class RedisChart extends Chart {
                 },
               },
             ],
+            // No imagePullSecrets needed - using public image
           },
         },
       },
     });
 
     // Create service
-    new KubeService(this, 'redis-service', {
+    new k8s.KubeService(this, 'redis-service', {
       metadata: {
         name: 'redis-service',
         namespace: namespace,
@@ -82,7 +101,10 @@ export class RedisChart extends Chart {
         selector: {
           app: 'redis',
         },
-        ports: [{ port: 6379 }],
+        ports: [{ 
+          port: 6379,
+          targetPort: k8s.IntOrString.fromNumber(6379),
+        }],
       },
     });
   }

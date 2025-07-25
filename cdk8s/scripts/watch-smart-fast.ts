@@ -259,75 +259,37 @@ class FastSmartWatcher {
       CDK8S_SELECTIVE_SYNTHESIS: 'true'
     };
 
-    // Update cdk8s.yaml temporarily if using esbuild
+    // Determine synthesis command based on mode
+    let synthCommand: string;
     if (this.options.useEsbuild) {
-      console.log('  🔧 Using esbuild mode - updating config...');
-      await this.updateCdk8sConfig();
+      console.log('  🔧 Using esbuild mode with compiled JavaScript');
+      synthCommand = `. ../.env-files/wi.env && npx cdk8s synth -a 'node ${path.relative(this.projectRoot, this.compiledMainPath)}'`;
     } else {
       console.log('  🔧 Using standard ts-node mode');
+      synthCommand = '. ../.env-files/wi.env && npx cdk8s synth';
     }
 
-    try {
-      // Run synthesis
-      await new Promise<void>((resolve, reject) => {
-        const synthCommand = '. ../.env-files/wi.env && npx cdk8s synth';
-        const synthProcess = spawn('bash', ['-c', synthCommand], {
-          cwd: this.projectRoot,
-          env,
-          stdio: 'inherit'
-        });
-
-        synthProcess.on('close', (code) => {
-          if (code === 0) {
-            console.log('\n✅ Synthesis completed successfully!');
-            resolve();
-          } else {
-            reject(new Error(`Synthesis failed with code ${code}`));
-          }
-        });
-
-        synthProcess.on('error', reject);
+    // Run synthesis
+    await new Promise<void>((resolve, reject) => {
+      const synthProcess = spawn('bash', ['-c', synthCommand], {
+        cwd: this.projectRoot,
+        env,
+        stdio: 'inherit'
       });
-    } finally {
-      // Restore cdk8s.yaml if we modified it
-      if (this.options.useEsbuild) {
-        await this.restoreCdk8sConfig();
-      }
-    }
+
+      synthProcess.on('close', (code) => {
+        if (code === 0) {
+          console.log('\n✅ Synthesis completed successfully!');
+          resolve();
+        } else {
+          reject(new Error(`Synthesis failed with code ${code}`));
+        }
+      });
+
+      synthProcess.on('error', reject);
+    });
   }
 
-  private async updateCdk8sConfig() {
-    const configPath = path.join(this.projectRoot, 'cdk8s.yaml');
-    const backupPath = path.join(this.projectRoot, 'cdk8s.yaml.backup');
-    
-    console.log('  📝 Updating cdk8s.yaml to use compiled JavaScript...');
-    
-    const config = fs.readFileSync(configPath, 'utf-8');
-    fs.writeFileSync(backupPath, config);
-    
-    const newConfig = config.replace(
-      'app: npx ts-node main.ts',
-      'app: node .build/main.js'
-    );
-    
-    fs.writeFileSync(configPath, newConfig);
-    console.log('  ✅ Config updated to use fast compiled output');
-  }
-
-  private async restoreCdk8sConfig() {
-    const configPath = path.join(this.projectRoot, 'cdk8s.yaml');
-    const backupPath = path.join(this.projectRoot, 'cdk8s.yaml.backup');
-    
-    console.log('  🔄 Restoring original cdk8s.yaml...');
-    
-    if (fs.existsSync(backupPath)) {
-      fs.copyFileSync(backupPath, configPath);
-      fs.unlinkSync(backupPath);
-      console.log('  ✅ Config restored');
-    } else {
-      console.log('  ⚠️  No backup file found to restore');
-    }
-  }
 
   private showStatistics(stats: any) {
     console.log('\n📊 Performance Statistics:');

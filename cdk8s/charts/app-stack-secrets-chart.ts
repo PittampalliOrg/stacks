@@ -3,10 +3,7 @@ import { Construct } from 'constructs';
 import { 
   ExternalSecret,
   ExternalSecretSpecTargetCreationPolicy,
-  ExternalSecretSpecSecretStoreRefKind,
-  ExternalSecretSpecDataRemoteRefConversionStrategy,
-  ExternalSecretSpecDataRemoteRefDecodingStrategy,
-  ExternalSecretSpecDataRemoteRefMetadataPolicy
+  ExternalSecretSpecDataRemoteRefConversionStrategy
 } from '../imports/external-secrets.io';
 
 /**
@@ -32,7 +29,7 @@ export class AppStackSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
+          kind: 'ClusterSecretStore',
         },
         target: {
           name: 'neon-database-credentials',
@@ -44,8 +41,6 @@ export class AppStackSecretsChart extends Chart {
             remoteRef: {
               key: 'POSTGRES-URL',
               conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT,
-              decodingStrategy: ExternalSecretSpecDataRemoteRefDecodingStrategy.NONE,
-              metadataPolicy: ExternalSecretSpecDataRemoteRefMetadataPolicy.NONE
             },
           },
           {
@@ -53,8 +48,6 @@ export class AppStackSecretsChart extends Chart {
             remoteRef: {
               key: 'POSTGRES-URL',
               conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT,
-              decodingStrategy: ExternalSecretSpecDataRemoteRefDecodingStrategy.NONE,
-              metadataPolicy: ExternalSecretSpecDataRemoteRefMetadataPolicy.NONE
             },
           },
           {
@@ -62,8 +55,6 @@ export class AppStackSecretsChart extends Chart {
             remoteRef: {
               key: 'POSTGRES-URL',
               conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT,
-              decodingStrategy: ExternalSecretSpecDataRemoteRefDecodingStrategy.NONE,
-              metadataPolicy: ExternalSecretSpecDataRemoteRefMetadataPolicy.NONE
             },
           },
           {
@@ -71,8 +62,6 @@ export class AppStackSecretsChart extends Chart {
             remoteRef: {
               key: 'POSTGRES-URL',
               conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT,
-              decodingStrategy: ExternalSecretSpecDataRemoteRefDecodingStrategy.NONE,
-              metadataPolicy: ExternalSecretSpecDataRemoteRefMetadataPolicy.NONE
             },
           },
           {
@@ -80,8 +69,6 @@ export class AppStackSecretsChart extends Chart {
             remoteRef: {
               key: 'NEON-API-KEY',
               conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT,
-              decodingStrategy: ExternalSecretSpecDataRemoteRefDecodingStrategy.NONE,
-              metadataPolicy: ExternalSecretSpecDataRemoteRefMetadataPolicy.NONE
             },
           },
           {
@@ -89,8 +76,6 @@ export class AppStackSecretsChart extends Chart {
             remoteRef: {
               key: 'NEON-PROJECT-ID',
               conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT,
-              decodingStrategy: ExternalSecretSpecDataRemoteRefDecodingStrategy.NONE,
-              metadataPolicy: ExternalSecretSpecDataRemoteRefMetadataPolicy.NONE
             },
           },
         ],
@@ -114,7 +99,7 @@ export class AppStackSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
+          kind: 'ClusterSecretStore',
         },
         target: {
           name: 'ghcr-dockercfg',
@@ -140,8 +125,6 @@ export class AppStackSecretsChart extends Chart {
             remoteRef: {
               key: 'GITHUB-PAT',
               conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT,
-              decodingStrategy: ExternalSecretSpecDataRemoteRefDecodingStrategy.NONE,
-              metadataPolicy: ExternalSecretSpecDataRemoteRefMetadataPolicy.NONE
             }
           }
         ]

@@ -1,25 +1,30 @@
-import { Chart } from 'cdk8s';
+import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
 import * as k8s from '../imports/k8s';
 
+export interface PostgresChartProps extends ChartProps {
+  // Additional props can be added here as needed
+}
+
 export class PostgresChart extends Chart {
-  constructor(scope: Construct, id: string) {
-    super(scope, id);
+  constructor(scope: Construct, id: string, props: PostgresChartProps = {}) {
+    super(scope, id, props);
 
     const namespace = 'nextjs';
 
-    // Note: The neon-database-credentials secret is now created by app-stack-secrets-chart.ts
+    // Note: The neon-database-credentials secret is created separately
     // This maintains separation of concerns - applications consume secrets, not create them
 
     // Create a headless service that maintains compatibility with existing configurations
     // This allows apps to continue using postgres-service.nextjs.svc.cluster.local
     // but actually connects to Neon cloud
-    const service = new k8s.KubeService(this, 'postgres-service', {
+    new k8s.KubeService(this, 'postgres-service', {
       metadata: {
         name: 'postgres-service',
         namespace: namespace,
         annotations: {
           'description': 'Headless service for Neon cloud PostgreSQL compatibility',
+          'argocd.argoproj.io/sync-wave': '50',
         },
       },
       spec: {

@@ -51,9 +51,9 @@ Fast synthesis uses esbuild to pre-compile TypeScript code to JavaScript, elimin
    - Output is placed in `.build/` to avoid conflicts with synthesis output
 
 2. **Synthesis Phase**:
-   - Temporarily modifies `cdk8s.yaml` to use compiled JavaScript
-   - Runs standard cdk8s synthesis with the pre-compiled code
-   - Restores original configuration after synthesis
+   - Uses the `-a` flag to specify the compiled JavaScript file directly
+   - Runs `npx cdk8s synth -a 'node .build/main.js'`
+   - No configuration file modifications needed
 
 ### Usage
 
@@ -198,9 +198,8 @@ npm run watch:smart:fast -- --stats
    - Detects which files changed
    - If TypeScript files changed, triggers recompilation (400-500ms)
    - Determines affected charts using dependency analysis
-   - Temporarily updates cdk8s.yaml to use compiled JS
+   - Uses `-a` flag to run synthesis with compiled JS
    - Synthesizes only affected charts
-   - Restores original configuration
 
 3. **Optimizations**:
    - Debounced file watching (500ms default)
@@ -294,7 +293,7 @@ npm run watch:smart:fast -- --stats
 3. **Synthesis Still Slow**
    - **Cause**: Not using compiled JavaScript
    - **Check**: Look for "Using esbuild mode" in output
-   - **Fix**: Ensure cdk8s.yaml backup isn't interfering
+   - **Fix**: Ensure the `.build/main.js` file exists
 
 4. **Parallel Synthesis Hangs**
    - **Cause**: Circular dependencies or resource exhaustion
@@ -314,7 +313,7 @@ npm run watch:smart:fast -- --verbose --stats
 
 ### Configuration Files
 
-- **cdk8s.yaml**: Main configuration (temporarily modified during fast synthesis)
+- **cdk8s.yaml**: Main configuration (no longer modified during synthesis)
 - **.build/**: Compiled JavaScript output (git-ignored)
 - **dependency-graph.json**: Chart dependency analysis cache
 

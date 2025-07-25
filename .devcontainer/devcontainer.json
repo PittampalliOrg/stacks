@@ -5,16 +5,42 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
     "runArgs": [
-        "--env-file", "${localWorkspaceFolder}/.env-files/wi.env"
+        "--env-file", "${localWorkspaceFolder}/.env-files/wi.env",
+		"--sysctl", "net.ipv6.conf.all.disable_ipv6=1"
     ], 
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/itsmechlark/features/1password:1": {},
 		"ghcr.io/devcontainers/features/azure-cli:1": {},
-		"ghcr.io/devcontainers/features/node:1": {},
-		"ghcr.io/devcontainers/features/python": {},
-		"ghcr.io/devcontainers-extra/features/poetry": {}
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/python": {
+		},
+		"ghcr.io/devcontainers-extra/features/poetry": {
+		},
+		"ghcr.io/devcontainers/features/kubectl-helm-minikube": {
+			"version": "latest",
+			"helmVersion": "latest",
+			"minikubeVersion": "latest",
+			"installKubectl": true,
+			"installHelm": true,
+			"installMinikube": false
+		},
+		"ghcr.io/stuartleeks/dev-container-features/shell-history": {
+			"shell": "bash",
+			"historyFile": "/home/vscode/.bash_history",
+			"historySize": 10000,
+			"ignoreDupeCommands": true,
+			"ignoreCommands": [
+				"cd",
+				"clear",
+				"ls",
+				"pwd",
+				"git status"
+			]
+		}
 	},
 	"customizations": {
 		"vscode": {
@@ -29,19 +55,20 @@
 				"ms-vscode.vscode-node-azure-pack",
 				"mtxr.sqltools",
 				"mtxr.sqltools-driver-pg",
-				"mikeedjones.copy-file-to-chat"
+				"mikeedjones.copy-file-to-chat",
+				"mikestead.dotenv"
 			]
 		}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	"forwardPorts": [8443],
 
 	"postCreateCommand": ".devcontainer/postCreateCommand.sh && .devcontainer/install-tools.sh",
 	"postStartCommand": ".devcontainer/postStartCommand.sh",
 	"workspaceFolder": "/home/vscode/stacks",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/stacks,type=bind",
 	"hostRequirements": {
-		"cpus": 4
+		"cpus": 6
 	},
 	"remoteEnv": {
 		"PATH": "${containerEnv:PATH}:/home/vscode/stacks",

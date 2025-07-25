@@ -5,3 +5,6 @@ ref-implementation/keys/jwks.json
 cdk8s/datree.tar.gz
 ref-implementation/keys/sa.key
 ref-implementation/keys/sa.pub
+node_modules/tsx/dist/
+
+node_modules/

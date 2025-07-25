@@ -260,7 +260,7 @@ spec:
                 name: gitea-credentials
             - secretRef:
                 name: argocd-credentials
-          image: ghcr.io/cnoe-io/backstage-app:9232d633b2698fffa6d0a73b715e06640d170162
+          image: ghcr.io/pittampalliorg/backstage-app:main-a4aadec@sha256:fd25a16848d9a18711260a068ae63fe8ce5677b64610cf2af0c8b8cd44dc4721
           name: backstage
           ports:
             - containerPort: 7007
@@ -270,6 +270,8 @@ spec:
               name: backstage-config
               readOnly: true
       serviceAccountName: backstage
+      imagePullSecrets:
+        - name: ghcr-dockercfg
       volumes:
         - name: backstage-config
           projected:

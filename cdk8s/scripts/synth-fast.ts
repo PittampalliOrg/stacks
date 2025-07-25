@@ -27,16 +27,8 @@ class FastSynthesizer {
       await this.compileTypeScript();
     }
 
-    // Update cdk8s.yaml to use compiled output
-    await this.updateCdk8sConfig();
-
-    try {
-      // Run synthesis
-      await this.runSynthesis();
-    } finally {
-      // Restore original cdk8s.yaml
-      await this.restoreCdk8sConfig();
-    }
+    // Run synthesis with compiled JavaScript
+    await this.runSynthesis();
   }
 
   private async compileTypeScript() {
@@ -73,34 +65,6 @@ class FastSynthesizer {
     console.log(`✨ Compiled in ${elapsed}ms`);
   }
 
-  private async updateCdk8sConfig() {
-    const configPath = path.join(this.projectRoot, 'cdk8s.yaml');
-    const backupPath = path.join(this.projectRoot, 'cdk8s.yaml.backup');
-    
-    // Read current config
-    const config = fs.readFileSync(configPath, 'utf-8');
-    
-    // Backup
-    fs.writeFileSync(backupPath, config);
-    
-    // Update to use compiled JavaScript
-    const newConfig = config.replace(
-      'app: npx ts-node main.ts',
-      'app: node .build/main.js'
-    );
-    
-    fs.writeFileSync(configPath, newConfig);
-  }
-
-  private async restoreCdk8sConfig() {
-    const configPath = path.join(this.projectRoot, 'cdk8s.yaml');
-    const backupPath = path.join(this.projectRoot, 'cdk8s.yaml.backup');
-    
-    if (fs.existsSync(backupPath)) {
-      fs.copyFileSync(backupPath, configPath);
-      fs.unlinkSync(backupPath);
-    }
-  }
 
   private async runSynthesis(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -108,11 +72,11 @@ class FastSynthesizer {
       
       // Add selective synthesis if charts specified
       if (this.options.charts && this.options.charts.length > 0) {
-        env.CDK8S_CHARTS = this.options.charts.join(',');
-        env.CDK8S_SELECTIVE_SYNTHESIS = 'true';
+        process.env.CDK8S_CHARTS = this.options.charts.join(',');
+        process.env.CDK8S_SELECTIVE_SYNTHESIS = 'true';
       }
 
-      const synthCommand = '. ../.env-files/wi.env && npx cdk8s synth';
+      const synthCommand = `. ../.env-files/wi.env && npx cdk8s synth -a 'node ${path.relative(this.projectRoot, this.compiledMainPath)}'`;
       const synthProcess = spawn('bash', ['-c', synthCommand], {
         cwd: this.projectRoot,
         env,

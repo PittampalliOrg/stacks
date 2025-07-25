@@ -225,7 +225,7 @@ export class ChartRegistry {
     const chartsEnv = process.env.CDK8S_CHARTS;
     if (!chartsEnv) return null;
 
-    return chartsEnv.split(',').map(s => s.trim()).filter(s => s);
+    return chartsEnv.split(',').map((s: string) => s.trim()).filter((s: string) => s);
   }
 
   // Determine if a chart should be synthesized

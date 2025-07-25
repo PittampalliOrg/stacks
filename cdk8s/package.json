@@ -14,7 +14,7 @@
     "synth:env": "dagger call synthesize-with-env-file --source . --environment=\"${ENV:-production}\" --env-file=\".env-files/${ENV:-production}.env\" export --path ./dist",
     "compile": "tsc --build",
     "watch": "tsc --build -w",
-    "watch:synth": "nodemon --watch charts --ext ts --exec '. ../.env-files/wi.env && npx cdk8s synth'",
+    "watch:synth": "nodemon --watch charts --ext ts --exec '. ../.env-files/wi.env && npx cdk8s synth -a 'npx ts-node main.ts''",
     "watch:smart": "ts-node scripts/watch-smart.ts",
     "watch:smart:fast": "ts-node scripts/watch-smart-fast.ts",
     "analyze:deps": "ts-node scripts/analyze-dependencies.ts",
@@ -45,7 +45,8 @@
     "cdk8s": "^2.69.73",
     "cdk8s-plus-32": "^2.1.6",
     "constructs": "^10.3.0",
-    "devspace": "^6.3.15"
+    "devspace": "^6.3.15",
+    "zod": "^4.0.8"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",

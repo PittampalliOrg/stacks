@@ -1,0 +1,6 @@
+language: typescript
+app: npx ts-node main.ts
+imports:
+  - k8s
+  - argocd-crds.yaml
+  - idpbuilder-crds.yaml

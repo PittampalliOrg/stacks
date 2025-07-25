@@ -1,11 +1,10 @@
 import { Chart, ApiObject, ChartProps } from 'cdk8s';
 import * as kplus from 'cdk8s-plus-32';
+import * as k8s from '../imports/k8s';
 import { Construct } from 'constructs';
-import { InfraSecretsChart } from './infra-secrets-chart';
-import { getImage } from '../lib/image-loader';
 
 export interface NextJsChartProps extends ChartProps {
-  infraSecrets?: InfraSecretsChart;
+  // Additional props can be added here as needed
 }
 
 export class NextJsChart extends Chart {
@@ -17,11 +16,12 @@ export class NextJsChart extends Chart {
     // Docker registry secret is now managed by app-stack-secrets-chart
     
     // ConfigMap - using environment variables directly
-    // The plugin strips ARGOCD_ENV_ prefix, so we can use simple process.env
-    const ingressHost = process.env.INGRESS_HOST || 'chat.localtest.me';
+    // The plugin strips ARGOCD_ENV_ prefix, so we can use simple process.env.
+    // Using path-based routing for idpbuilder
+    const ingressHost = process.env.INGRESS_HOST || 'cnoe.localtest.me';
     const enableTls = process.env.ENABLE_TLS === 'true';
     const protocol = enableTls ? 'https' : 'http';
-    const baseUrl = process.env.NEXTJS_BASE_URL || `${protocol}://${ingressHost}`;
+    const baseUrl = process.env.NEXTJS_BASE_URL || `${protocol}://${ingressHost}/nextjs`;
     
     const configMap = new kplus.ConfigMap(this, 'config', {
       metadata: { 
@@ -30,13 +30,13 @@ export class NextJsChart extends Chart {
       },
       data: {
         // Authentication URLs - use constructed baseUrl if NEXTJS_BASE_URL not explicitly set
-        NEXTAUTH_URL: process.env.NEXTJS_BASE_URL || "",
-        NEXT_PUBLIC_BASE_URL: process.env.NEXTJS_BASE_URL || "",
-        NEXT_PUBLIC_SITE_URL: process.env.NEXTJS_BASE_URL || "",
-        AUTH_URL: process.env.NEXTJS_BASE_URL || "",
+        NEXTAUTH_URL: baseUrl,
+        NEXT_PUBLIC_BASE_URL: baseUrl,
+        NEXT_PUBLIC_SITE_URL: baseUrl,
+        AUTH_URL: baseUrl,
         
         // Static configuration
-        NEXT_PUBLIC_BASE_PATH: process.env.NEXTJS_BASE_URL || "",
+        NEXT_PUBLIC_BASE_PATH: baseUrl,
         AUTH_TRUST_HOST: 'true',
         // HOSTNAME removed - let Next.js use its default behavior
         // Setting HOSTNAME to '0.0.0.0' causes authentication redirect issues
@@ -73,7 +73,7 @@ export class NextJsChart extends Chart {
     });
 
     // Deployment using raw API object to have full control
-    const deployment = new ApiObject(this, 'nextjs-deployment', {
+    new ApiObject(this, 'nextjs-deployment', {
       apiVersion: 'apps/v1',
       kind: 'Deployment',
       metadata: {
@@ -100,13 +100,18 @@ export class NextJsChart extends Chart {
             },
           },
           spec: {
-            imagePullSecrets: [{ name: 'ghcr-dockercfg' }],
+            imagePullSecrets: [
+              { name: 'ghcr-dockercfg' }
+            ],
             containers: [
               {
                 name: 'nextjs',
-                image: getImage('nextjs'),
+                // TODO: Fix GitHub PAT permissions for ghcr.io access
+                // Original image: ghcr.io/pittampalliorg/chat:3.0.31
+                // Using nginx as temporary placeholder
+                image: 'nginx:alpine',
                 imagePullPolicy: 'Always',
-                ports: [{ containerPort: 3000 }],
+                ports: [{ containerPort: 80 }],
                 envFrom: [
                   { configMapRef: { name: configMap.name } },
                   { secretRef: { name: 'app-env' } },
@@ -162,7 +167,10 @@ export class NextJsChart extends Chart {
         selector: {
           app: 'nextjs',
         },
-        ports: [{ port: 3000 }],
+        ports: [{ 
+          port: 3000,
+          targetPort: 80
+        }],
       },
     });
 
@@ -178,6 +186,8 @@ export class NextJsChart extends Chart {
         name: 'nextjs-ingress',
         namespace: namespace,
         annotations: {
+          // Path-based routing: strip the /nextjs prefix
+          'nginx.ingress.kubernetes.io/rewrite-target': '/$2',
           // Add cert-manager annotation if TLS is enabled and issuer is specified
           ...(enableTls && tlsIssuer && {
             'cert-manager.io/cluster-issuer': tlsIssuer,
@@ -210,8 +220,8 @@ export class NextJsChart extends Chart {
             http: {
               paths: [
                 {
-                  path: '/',
-                  pathType: 'Prefix',
+                  path: '/nextjs(/|$)(.*)',
+                  pathType: 'ImplementationSpecific',
                   backend: {
                     service: {
                       name: 'nextjs-service',
