@@ -24,10 +24,21 @@ dagger completion bash > /home/vscode/.local/share/bash-completion/completions/d
 echo "Installing claude-code..."
 npm install -g @anthropic-ai/claude-code
 
+# Install uv
+echo "Installing uv..."
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
 # Configure MCP servers for claude-code
 echo "Configuring MCP servers..."
-claude mcp add fetch -s user -- npx -y @kazuph/mcp-fetch
+claude mcp add-json server-fetch --scope user '{
+  "command": "uvx",
+  "args": [
+    "mcp-server-fetch"
+  ]
+}'
+
 claude mcp add --transport sse context7 https://mcp.context7.com/sse
+claude mcp add -t http nx-mcp http://localhost:9445/mcp
 
 # Install vcluster
 echo "Installing vcluster..."
@@ -80,9 +91,14 @@ echo "Installing kind..."
 curl -Lo ~/.local/bin/kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
 chmod +x ~/.local/bin/kind
 
-# Add .local/bin to PATH in .bashrc if not already present
+# Add .local/bin and backstage bin directories to PATH in .bashrc if not already present
 if ! grep -q 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+fi
+
+# Add backstage node_modules/.bin to PATH if the directory will exist
+if ! grep -q '/home/vscode/backstage/node_modules/.bin' ~/.bashrc; then
+    echo 'export PATH="$PATH:/home/vscode/backstage/node_modules/.bin"' >> ~/.bashrc
 fi
 
 echo "All tools installation completed!"

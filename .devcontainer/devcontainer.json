@@ -14,7 +14,7 @@
 		"ghcr.io/itsmechlark/features/1password:1": {},
 		"ghcr.io/devcontainers/features/azure-cli:1": {},
 		"ghcr.io/devcontainers/features/node:1": {
-			"version": "latest"
+			"version": "20"
 		},
 		"ghcr.io/devcontainers/features/python": {
 		},
@@ -56,12 +56,16 @@
 				"mtxr.sqltools",
 				"mtxr.sqltools-driver-pg",
 				"mikeedjones.copy-file-to-chat",
-				"mikestead.dotenv"
+				"mikestead.dotenv",
+				"github.vscode-github-actions",
+				"SanjulaGanepola.github-local-actions",
+				"ms-kubernetes-tools.kind-vscode",
+				"nrwl.angular-console"
 			]
 		}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [8443],
+	// "forwardPorts": [8443, 3000, 7007],
 
 	"postCreateCommand": ".devcontainer/postCreateCommand.sh && .devcontainer/install-tools.sh",
 	"postStartCommand": ".devcontainer/postStartCommand.sh",
@@ -71,27 +75,22 @@
 		"cpus": 6
 	},
 	"remoteEnv": {
-		"PATH": "${containerEnv:PATH}:/home/vscode/stacks",
+		"PATH": "${containerEnv:PATH}:/home/vscode/stacks:/home/vscode/backstage",
 		"GIT_COMMITER_NAME": "${localEnv:GIT_COMMITER_NAME}",
 		"GIT_COMMITER_EMAIL": "${localEnv:GIT_COMMITER_EMAIL}"
 	},
 	"containerEnv": {
-	}
+	},
 	// Configure tool-specific properties.
 	// "customizations": {},
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
-	// ,"mounts": [
-	// 	{
-	// 		"source": "/home/vpittamp/.kube/config",
-	// 		"target": "/home/vscode/.kube/config",
-	// 		"type": "bind"
-	// 	},
-	// 	{
-	// 		"source": "/var/run/docker.sock",
-	// 		"target": "/var/run/docker.sock",
-	// 		"type": "bind"
-	// 	}
-	// ]
+	"mounts": [
+		{
+			"source": "/home/vpittamp/turbo/backstage",
+			"target": "/home/vscode/backstage",
+			"type": "bind"
+		}
+	]
 }

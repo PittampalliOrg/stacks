@@ -152,7 +152,7 @@ export class KeycloakHeadlampClientChart extends Chart {
    kubectl edit secret headlamp-client-credentials -n keycloak
    
    Replace the client-secret value with the base64 encoded secret:
-   echo -n "YOUR_CLIENT_SECRET" | base64
+   echo -n "NLgF6AufJP5P7XW59yte2LGZ4fhZip8W" | base64
 
 9. Verify the secret is updated:
    kubectl get secret headlamp-client-credentials -n keycloak -o jsonpath='{.data.client-secret}' | base64 -d

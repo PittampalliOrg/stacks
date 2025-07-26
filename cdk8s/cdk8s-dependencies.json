@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-07-25T18:14:12.112Z",
+  "lastUpdated": "2025-07-25T21:57:05.829Z",
   "charts": [
     {
       "name": "AllSecretsChart",
@@ -13,15 +13,6 @@
     {
       "name": "AppStackSecretsChart",
       "filePath": "/home/vscode/stacks/cdk8s/charts/app-stack-secrets-chart.ts",
-      "dependencies": [],
-      "dependents": [],
-      "imports": [
-        "Chart"
-      ]
-    },
-    {
-      "name": "BackstageSecretsChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/backstage-secrets-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -181,10 +172,6 @@
     [
       "/home/vscode/stacks/cdk8s/charts/bootstrap-secrets-chart.ts",
       "40c9bde718a57faf0f8280c3e7c63cb333696f2f0dac6f7de66c3cf52997f74e"
-    ],
-    [
-      "/home/vscode/stacks/cdk8s/charts/backstage-secrets-chart.ts",
-      "0758c61db2728dc3dc1592e7137ed184c534879f859e702fa848c9893b8f4ba9"
     ],
     [
       "/home/vscode/stacks/cdk8s/charts/app-stack-secrets-chart.ts",

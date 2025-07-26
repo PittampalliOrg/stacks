@@ -275,28 +275,6 @@ export const applicationConfigs: ApplicationConfig[] = [
         syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
       }
     }
-  },
-  {
-    name: 'backstage-secrets',
-    namespace: 'backstage',
-    chart: {
-      type: 'BackstageSecretsChart'
-    },
-    argocd: {
-      syncWave: '25',  // Before Backstage deployment
-      labels: {
-        'app.kubernetes.io/component': 'secrets',
-        'app.kubernetes.io/part-of': 'backstage',
-        'app.kubernetes.io/name': 'backstage-secrets'
-      },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
-      }
-    }
   }
   // Add more applications here as needed
 ];

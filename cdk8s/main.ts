@@ -11,7 +11,6 @@ import { ExternalSecretsWorkloadIdentityChart } from './charts/external-secrets-
 import { HeadlampChart } from './charts/headlamp-chart';
 import { HeadlampKeycloakSecretsChart } from './charts/headlamp-keycloak-secrets-chart';
 import { KeycloakHeadlampClientChart } from './charts/keycloak-headlamp-client-chart';
-import { BackstageSecretsChart } from './charts/backstage-secrets-chart';
 import { ArgoApplicationsChart } from './charts/apps/argo-applications-chart';
 import { IdpBuilderChartFactory } from './lib/idpbuilder-chart-factory';
 import { applicationConfigs } from './config/applications';
@@ -24,7 +23,6 @@ IdpBuilderChartFactory.register('ExternalSecretsWorkloadIdentityChart', External
 IdpBuilderChartFactory.register('HeadlampChart', HeadlampChart);
 IdpBuilderChartFactory.register('HeadlampKeycloakSecretsChart', HeadlampKeycloakSecretsChart);
 IdpBuilderChartFactory.register('KeycloakHeadlampClientChart', KeycloakHeadlampClientChart);
-IdpBuilderChartFactory.register('BackstageSecretsChart', BackstageSecretsChart);
 IdpBuilderChartFactory.register('InfraSecretsChart', InfraSecretsChart);
 IdpBuilderChartFactory.register('NextJsChart', NextJsChart);
 IdpBuilderChartFactory.register('NextJsSecretsChart', NextJsSecretsChart);
