@@ -275,6 +275,57 @@ export const applicationConfigs: ApplicationConfig[] = [
         syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
       }
     }
+  },
+  {
+    name: 'kargo-secrets',
+    namespace: 'kargo',
+    chart: {
+      type: 'KargoSecretsChart'
+    },
+    argocd: {
+      syncWave: '-50',  // Deploy secrets before Kargo
+      labels: {
+        'app.kubernetes.io/component': 'secrets',
+        'app.kubernetes.io/part-of': 'kargo',
+        'app.kubernetes.io/name': 'kargo-secrets'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  {
+    name: 'kargo',
+    namespace: 'kargo',
+    chart: {
+      type: 'KargoHelmChart'
+    },
+    dependencies: {
+      kargoSecrets: {
+        type: 'KargoSecretsChart'
+      }
+    },
+    argocd: {
+      syncWave: '70',  // Deploy after ArgoCD Helm app
+      labels: {
+        'app.kubernetes.io/component': 'continuous-delivery',
+        'app.kubernetes.io/part-of': 'platform',
+        'app.kubernetes.io/name': 'kargo',
+        'app.kubernetes.io/instance': 'kargo',
+        'app.kubernetes.io/version': '1.6.1'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true', 'Replace=true']
+      }
+    }
   }
   // Add more applications here as needed
 ];

@@ -11,6 +11,8 @@ import { ExternalSecretsWorkloadIdentityChart } from './charts/external-secrets-
 import { HeadlampChart } from './charts/headlamp-chart';
 import { HeadlampKeycloakSecretsChart } from './charts/headlamp-keycloak-secrets-chart';
 import { KeycloakHeadlampClientChart } from './charts/keycloak-headlamp-client-chart';
+import { KargoHelmChart } from './charts/kargo-helm-chart';
+import { KargoSecretsChart } from './charts/kargo-secrets-chart';
 import { ArgoApplicationsChart } from './charts/apps/argo-applications-chart';
 import { IdpBuilderChartFactory } from './lib/idpbuilder-chart-factory';
 import { applicationConfigs } from './config/applications';
@@ -28,6 +30,8 @@ IdpBuilderChartFactory.register('NextJsChart', NextJsChart);
 IdpBuilderChartFactory.register('NextJsSecretsChart', NextJsSecretsChart);
 IdpBuilderChartFactory.register('PostgresChart', PostgresChart);
 IdpBuilderChartFactory.register('RedisChart', RedisChart);
+IdpBuilderChartFactory.register('KargoHelmChart', KargoHelmChart);
+IdpBuilderChartFactory.register('KargoSecretsChart', KargoSecretsChart);
 // Add more chart registrations here as you create them
 
 // Main synthesis function

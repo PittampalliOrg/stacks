@@ -1,12 +1,12 @@
 {
   "dev": {
-    "nextjs": "ghcr.io/pittampalliorg/chat:2285337",
+    "nextjs": "ghcr.io/pittampalliorg/chat:76",
     "backstage": "ghcr.io/pittampalliorg/backstage:v124-dev",
     "flagdUi": "vpittamp.azurecr.io/flagd-ui:1.0.1",
     "claudecodeui": "vpittamp.azurecr.io/claudecodeui:v1.5.0"
   },
   "production": {
-    "nextjs": "ghcr.io/pittampalliorg/chat:2285337",
+    "nextjs": "ghcr.io/pittampalliorg/chat:76",
     "backstage": "ghcr.io/pittampalliorg/backstage:v126-production",
     "flagdUi": "vpittamp.azurecr.io/flagd-ui:1.0.1",
     "claudecodeui": "vpittamp.azurecr.io/claudecodeui:v1.5.0"
