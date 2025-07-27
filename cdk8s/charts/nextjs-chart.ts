@@ -2,6 +2,7 @@ import { Chart, ApiObject, ChartProps } from 'cdk8s';
 import * as kplus from 'cdk8s-plus-32';
 import * as k8s from '../imports/k8s';
 import { Construct } from 'constructs';
+import * as images from '../../.env-files/images.json';
 
 export interface NextJsChartProps extends ChartProps {
   // Additional props can be added here as needed
@@ -17,11 +18,13 @@ export class NextJsChart extends Chart {
     
     // ConfigMap - using environment variables directly
     // The plugin strips ARGOCD_ENV_ prefix, so we can use simple process.env.
-    // Using path-based routing for idpbuilder
-    const ingressHost = process.env.INGRESS_HOST || 'cnoe.localtest.me';
+    // Using subdomain-based routing for idpbuilder
+    const baseHost = process.env.INGRESS_HOST || 'cnoe.localtest.me';
+    const ingressHost = `chat.${baseHost}`;
     const enableTls = process.env.ENABLE_TLS === 'true';
     const protocol = enableTls ? 'https' : 'http';
-    const baseUrl = process.env.NEXTJS_BASE_URL || `${protocol}://${ingressHost}/nextjs`;
+    const port = enableTls ? ':8443' : '';
+    const baseUrl = `${protocol}://${ingressHost}${port}` || 'https://chat.cnoe.localtest.me';
     
     const configMap = new kplus.ConfigMap(this, 'config', {
       metadata: { 
@@ -106,10 +109,7 @@ export class NextJsChart extends Chart {
             containers: [
               {
                 name: 'nextjs',
-                // TODO: Fix GitHub PAT permissions for ghcr.io access
-                // Original image: ghcr.io/pittampalliorg/chat:3.0.31
-                // Using nginx as temporary placeholder
-                image: 'nginx:alpine',
+                image: images[(process.env.ENVIRONMENT as keyof typeof images) || 'dev'].nextjs,
                 imagePullPolicy: 'Always',
                 ports: [{ containerPort: 80 }],
                 envFrom: [
@@ -186,8 +186,6 @@ export class NextJsChart extends Chart {
         name: 'nextjs-ingress',
         namespace: namespace,
         annotations: {
-          // Path-based routing: strip the /nextjs prefix
-          'nginx.ingress.kubernetes.io/rewrite-target': '/$2',
           // Add cert-manager annotation if TLS is enabled and issuer is specified
           ...(enableTls && tlsIssuer && {
             'cert-manager.io/cluster-issuer': tlsIssuer,
@@ -220,8 +218,8 @@ export class NextJsChart extends Chart {
             http: {
               paths: [
                 {
-                  path: '/nextjs(/|$)(.*)',
-                  pathType: 'ImplementationSpecific',
+                  path: '/',
+                  pathType: 'Prefix',
                   backend: {
                     service: {
                       name: 'nextjs-service',

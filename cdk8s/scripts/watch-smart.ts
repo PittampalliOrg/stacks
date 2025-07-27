@@ -65,7 +65,8 @@ class SmartWatcher {
     // Set up file watching
     const watchDirs = this.options.watchDirs || [
       path.join(this.projectRoot, 'charts'),
-      path.join(this.projectRoot, 'lib')
+      path.join(this.projectRoot, 'lib'),
+      path.join(this.projectRoot, '..', '.env-files')
     ];
 
     this.watcher = chokidar.watch(watchDirs, {
@@ -143,7 +144,14 @@ class SmartWatcher {
     // Check if file hash actually changed
     if (await this.hasFileChanged(filePath)) {
       this.pendingChanges.add(filePath);
-      console.log(`\n📝 File changed: ${relativePath}`);
+      
+      // Special handling for environment files
+      if (filePath.includes('.env-files/')) {
+        console.log(`\n🔄 Environment file changed: ${relativePath}`);
+        console.log('   Environment variables will be reloaded during synthesis');
+      } else {
+        console.log(`\n📝 File changed: ${relativePath}`);
+      }
       
       // Debounce synthesis
       if (this.debounceTimer) {
@@ -222,7 +230,18 @@ class SmartWatcher {
   private async getAffectedCharts(): Promise<string[]> {
     const changedFiles = Array.from(this.pendingChanges);
     
-    // Start with the filter options
+    // Check if any environment files changed
+    const hasEnvFileChange = changedFiles.some(file => file.includes('.env-files/'));
+    
+    // If env files changed, rebuild all charts since they might use environment variables
+    if (hasEnvFileChange) {
+      console.log('  Environment files changed - rebuilding all charts');
+      const allCharts = await this.getAllCharts();
+      this.stats.chartsAffected = allCharts;
+      return allCharts;
+    }
+    
+    // Otherwise, use normal filtering for TypeScript changes
     const filterOptions: FilterOptions = { ...this.options };
     
     // Add changed files to the filter
@@ -236,6 +255,23 @@ class SmartWatcher {
     
     this.stats.chartsAffected = affectedCharts;
     return affectedCharts;
+  }
+
+  private async getAllCharts(): Promise<string[]> {
+    // Get all chart files from the charts directory
+    const glob = require('glob').glob;
+    const pattern = path.join(this.projectRoot, 'charts', '**', '*-chart.ts');
+    
+    try {
+      const files = await glob(pattern, {
+        ignore: ['**/node_modules/**', '**/*.test.ts', '**/*.d.ts']
+      });
+      
+      return files;
+    } catch (error) {
+      console.error('Error finding chart files:', error);
+      return [];
+    }
   }
 
   private async synthesizeCharts(chartPaths: string[]) {
@@ -253,7 +289,7 @@ class SmartWatcher {
 
     // Run synthesis
     return new Promise<void>((resolve, reject) => {
-      // Source the env file and run synthesis
+      // Source the env file fresh each time to pick up any environment changes
       const synthCommand = '. ../.env-files/wi.env && npx cdk8s synth';
       const synthProcess = spawn('bash', ['-c', synthCommand], {
         cwd: this.projectRoot,

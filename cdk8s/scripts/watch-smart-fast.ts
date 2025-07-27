@@ -62,7 +62,8 @@ class FastSmartWatcher {
     const watchDirs = this.options.watchDirs || [
       path.join(this.projectRoot, 'charts'),
       path.join(this.projectRoot, 'lib'),
-      path.join(this.projectRoot, 'main.ts')
+      path.join(this.projectRoot, 'main.ts'),
+      path.join(this.projectRoot, '..', '.env-files')
     ];
 
     this.watcher = chokidar.watch(watchDirs, {
@@ -176,11 +177,23 @@ class FastSmartWatcher {
 
     console.log('\n🔄 Processing changes...');
     
-    // Check if any TypeScript files changed (requires recompilation)
-    // This includes main.ts, lib files, and chart files since they're all bundled together
-    const needsRecompile = Array.from(this.pendingChanges).some(file => 
+    // Check if any files that require recompilation changed
+    const changedFiles = Array.from(this.pendingChanges);
+    const hasEnvFileChange = changedFiles.some(file => file.includes('.env-files/'));
+    const hasTypeScriptChange = changedFiles.some(file => 
       file.endsWith('.ts') && !file.endsWith('.test.ts') && !file.endsWith('.d.ts')
     );
+    
+    // Need to recompile if TypeScript files changed OR env files changed
+    const needsRecompile = hasTypeScriptChange || hasEnvFileChange;
+    
+    if (hasEnvFileChange) {
+      console.log('🔄 Environment files changed - reloading configuration...');
+      // Clear Node's module cache to force reload of environment variables
+      if (this.compiledMainPath && require.cache[this.compiledMainPath]) {
+        delete require.cache[this.compiledMainPath];
+      }
+    }
 
     if (needsRecompile && this.options.useEsbuild) {
       console.log('⚡ Recompiling with esbuild...');
@@ -233,7 +246,16 @@ class FastSmartWatcher {
   private async getAffectedCharts(): Promise<string[]> {
     const changedFiles = Array.from(this.pendingChanges);
     
-    // Start with the filter options
+    // Check if any environment files changed
+    const hasEnvFileChange = changedFiles.some(file => file.includes('.env-files/'));
+    
+    // If env files changed, rebuild all charts since they might use environment variables
+    if (hasEnvFileChange) {
+      console.log('  Environment files changed - rebuilding all charts');
+      return await this.getAllCharts();
+    }
+    
+    // Otherwise, use normal filtering for TypeScript changes
     const filterOptions: FilterOptions = { ...this.options };
     
     // Add changed files to the filter
@@ -244,6 +266,23 @@ class FastSmartWatcher {
     
     // Apply filters to get affected charts
     return await this.filter.filter(filterOptions);
+  }
+
+  private async getAllCharts(): Promise<string[]> {
+    // Get all chart files from the charts directory
+    const glob = require('glob').glob;
+    const pattern = path.join(this.projectRoot, 'charts', '**', '*-chart.ts');
+    
+    try {
+      const files = await glob(pattern, {
+        ignore: ['**/node_modules/**', '**/*.test.ts', '**/*.d.ts']
+      });
+      
+      return files;
+    } catch (error) {
+      console.error('Error finding chart files:', error);
+      return [];
+    }
   }
 
   private async synthesizeCharts(chartPaths: string[]): Promise<void> {

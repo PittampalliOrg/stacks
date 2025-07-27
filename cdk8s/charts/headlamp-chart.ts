@@ -16,7 +16,8 @@ export class HeadlampChart extends Chart {
 
     const namespace = 'headlamp';
     const appName = 'headlamp';
-    const ingressHost = process.env.INGRESS_HOST || 'cnoe.localtest.me';
+    const baseHost = process.env.INGRESS_HOST || 'cnoe.localtest.me';
+    const ingressHost = `headlamp.${baseHost}`;
     const keycloakUrl = process.env.KEYCLOAK_URL || 'https://cnoe.localtest.me:8443/keycloak';
     const keycloakRealm = process.env.KEYCLOAK_REALM || 'cnoe';
 
@@ -202,7 +203,7 @@ export class HeadlampChart extends Chart {
       spec: {
         ingressClassName: 'nginx',
         rules: [{
-          host: `headlamp.${ingressHost}`,
+          host: ingressHost,
           http: {
             paths: [{
               path: '/',
