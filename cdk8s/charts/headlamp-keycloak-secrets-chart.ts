@@ -15,8 +15,8 @@ export class HeadlampKeycloakSecretsChart extends Chart {
     super(scope, id, props);
 
     const namespace = 'headlamp';
-    const keycloakUrl = process.env.KEYCLOAK_URL || 'https://cnoe.localtest.me/keycloak';
-    const keycloakRealm = process.env.KEYCLOAK_REALM || 'idpbuilder';
+    const keycloakUrl = process.env.KEYCLOAK_URL || 'https://cnoe.localtest.me:8443/keycloak';
+    const keycloakRealm = process.env.KEYCLOAK_REALM || 'cnoe';
 
     // Headlamp Keycloak OIDC Authentication Secrets
     new ExternalSecret(this, 'headlamp-oidc-secrets', {
@@ -44,7 +44,7 @@ export class HeadlampKeycloakSecretsChart extends Chart {
               'OIDC_CLIENT_SECRET': '{{ .clientSecret }}',
               'OIDC_ISSUER_URL': `${keycloakUrl}/realms/${keycloakRealm}`,
               'OIDC_SCOPES': 'openid email profile',
-              'OIDC_REDIRECT_URL': 'https://cnoe.localtest.me/headlamp/oidc-callback'
+              'OIDC_REDIRECT_URL': 'https://headlamp.cnoe.localtest.me:8443/oidc-callback'
             }
           }
         },

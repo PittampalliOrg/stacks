@@ -17,8 +17,8 @@ export class HeadlampChart extends Chart {
     const namespace = 'headlamp';
     const appName = 'headlamp';
     const ingressHost = process.env.INGRESS_HOST || 'cnoe.localtest.me';
-    const keycloakUrl = process.env.KEYCLOAK_URL || 'https://cnoe.localtest.me/keycloak';
-    const keycloakRealm = process.env.KEYCLOAK_REALM || 'idpbuilder';
+    const keycloakUrl = process.env.KEYCLOAK_URL || 'https://cnoe.localtest.me:8443/keycloak';
+    const keycloakRealm = process.env.KEYCLOAK_REALM || 'cnoe';
 
     // Create namespace
     new k8s.KubeNamespace(this, 'headlamp-namespace', {
@@ -101,12 +101,7 @@ export class HeadlampChart extends Chart {
               command: [
                 '/headlamp/headlamp-server',
                 '-in-cluster',
-                '-base-url', '/headlamp',
                 '-html-static-dir', '/headlamp/frontend',
-                '-oidc-client-id', '$(OIDC_CLIENT_ID)',
-                '-oidc-client-secret', '$(OIDC_CLIENT_SECRET)',
-                '-oidc-idp-issuer-url', `${keycloakUrl}/realms/${keycloakRealm}`,
-                '-oidc-scopes', 'email,profile',
               ],
               ports: [{
                 containerPort: 4466,
@@ -115,24 +110,15 @@ export class HeadlampChart extends Chart {
               }],
               env: [
                 {
-                  name: 'OIDC_CLIENT_ID',
-                  valueFrom: {
-                    secretKeyRef: {
-                      name: 'headlamp-oidc-secrets',
-                      key: 'OIDC_CLIENT_ID',
-                    },
-                  },
-                },
-                {
-                  name: 'OIDC_CLIENT_SECRET',
-                  valueFrom: {
-                    secretKeyRef: {
-                      name: 'headlamp-oidc-secrets',
-                      key: 'OIDC_CLIENT_SECRET',
-                    },
-                  },
+                  name: 'SSL_CERT_FILE',
+                  value: '/etc/ssl/certs/ca.crt',
                 },
               ],
+              volumeMounts: [{
+                name: 'ca-cert',
+                mountPath: '/etc/ssl/certs',
+                readOnly: true,
+              }],
               resources: {
                 requests: {
                   cpu: k8s.Quantity.fromString('100m'),
@@ -154,7 +140,7 @@ export class HeadlampChart extends Chart {
               },
               livenessProbe: {
                 httpGet: {
-                  path: '/headlamp/',
+                  path: '/',
                   port: k8s.IntOrString.fromString('http'),
                 },
                 initialDelaySeconds: 30,
@@ -162,11 +148,18 @@ export class HeadlampChart extends Chart {
               },
               readinessProbe: {
                 httpGet: {
-                  path: '/headlamp/',
+                  path: '/',
                   port: k8s.IntOrString.fromString('http'),
                 },
                 initialDelaySeconds: 5,
                 periodSeconds: 5,
+              },
+            }],
+            volumes: [{
+              name: 'ca-cert',
+              secret: {
+                secretName: 'idpbuilder-cert',
+                defaultMode: 0o644,
               },
             }],
           },
@@ -202,27 +195,18 @@ export class HeadlampChart extends Chart {
       metadata: {
         name: appName,
         namespace,
-        labels: {
-          'app.kubernetes.io/name': appName,
-        },
         annotations: {
-          'nginx.ingress.kubernetes.io/backend-protocol': 'HTTP',
-          'nginx.ingress.kubernetes.io/use-regex': 'true',
           'nginx.ingress.kubernetes.io/ssl-redirect': 'true',
-          'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true',
-          'nginx.ingress.kubernetes.io/proxy-body-size': '100m',
-          'nginx.ingress.kubernetes.io/proxy-read-timeout': '600',
-          'nginx.ingress.kubernetes.io/proxy-send-timeout': '600',
         },
       },
       spec: {
         ingressClassName: 'nginx',
         rules: [{
-          host: ingressHost,
+          host: `headlamp.${ingressHost}`,
           http: {
             paths: [{
-              path: '/headlamp(/|$)(.*)',
-              pathType: 'ImplementationSpecific',
+              path: '/',
+              pathType: 'Prefix',
               backend: {
                 service: {
                   name: appName,
@@ -233,10 +217,6 @@ export class HeadlampChart extends Chart {
               },
             }],
           },
-        }],
-        tls: [{
-          hosts: [ingressHost],
-          secretName: 'headlamp-tls',
         }],
       },
     });

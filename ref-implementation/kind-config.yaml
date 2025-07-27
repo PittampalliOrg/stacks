@@ -3,10 +3,10 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
   extraMounts:
-    - hostPath: /home/vscode/stacks/ref-implementation/keys/sa.key
+    - hostPath: /home/vscode/workspace/stacks/ref-implementation/keys/sa.key
       containerPath: /etc/kubernetes/pki/sa.key
       readOnly: true
-    - hostPath: /home/vscode/stacks/ref-implementation/keys/sa.pub
+    - hostPath: /home/vscode/workspace/stacks/ref-implementation/keys/sa.pub
       containerPath: /etc/kubernetes/pki/sa.pub
       readOnly: true
   kubeadmConfigPatches:

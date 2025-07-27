@@ -60,37 +60,42 @@
 				"github.vscode-github-actions",
 				"SanjulaGanepola.github-local-actions",
 				"ms-kubernetes-tools.kind-vscode",
-				"nrwl.angular-console"
+				"nrwl.angular-console",
+				"eamodio.gitlens"
 			]
 		}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [8443, 3000, 7007],
 
-	"postCreateCommand": ".devcontainer/postCreateCommand.sh && .devcontainer/install-tools.sh",
-	"postStartCommand": ".devcontainer/postStartCommand.sh",
-	"workspaceFolder": "/home/vscode/stacks",
-	"workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/stacks,type=bind",
+	"postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/workspace && /home/vscode/workspace/stacks/.devcontainer/postCreateCommand.sh && cd /home/vscode/workspace/stacks && /home/vscode/workspace/stacks/.devcontainer/install-tools.sh",
+	"postStartCommand": "/home/vscode/workspace/stacks/.devcontainer/postStartCommand.sh",
+	"workspaceFolder": "/home/vscode/workspace",
+	"mounts": [
+		{
+			"source": "/home/vpittamp/stacks",
+			"target": "/home/vscode/workspace/stacks",
+			"type": "bind"
+		},
+		{
+			"source": "/home/vpittamp/backstage-app",
+			"target": "/home/vscode/workspace/backstage-app",
+			"type": "bind"
+		}
+	],
 	"hostRequirements": {
 		"cpus": 6
 	},
 	"remoteEnv": {
-		"PATH": "${containerEnv:PATH}:/home/vscode/stacks:/home/vscode/backstage",
+		"PATH": "${containerEnv:PATH}:/home/vscode/workspace/stacks:/home/vscode/workspace/backstage",
 		"GIT_COMMITER_NAME": "${localEnv:GIT_COMMITER_NAME}",
 		"GIT_COMMITER_EMAIL": "${localEnv:GIT_COMMITER_EMAIL}"
 	},
 	"containerEnv": {
-	},
+	}
 	// Configure tool-specific properties.
 	// "customizations": {},
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
-	"mounts": [
-		{
-			"source": "/home/vpittamp/turbo/backstage",
-			"target": "/home/vscode/backstage",
-			"type": "bind"
-		}
-	]
 }

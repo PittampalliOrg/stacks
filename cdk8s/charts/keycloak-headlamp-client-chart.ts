@@ -1,10 +1,15 @@
 import { Construct } from 'constructs';
 import { Chart, ChartProps } from 'cdk8s';
 import * as k8s from '../imports/k8s';
+import { 
+  ExternalSecretV1Beta1 as ExternalSecret,
+  ExternalSecretV1Beta1SpecTargetCreationPolicy as ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretV1Beta1SpecTargetTemplateEngineVersion as ExternalSecretSpecTargetTemplateEngineVersion
+} from '../imports/external-secrets.io';
 
 /**
- * Creates a Kubernetes Secret for Headlamp Keycloak client credentials
- * This secret will be populated manually after creating the client in Keycloak
+ * Creates External Secret for Headlamp Keycloak client credentials
+ * The actual secret is stored in Azure Key Vault and synchronized via External Secrets Operator
  */
 export class KeycloakHeadlampClientChart extends Chart {
   constructor(scope: Construct, id: string, props?: ChartProps) {
@@ -12,11 +17,10 @@ export class KeycloakHeadlampClientChart extends Chart {
 
     const namespace = 'keycloak';
     
-    // Create a placeholder secret that will be manually updated with actual client credentials
-    // This ensures the secret exists for the ExternalSecret to reference
-    new k8s.KubeSecret(this, 'headlamp-client-secret', {
+    // Create an ExternalSecret that fetches the client credentials from Azure Key Vault
+    new ExternalSecret(this, 'headlamp-client-external-secret', {
       metadata: {
-        name: 'headlamp-client-credentials',
+        name: 'headlamp-client-external-secret',
         namespace,
         labels: {
           'app.kubernetes.io/managed-by': 'cdk8s',
@@ -25,14 +29,35 @@ export class KeycloakHeadlampClientChart extends Chart {
         },
         annotations: {
           'argocd.argoproj.io/sync-wave': '-50', // Early deployment
-          'argocd.argoproj.io/sync-options': 'SkipDryRunOnMissingResource=true',
         }
       },
-      stringData: {
-        'client-id': 'headlamp',
-        'client-secret': 'sP6EFCYaY9kDRXplxd1OBW16ZZVQmuAA',
-      },
-      type: 'Opaque',
+      spec: {
+        refreshInterval: '1h',
+        secretStoreRef: {
+          name: 'azure-keyvault-store',
+          kind: 'ClusterSecretStore'
+        },
+        target: {
+          name: 'headlamp-client-credentials',
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+          template: {
+            type: 'Opaque',
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
+            data: {
+              'client-id': 'headlamp',
+              'client-secret': '{{ .clientSecret }}'
+            }
+          }
+        },
+        data: [
+          {
+            secretKey: 'clientSecret',
+            remoteRef: {
+              key: 'KEYCLOAK-HEADLAMP-CLIENT-SECRET'
+            }
+          }
+        ]
+      }
     });
 
     // Create a ConfigMap with Keycloak client configuration template
@@ -52,21 +77,21 @@ export class KeycloakHeadlampClientChart extends Chart {
           clientId: 'headlamp',
           name: 'Headlamp Kubernetes Dashboard',
           description: 'OIDC client for Headlamp dashboard authentication',
-          rootUrl: 'https://cnoe.localtest.me/headlamp',
-          adminUrl: 'https://cnoe.localtest.me/headlamp',
-          baseUrl: '/headlamp',
+          rootUrl: 'https://headlamp.cnoe.localtest.me:8443',
+          adminUrl: 'https://headlamp.cnoe.localtest.me:8443',
+          baseUrl: '/',
           surrogateAuthRequired: false,
           enabled: true,
           alwaysDisplayInConsole: false,
           clientAuthenticatorType: 'client-secret',
           secret: 'GENERATED_IN_KEYCLOAK',
           redirectUris: [
-            'https://cnoe.localtest.me/headlamp/oidc-callback',
+            'https://headlamp.cnoe.localtest.me:8443/oidc-callback',
             'http://localhost:4466/oidc-callback',
             'http://localhost:8000/*'
           ],
           webOrigins: [
-            'https://cnoe.localtest.me',
+            'https://headlamp.cnoe.localtest.me:8443',
             'http://localhost:4466',
             'http://localhost:8000'
           ],
@@ -112,8 +137,8 @@ export class KeycloakHeadlampClientChart extends Chart {
    - URL: https://cnoe.localtest.me/keycloak/admin
    - Login with admin credentials
 
-2. Navigate to the idpbuilder realm:
-   - Select "idpbuilder" from the realm dropdown
+2. Navigate to the cnoe realm:
+   - Select "cnoe" from the realm dropdown
 
 3. Create a new client:
    - Go to Clients → Create client
@@ -129,16 +154,16 @@ export class KeycloakHeadlampClientChart extends Chart {
    - Uncheck other flows
 
 5. Configure Login settings:
-   - Root URL: https://cnoe.localtest.me/headlamp
-   - Home URL: https://cnoe.localtest.me/headlamp
+   - Root URL: https://headlamp.cnoe.localtest.me:8443
+   - Home URL: https://headlamp.cnoe.localtest.me:8443
    - Valid redirect URIs:
-     * https://cnoe.localtest.me/headlamp/oidc-callback
+     * https://headlamp.cnoe.localtest.me:8443/oidc-callback
      * http://localhost:4466/oidc-callback
      * http://localhost:8000/*
    - Valid post logout redirect URIs:
-     * https://cnoe.localtest.me/headlamp
+     * https://headlamp.cnoe.localtest.me:8443
    - Web origins:
-     * https://cnoe.localtest.me
+     * https://headlamp.cnoe.localtest.me:8443
      * http://localhost:4466
      * http://localhost:8000
 

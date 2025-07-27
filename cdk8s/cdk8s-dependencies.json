@@ -1,9 +1,9 @@
 {
-  "lastUpdated": "2025-07-25T21:57:05.829Z",
+  "lastUpdated": "2025-07-27T14:59:47.600Z",
   "charts": [
     {
       "name": "AllSecretsChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/all-secrets-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/all-secrets-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -12,7 +12,7 @@
     },
     {
       "name": "AppStackSecretsChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/app-stack-secrets-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/app-stack-secrets-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -21,7 +21,7 @@
     },
     {
       "name": "BootstrapSecretsChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/bootstrap-secrets-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/bootstrap-secrets-chart.ts",
       "dependencies": [
         "ExternalSecretsWorkloadIdentityChart"
       ],
@@ -33,7 +33,7 @@
     },
     {
       "name": "ExternalSecretsWorkloadIdentityChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/external-secrets-workload-identity-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/external-secrets-workload-identity-chart.ts",
       "dependencies": [],
       "dependents": [
         "BootstrapSecretsChart"
@@ -44,7 +44,7 @@
     },
     {
       "name": "HeadlampChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/headlamp-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/headlamp-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -53,7 +53,7 @@
     },
     {
       "name": "HeadlampKeycloakSecretsChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/headlamp-keycloak-secrets-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/headlamp-keycloak-secrets-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -62,7 +62,7 @@
     },
     {
       "name": "InfraSecretsChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/infra-secrets-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/infra-secrets-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -71,7 +71,7 @@
     },
     {
       "name": "KeycloakHeadlampClientChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/keycloak-headlamp-client-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/keycloak-headlamp-client-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -80,7 +80,7 @@
     },
     {
       "name": "NextJsChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/nextjs-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/nextjs-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -89,7 +89,7 @@
     },
     {
       "name": "NextJsSecretsChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/nextjs-secrets-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/nextjs-secrets-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -98,7 +98,7 @@
     },
     {
       "name": "PostgresChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/postgres-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/postgres-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -107,7 +107,7 @@
     },
     {
       "name": "RedisChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/redis-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/redis-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -116,7 +116,7 @@
     },
     {
       "name": "ArgoApplicationsChart",
-      "filePath": "/home/vscode/stacks/cdk8s/charts/apps/argo-applications-chart.ts",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/apps/argo-applications-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -134,55 +134,55 @@
   ],
   "fileHashes": [
     [
-      "/home/vscode/stacks/cdk8s/charts/redis-chart.ts",
+      "/home/vscode/workspace/stacks/cdk8s/charts/redis-chart.ts",
       "c3652a2671f44c205da358f41be62b79ce10e1de8fe12f4a67560ad8e4b794aa"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/postgres-chart.ts",
+      "/home/vscode/workspace/stacks/cdk8s/charts/postgres-chart.ts",
       "fce7e38e5ee2d4c498c0e63354939a7cc651665855a7d75dce48a1da2da505f2"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/nextjs-secrets-chart.ts",
+      "/home/vscode/workspace/stacks/cdk8s/charts/nextjs-secrets-chart.ts",
       "b1fcbf430d3834d696608902640e68d8c3a677e270c6aabcd57a3b4079c141c0"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/nextjs-chart.ts",
+      "/home/vscode/workspace/stacks/cdk8s/charts/nextjs-chart.ts",
       "124d01070503c321b44e370abea538cb1fa12acfcee3c9c4d66fb0820a233592"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/keycloak-headlamp-client-chart.ts",
-      "8fc0dafa6b7c2a2e7e60854186559a884e89fcde74c3b122e03b2653a5b432fe"
+      "/home/vscode/workspace/stacks/cdk8s/charts/keycloak-headlamp-client-chart.ts",
+      "b5bba39d1b77caae58180a048986cd200ef697382c055cb2ead2c0865f671ada"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/infra-secrets-chart.ts",
+      "/home/vscode/workspace/stacks/cdk8s/charts/infra-secrets-chart.ts",
       "5b7abf55ff672a455d799e31bd239ae5b5cf33c6d0b5cb7b8b3c86636b0258a8"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/headlamp-keycloak-secrets-chart.ts",
-      "a28191e43a56869f9c4c106fa71023cee6ef39d88d1efabd4643ac60d7d063d9"
+      "/home/vscode/workspace/stacks/cdk8s/charts/headlamp-keycloak-secrets-chart.ts",
+      "7a0a9400d63cfc8c424bf2f1b045dbb6c8fb40356a29e5c971ff0535e8fc6a21"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/headlamp-chart.ts",
-      "075e8ea7459619bf26ff7db22a69cf192cded65a8a3f83591be31aeb27ca2e5c"
+      "/home/vscode/workspace/stacks/cdk8s/charts/headlamp-chart.ts",
+      "a9824d467d01c1a8601302671c2e502eb2e904893b57d4c4f3bd5c66b5f96e5d"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/external-secrets-workload-identity-chart.ts",
+      "/home/vscode/workspace/stacks/cdk8s/charts/external-secrets-workload-identity-chart.ts",
       "d39ce0ec6d1b66852015e35cc2872d7a16a676458bcad895a076baa5c21ae1bd"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/bootstrap-secrets-chart.ts",
+      "/home/vscode/workspace/stacks/cdk8s/charts/bootstrap-secrets-chart.ts",
       "40c9bde718a57faf0f8280c3e7c63cb333696f2f0dac6f7de66c3cf52997f74e"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/app-stack-secrets-chart.ts",
+      "/home/vscode/workspace/stacks/cdk8s/charts/app-stack-secrets-chart.ts",
       "67e0b4055cb6e719483445ea766adba3631ce10c3fbf2d412b9518c7b6ab42c9"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/all-secrets-chart.ts",
+      "/home/vscode/workspace/stacks/cdk8s/charts/all-secrets-chart.ts",
       "f87e7644e70cde78b67429666b873eba1417e8ed1a477ec31a0dbf6a9bf4d6e8"
     ],
     [
-      "/home/vscode/stacks/cdk8s/charts/apps/argo-applications-chart.ts",
+      "/home/vscode/workspace/stacks/cdk8s/charts/apps/argo-applications-chart.ts",
       "c0bcfc0e988fd6f247faeb34da3ddb517bece4146743842829021f635ab61458"
     ]
   ]
