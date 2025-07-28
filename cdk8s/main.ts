@@ -13,6 +13,7 @@ import { HeadlampKeycloakSecretsChart } from './charts/headlamp-keycloak-secrets
 import { KeycloakHeadlampClientChart } from './charts/keycloak-headlamp-client-chart';
 import { KargoHelmChart } from './charts/kargo-helm-chart';
 import { KargoSecretsChart } from './charts/kargo-secrets-chart';
+import { KargoWebhookPatchChart } from './charts/kargo-webhook-patch-chart';
 import { KargoPipelinesProjectChart } from './charts/kargo-pipelines-project-chart';
 import { KargoPipelinesCredentialsChart } from './charts/kargo-pipelines-credentials-chart';
 import { KargoNextjsPipelineChart } from './charts/kargo-nextjs-pipeline-chart';
@@ -40,6 +41,7 @@ IdpBuilderChartFactory.register('KargoPipelinesProjectChart', KargoPipelinesProj
 IdpBuilderChartFactory.register('KargoPipelinesCredentialsChart', KargoPipelinesCredentialsChart);
 IdpBuilderChartFactory.register('KargoNextjsPipelineChart', KargoNextjsPipelineChart);
 IdpBuilderChartFactory.register('KargoBackstagePipelineChart', KargoBackstagePipelineChart);
+IdpBuilderChartFactory.register('KargoWebhookPatchChart', KargoWebhookPatchChart);
 // Add more chart registrations here as you create them
 
 // Main synthesis function

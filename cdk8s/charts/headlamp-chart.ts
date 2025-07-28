@@ -109,17 +109,7 @@ export class HeadlampChart extends Chart {
                 name: 'http',
                 protocol: 'TCP',
               }],
-              env: [
-                {
-                  name: 'SSL_CERT_FILE',
-                  value: '/etc/ssl/certs/ca.crt',
-                },
-              ],
-              volumeMounts: [{
-                name: 'ca-cert',
-                mountPath: '/etc/ssl/certs',
-                readOnly: true,
-              }],
+              env: [],
               resources: {
                 requests: {
                   cpu: k8s.Quantity.fromString('100m'),
@@ -154,13 +144,6 @@ export class HeadlampChart extends Chart {
                 },
                 initialDelaySeconds: 5,
                 periodSeconds: 5,
-              },
-            }],
-            volumes: [{
-              name: 'ca-cert',
-              secret: {
-                secretName: 'idpbuilder-cert',
-                defaultMode: 0o644,
               },
             }],
           },

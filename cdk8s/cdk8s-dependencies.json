@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-07-27T14:59:47.600Z",
+  "lastUpdated": "2025-07-28T11:43:23.192Z",
   "charts": [
     {
       "name": "AllSecretsChart",
@@ -63,6 +63,60 @@
     {
       "name": "InfraSecretsChart",
       "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/infra-secrets-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoBackstagePipelineChart",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/kargo-backstage-pipeline-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoHelmChart",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/kargo-helm-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoNextjsPipelineChart",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/kargo-nextjs-pipeline-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoPipelinesCredentialsChart",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/kargo-pipelines-credentials-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoPipelinesProjectChart",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/kargo-pipelines-project-chart.ts",
+      "dependencies": [],
+      "dependents": [],
+      "imports": [
+        "Chart"
+      ]
+    },
+    {
+      "name": "KargoSecretsChart",
+      "filePath": "/home/vscode/workspace/stacks/cdk8s/charts/kargo-secrets-chart.ts",
       "dependencies": [],
       "dependents": [],
       "imports": [
@@ -147,11 +201,35 @@
     ],
     [
       "/home/vscode/workspace/stacks/cdk8s/charts/nextjs-chart.ts",
-      "124d01070503c321b44e370abea538cb1fa12acfcee3c9c4d66fb0820a233592"
+      "1f44af6c1bcc3b32b956255ff062b7ef8096d925d130a622212737483fec9733"
     ],
     [
       "/home/vscode/workspace/stacks/cdk8s/charts/keycloak-headlamp-client-chart.ts",
-      "b5bba39d1b77caae58180a048986cd200ef697382c055cb2ead2c0865f671ada"
+      "b7996f793bb113c56ab8cfcbbf6764c8d476a0547e7b912f18fe51c9491201b6"
+    ],
+    [
+      "/home/vscode/workspace/stacks/cdk8s/charts/kargo-secrets-chart.ts",
+      "9149b2a57238929db9dbd53bafacbe6fe14e64b6cac78568913a213cfb8652c3"
+    ],
+    [
+      "/home/vscode/workspace/stacks/cdk8s/charts/kargo-pipelines-project-chart.ts",
+      "c8fb1127c2b958a0a98b728b6ebef39d6c1560028e2ccb811868a248a13c7f34"
+    ],
+    [
+      "/home/vscode/workspace/stacks/cdk8s/charts/kargo-pipelines-credentials-chart.ts",
+      "de0c60159ce29a4a37e8d36d28eb35019718f9547cc2608316280323cd28f530"
+    ],
+    [
+      "/home/vscode/workspace/stacks/cdk8s/charts/kargo-nextjs-pipeline-chart.ts",
+      "73f34e5aec40ac3091252ac43c568b3433bab0cbb8cc5a0135543146dba070d6"
+    ],
+    [
+      "/home/vscode/workspace/stacks/cdk8s/charts/kargo-helm-chart.ts",
+      "5d055ab777deaf6f83697026c3a8acee5c27225a961214550b10b8ad428eee6b"
+    ],
+    [
+      "/home/vscode/workspace/stacks/cdk8s/charts/kargo-backstage-pipeline-chart.ts",
+      "5f53d10ea385ddba0f7be6adb2e5508a07b6ad76f63420411ec2090f8b0c564c"
     ],
     [
       "/home/vscode/workspace/stacks/cdk8s/charts/infra-secrets-chart.ts",
@@ -163,7 +241,7 @@
     ],
     [
       "/home/vscode/workspace/stacks/cdk8s/charts/headlamp-chart.ts",
-      "a9824d467d01c1a8601302671c2e502eb2e904893b57d4c4f3bd5c66b5f96e5d"
+      "f483a5e580a07e081f87daff974f7964cf2a0a01515f61970f5bd39d837d4218"
     ],
     [
       "/home/vscode/workspace/stacks/cdk8s/charts/external-secrets-workload-identity-chart.ts",

@@ -79,6 +79,7 @@ export interface ApplicationConfig {
     ignoreDifferences?: Array<{
       group?: string;
       kind: string;
+      name?: string;
       jsonPointers?: string[];
     }>;
   };

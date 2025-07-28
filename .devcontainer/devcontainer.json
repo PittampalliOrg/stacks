@@ -9,7 +9,12 @@
 		"--sysctl", "net.ipv6.conf.all.disable_ipv6=1"
     ], 
 	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		// "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker": {
+			"version": "latest",
+			"dockerSocketPath": "/var/run/docker.sock",
+			"dockerComposeVersion": "2"
+		},
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/itsmechlark/features/1password:1": {},
 		"ghcr.io/devcontainers/features/azure-cli:1": {},

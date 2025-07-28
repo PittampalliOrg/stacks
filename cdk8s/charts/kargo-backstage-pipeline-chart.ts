@@ -38,11 +38,10 @@ export class KargoBackstagePipelineChart extends Chart {
           {
             image: {
               repoUrl: 'ghcr.io/pittampalliorg/backstage',
-              semverConstraint: '>=0.0.0',
               discoveryLimit: 10,
-              imageSelectionStrategy: WarehouseSpecSubscriptionsImageImageSelectionStrategy.SEM_VER,
-              strictSemvers: false,  // Allow tags like "v124-dev" without strict semver
-              allowTags: 'v.*'  // Track all tags starting with 'v' (regex)
+              imageSelectionStrategy: WarehouseSpecSubscriptionsImageImageSelectionStrategy.LEXICAL,
+              allowTags: '^v\\d+.*',  // Tags starting with 'v' followed by digits (e.g., v124-dev)
+              strictSemvers: false  // Not applicable for LEXICAL strategy
             }
           }
         ]

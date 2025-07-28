@@ -38,11 +38,10 @@ export class KargoNextjsPipelineChart extends Chart {
           {
             image: {
               repoUrl: 'ghcr.io/pittampalliorg/chat',
-              semverConstraint: '>=0.0.0',
               discoveryLimit: 10,
-              imageSelectionStrategy: WarehouseSpecSubscriptionsImageImageSelectionStrategy.SEM_VER,
-              strictSemvers: false,  // Allow tags like "78" without semver format
-              allowTags: '.*'  // Track all tags (regex)
+              imageSelectionStrategy: WarehouseSpecSubscriptionsImageImageSelectionStrategy.NEWEST_BUILD,
+              allowTags: '^\\d+$',  // Only numeric tags (GitHub run numbers)
+              strictSemvers: false  // Not applicable for NEWEST_BUILD strategy
             }
           }
         ]

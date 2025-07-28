@@ -324,7 +324,25 @@ export const applicationConfigs: ApplicationConfig[] = [
           selfHeal: true
         },
         syncOptions: ['CreateNamespace=true', 'ServerSideApply=true', 'Replace=true']
-      }
+      },
+      ignoreDifferences: [
+        {
+          group: 'cert-manager.io',
+          kind: 'Certificate'
+        },
+        {
+          group: 'cert-manager.io',
+          kind: 'Issuer'
+        },
+        {
+          group: 'batch',
+          kind: 'Job',
+          jsonPointers: [
+            '/spec/podReplacementPolicy',
+            '/status/terminating'
+          ]
+        }
+      ]
     }
   },
   {
@@ -397,7 +415,8 @@ export const applicationConfigs: ApplicationConfig[] = [
       labels: {
         'app.kubernetes.io/component': 'pipeline',
         'app.kubernetes.io/part-of': 'kargo-pipelines',
-        'app.kubernetes.io/name': 'kargo-nextjs-pipeline'
+        'app.kubernetes.io/name': 'kargo-nextjs-pipeline',
+        'app.kubernetes.io/managed-by': 'argocd'
       },
       syncPolicy: {
         automated: {
@@ -424,7 +443,8 @@ export const applicationConfigs: ApplicationConfig[] = [
       labels: {
         'app.kubernetes.io/component': 'pipeline',
         'app.kubernetes.io/part-of': 'kargo-pipelines',
-        'app.kubernetes.io/name': 'kargo-backstage-pipeline'
+        'app.kubernetes.io/name': 'kargo-backstage-pipeline',
+        'app.kubernetes.io/managed-by': 'argocd'
       },
       syncPolicy: {
         automated: {
