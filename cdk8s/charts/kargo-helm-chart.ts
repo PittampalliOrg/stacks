@@ -1,7 +1,6 @@
-import { Chart, ChartProps } from 'cdk8s';
+import { Chart, ChartProps, Helm, ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { KubeNamespace } from '../imports/k8s';
-import { Kargo } from '../imports/kargo';
 
 export interface KargoHelmChartProps extends ChartProps {
   namespace?: string;
@@ -29,8 +28,10 @@ export class KargoHelmChart extends Chart {
       },
     });
 
-    // Deploy Kargo using imported Helm chart construct
-    new Kargo(this, 'kargo', {
+    // Deploy Kargo using Helm chart directly
+    const kargoHelm = new Helm(this, 'kargo', {
+      chart: 'oci://ghcr.io/akuity/kargo-charts/kargo',
+      version: '1.6.1',
       namespace: namespace,
       releaseName: 'kargo',
       values: {
@@ -98,7 +99,7 @@ export class KargoHelmChart extends Chart {
         // Webhooks configuration
         webhooksServer: {
           tls: {
-            selfSignedCert: false,
+            selfSignedCert: true,
           },
         },
         webhooks: {
@@ -158,7 +159,7 @@ export class KargoHelmChart extends Chart {
           installClusterRoles: true,
           installClusterRoleBindings: true,
         },
-        // Disable certificate generation
+        // Disable cert-manager certificate generation (idpbuilder handles certs)
         certificates: {
           enabled: false,
         },
@@ -170,5 +171,11 @@ export class KargoHelmChart extends Chart {
         },
       },
     });
+
+    // Filter out cert-manager resources
+    // Since we can't modify Helm chart's included resources directly,
+    // we'll need to handle this at the manifest level.
+    // The cert-manager annotations will remain but should be ignored
+    // when cert-manager is not present.
   }
 }

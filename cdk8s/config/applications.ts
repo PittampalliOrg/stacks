@@ -326,6 +326,114 @@ export const applicationConfigs: ApplicationConfig[] = [
         syncOptions: ['CreateNamespace=true', 'ServerSideApply=true', 'Replace=true']
       }
     }
+  },
+  {
+    name: 'kargo-pipelines-project',
+    namespace: 'kargo-pipelines',
+    chart: {
+      type: 'KargoPipelinesProjectChart'
+    },
+    dependencies: {
+      kargo: {
+        type: 'KargoHelmChart'
+      }
+    },
+    argocd: {
+      syncWave: '75',  // After Kargo installation
+      labels: {
+        'app.kubernetes.io/component': 'project',
+        'app.kubernetes.io/part-of': 'kargo-pipelines',
+        'app.kubernetes.io/name': 'kargo-pipelines-project'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  {
+    name: 'kargo-pipelines-credentials',
+    namespace: 'kargo-pipelines',
+    chart: {
+      type: 'KargoPipelinesCredentialsChart'
+    },
+    dependencies: {
+      kargoPipelinesProject: {
+        type: 'KargoPipelinesProjectChart'
+      }
+    },
+    argocd: {
+      syncWave: '76',  // After project creation
+      labels: {
+        'app.kubernetes.io/component': 'credentials',
+        'app.kubernetes.io/part-of': 'kargo-pipelines',
+        'app.kubernetes.io/name': 'kargo-pipelines-credentials'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  {
+    name: 'kargo-nextjs-pipeline',
+    namespace: 'kargo-pipelines',
+    chart: {
+      type: 'KargoNextjsPipelineChart'
+    },
+    dependencies: {
+      kargoPipelinesCredentials: {
+        type: 'KargoPipelinesCredentialsChart'
+      }
+    },
+    argocd: {
+      syncWave: '80',  // After credentials
+      labels: {
+        'app.kubernetes.io/component': 'pipeline',
+        'app.kubernetes.io/part-of': 'kargo-pipelines',
+        'app.kubernetes.io/name': 'kargo-nextjs-pipeline'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  {
+    name: 'kargo-backstage-pipeline',
+    namespace: 'kargo-pipelines',
+    chart: {
+      type: 'KargoBackstagePipelineChart'
+    },
+    dependencies: {
+      kargoPipelinesCredentials: {
+        type: 'KargoPipelinesCredentialsChart'
+      }
+    },
+    argocd: {
+      syncWave: '80',  // After credentials
+      labels: {
+        'app.kubernetes.io/component': 'pipeline',
+        'app.kubernetes.io/part-of': 'kargo-pipelines',
+        'app.kubernetes.io/name': 'kargo-backstage-pipeline'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
   }
   // Add more applications here as needed
 ];

@@ -13,6 +13,10 @@ import { HeadlampKeycloakSecretsChart } from './charts/headlamp-keycloak-secrets
 import { KeycloakHeadlampClientChart } from './charts/keycloak-headlamp-client-chart';
 import { KargoHelmChart } from './charts/kargo-helm-chart';
 import { KargoSecretsChart } from './charts/kargo-secrets-chart';
+import { KargoPipelinesProjectChart } from './charts/kargo-pipelines-project-chart';
+import { KargoPipelinesCredentialsChart } from './charts/kargo-pipelines-credentials-chart';
+import { KargoNextjsPipelineChart } from './charts/kargo-nextjs-pipeline-chart';
+import { KargoBackstagePipelineChart } from './charts/kargo-backstage-pipeline-chart';
 import { ArgoApplicationsChart } from './charts/apps/argo-applications-chart';
 import { IdpBuilderChartFactory } from './lib/idpbuilder-chart-factory';
 import { applicationConfigs } from './config/applications';
@@ -32,6 +36,10 @@ IdpBuilderChartFactory.register('PostgresChart', PostgresChart);
 IdpBuilderChartFactory.register('RedisChart', RedisChart);
 IdpBuilderChartFactory.register('KargoHelmChart', KargoHelmChart);
 IdpBuilderChartFactory.register('KargoSecretsChart', KargoSecretsChart);
+IdpBuilderChartFactory.register('KargoPipelinesProjectChart', KargoPipelinesProjectChart);
+IdpBuilderChartFactory.register('KargoPipelinesCredentialsChart', KargoPipelinesCredentialsChart);
+IdpBuilderChartFactory.register('KargoNextjsPipelineChart', KargoNextjsPipelineChart);
+IdpBuilderChartFactory.register('KargoBackstagePipelineChart', KargoBackstagePipelineChart);
 // Add more chart registrations here as you create them
 
 // Main synthesis function

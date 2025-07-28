@@ -22,4 +22,15 @@ if [ -n "$GPG_SECRET_KEY_PART1" ] && [ -n "$GPG_SECRET_KEY_PART2" ]; then
     fi
 else
     echo "GPG key parts not found, skipping GPG import"
-fi 
+fi
+
+# Check if idpbuilder cluster exists and nginx proxy is not running
+if kubectl cluster-info &>/dev/null 2>&1; then
+    # Check if proxy container is running
+    if ! docker ps --filter "name=idpbuilder-nginx-proxy" --format '{{.Names}}' | grep -q "idpbuilder-nginx-proxy"; then
+        echo "🔄 Detected idpbuilder cluster but nginx proxy is not running. Starting proxy..."
+        /home/vscode/workspace/stacks/.devcontainer/setup-nginx-proxy.sh
+    else
+        echo "✅ Nginx proxy is already running"
+    fi
+fi

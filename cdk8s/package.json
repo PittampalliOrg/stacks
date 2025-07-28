@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "import": "cdk8s import",
-    "synth": "npx cdk8s synth",
+    "synth": "npx cdk8s synth && node scripts/remove-cert-manager.js",
     "synth:dagger": "command -v dagger >/dev/null 2>&1 || (echo 'Dagger not installed. Visit https://docs.dagger.io/install' && exit 1) && dagger --mod . call synthesize --source . export --path ./dist",
     "synth:prod": "dagger call synthesize-with-env-file --source . --environment=production --env-file=.env-files/production.env export --path ./dist",
     "synth:dev": "dagger call synthesize-with-env-file --source . --environment=dev --env-file=.env-files/wi.env export --path ./dist",

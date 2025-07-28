@@ -32,6 +32,9 @@ if [ -n "$GIT_COMMITER_EMAIL" ]; then
     git config --global user.email "$GIT_COMMITER_EMAIL"
 fi
 
+# Add alias for idpbuilder with automatic nginx proxy setup
+echo "alias idpbuilder-create='/home/vscode/workspace/stacks/.devcontainer/idpbuilder-with-proxy.sh'" >> $HOME/.bashrc
+
 # 1. Configure GPG agent
 # mkdir -p ~/.gnupg
 # echo "pinentry-program /usr/bin/pinentry" > ~/.gnupg/gpg-agent.conf
