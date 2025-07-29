@@ -91,6 +91,15 @@ echo "Installing kind..."
 curl -Lo ~/.local/bin/kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
 chmod +x ~/.local/bin/kind
 
+# Install ORAS
+# echo "Installing ORAS..."
+# VERSION="1.2.0"
+# curl -LO "https://github.com/oras-project/oras/releases/download/v${VERSION}/oras_${VERSION}_linux_amd64.tar.gz"
+# mkdir -p oras-install/
+# tar -zxf oras_${VERSION}_*.tar.gz -C oras-install/
+# sudo mv oras-install/oras /usr/local/bin/
+# rm -rf oras_${VERSION}_*.tar.gz oras-install/
+
 # Add .local/bin and backstage bin directories to PATH in .bashrc if not already present
 if ! grep -q 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
@@ -114,3 +123,4 @@ echo "  - cdk8s-cli"
 echo "  - jq"
 echo "  - yq"
 echo "  - kind"
+echo "  - oras"

@@ -106,7 +106,7 @@ data:
 
     integrations:
       gitea:
-        - baseUrl: https://cnoe.localtest.me:8443/gitea
+        - baseUrl: https://gitea.cnoe.localtest.me:8443
           host: cnoe.localtest.me:8443
           username: ${GITEA_USERNAME}
           password: ${GITEA_PASSWORD}
@@ -166,8 +166,11 @@ data:
         # Examples from a public GitHub repository.
         - type: url
           target: https://cnoe.localtest.me/gitea/giteaAdmin/idpbuilder-localdev-backstage-templates-entities/raw/branch/main/catalog-info.yaml
-          rules:
-            - allow: [Component, System, API, Resource, Location, Template, User, Group]
+        ## Uncomment these lines to add an example org
+        # - type: url
+        #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
+        #   rules:
+        #     - allow: [User, Group]
     kubernetes:
       serviceLocatorMethod:
         type: 'multiTenant'
@@ -260,7 +263,7 @@ spec:
                 name: gitea-credentials
             - secretRef:
                 name: argocd-credentials
-          image: ghcr.io/pittampalliorg/backstage-app:run-14
+          image: ghcr.io/cnoe-io/backstage-app:9232d633b2698fffa6d0a73b715e06640d170162
           name: backstage
           ports:
             - containerPort: 7007
@@ -270,8 +273,6 @@ spec:
               name: backstage-config
               readOnly: true
       serviceAccountName: backstage
-      imagePullSecrets:
-        - name: ghcr-dockercfg
       volumes:
         - name: backstage-config
           projected:
@@ -426,41 +427,6 @@ spec:
       remoteRef:
         key: gitea-credential
         property: password
----
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  labels:
-    app.kubernetes.io/name: ghcr-dockercfg
-    app.kubernetes.io/part-of: backstage
-  name: ghcr-dockercfg-external
-  namespace: backstage
-spec:
-  data:
-    - remoteRef:
-        key: GITHUB-PAT
-      secretKey: pat
-  refreshInterval: 1h
-  secretStoreRef:
-    kind: ClusterSecretStore
-    name: azure-keyvault-store
-  target:
-    creationPolicy: Owner
-    name: ghcr-dockercfg
-    template:
-      data:
-        .dockerconfigjson: |-
-          {
-            "auths": {
-              "ghcr.io": {
-                "username": "pittampalliorg",
-                "password": "{{ .pat }}",
-                "auth": "{{ (printf "%s:%s" "pittampalliorg" .pat) | b64enc }}"
-              }
-            }
-          }
-      engineVersion: v2
-      type: kubernetes.io/dockerconfigjson
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

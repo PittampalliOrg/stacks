@@ -4,27 +4,24 @@
 	"name": "Docker in Docker",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
-    "runArgs": [
-        "--env-file", "${localWorkspaceFolder}/.env-files/wi.env",
-		"--sysctl", "net.ipv6.conf.all.disable_ipv6=1"
-    ], 
+	// "remoteUser": "root",
+	"runArgs": [
+		"--env-file",
+		"${localWorkspaceFolder}/.env-files/wi.env"
+
+		// "--sysctl",
+		// "net.ipv6.conf.all.disable_ipv6=1"
+	],
 	"features": {
-		// "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-		"ghcr.io/devcontainers/features/docker-outside-of-docker": {
-			"version": "latest",
-			"dockerSocketPath": "/var/run/docker.sock",
-			"dockerComposeVersion": "2"
-		},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/itsmechlark/features/1password:1": {},
 		"ghcr.io/devcontainers/features/azure-cli:1": {},
 		"ghcr.io/devcontainers/features/node:1": {
 			"version": "20"
 		},
-		"ghcr.io/devcontainers/features/python": {
-		},
-		"ghcr.io/devcontainers-extra/features/poetry": {
-		},
+		"ghcr.io/devcontainers/features/python": {},
+		"ghcr.io/devcontainers-extra/features/poetry": {},
 		"ghcr.io/devcontainers/features/kubectl-helm-minikube": {
 			"version": "latest",
 			"helmVersion": "latest",
@@ -45,6 +42,11 @@
 				"pwd",
 				"git status"
 			]
+		},
+		"ghcr.io/dhoeric/features/oras": {
+			"version": "latest",
+			"installBashCompletion": true,
+			"installZshCompletion": false
 		}
 	},
 	"customizations": {
@@ -72,7 +74,6 @@
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [8443, 3000, 7007],
-
 	"postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/workspace && /home/vscode/workspace/stacks/.devcontainer/postCreateCommand.sh && cd /home/vscode/workspace/stacks && /home/vscode/workspace/stacks/.devcontainer/install-tools.sh",
 	"postStartCommand": "/home/vscode/workspace/stacks/.devcontainer/postStartCommand.sh",
 	"workspaceFolder": "/home/vscode/workspace",
@@ -96,11 +97,9 @@
 		"GIT_COMMITER_NAME": "${localEnv:GIT_COMMITER_NAME}",
 		"GIT_COMMITER_EMAIL": "${localEnv:GIT_COMMITER_EMAIL}"
 	},
-	"containerEnv": {
-	}
+	"containerEnv": {}
 	// Configure tool-specific properties.
 	// "customizations": {},
-
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
 }

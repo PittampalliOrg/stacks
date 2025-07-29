@@ -454,6 +454,28 @@ export const applicationConfigs: ApplicationConfig[] = [
         syncOptions: ['CreateNamespace=true']
       }
     }
+  },
+  {
+    name: 'dagger-infra',
+    namespace: 'argo',
+    chart: {
+      type: 'DaggerInfraChart'
+    },
+    argocd: {
+      syncWave: '-80',  // Deploy before Argo Workflows
+      labels: {
+        'app.kubernetes.io/component': 'rbac',
+        'app.kubernetes.io/part-of': 'argo-workflows',
+        'app.kubernetes.io/name': 'dagger-infra'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
   }
   // Add more applications here as needed
 ];
