@@ -99,14 +99,12 @@ export class KargoBackstagePipelineChart extends Chart {
                 }
               },
               {
-                uses: 'yaml-update',
+                uses: 'exec',
                 config: {
-                  path: './repo/ref-implementation/backstage/manifests/install.yaml',
-                  updates: [
-                    {
-                      key: 'spec.template.spec.containers[0].image',
-                      value: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
-                    }
+                  command: '/bin/sh',
+                  args: [
+                    '-c',
+                    'yq eval \'(select(.kind == "Deployment" and .metadata.name == "backstage") | .spec.template.spec.containers[0].image) = "ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}"\' -i ./repo/ref-implementation/backstage/manifests/install.yaml'
                   ]
                 }
               },
@@ -181,14 +179,12 @@ export class KargoBackstagePipelineChart extends Chart {
                 }
               },
               {
-                uses: 'yaml-update',
+                uses: 'exec',
                 config: {
-                  path: './repo/ref-implementation/backstage/manifests/install.yaml',
-                  updates: [
-                    {
-                      key: 'spec.template.spec.containers[0].image',
-                      value: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
-                    }
+                  command: '/bin/sh',
+                  args: [
+                    '-c',
+                    'yq eval \'(select(.kind == "Deployment" and .metadata.name == "backstage") | .spec.template.spec.containers[0].image) = "ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}"\' -i ./repo/ref-implementation/backstage/manifests/install.yaml'
                   ]
                 }
               },
