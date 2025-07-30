@@ -19,6 +19,7 @@ import { KargoPipelinesCredentialsChart } from './charts/kargo-pipelines-credent
 import { KargoNextjsPipelineChart } from './charts/kargo-nextjs-pipeline-chart';
 import { KargoBackstagePipelineChart } from './charts/kargo-backstage-pipeline-chart';
 import { DaggerInfraChart } from './charts/dagger-infra-chart';
+import { BackstageChart } from './charts/backstage-chart';
 import { ArgoApplicationsChart } from './charts/apps/argo-applications-chart';
 import { IdpBuilderChartFactory } from './lib/idpbuilder-chart-factory';
 import { applicationConfigs } from './config/applications';
@@ -44,6 +45,7 @@ IdpBuilderChartFactory.register('KargoNextjsPipelineChart', KargoNextjsPipelineC
 IdpBuilderChartFactory.register('KargoBackstagePipelineChart', KargoBackstagePipelineChart);
 IdpBuilderChartFactory.register('KargoWebhookPatchChart', KargoWebhookPatchChart);
 IdpBuilderChartFactory.register('DaggerInfraChart', DaggerInfraChart);
+IdpBuilderChartFactory.register('BackstageChart', BackstageChart);
 // Add more chart registrations here as you create them
 
 // Main synthesis function

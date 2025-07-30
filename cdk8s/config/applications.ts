@@ -346,6 +346,28 @@ export const applicationConfigs: ApplicationConfig[] = [
     }
   },
   {
+    name: 'backstage',
+    namespace: 'backstage',
+    chart: {
+      type: 'BackstageChart'
+    },
+    argocd: {
+      syncWave: '20',
+      labels: {
+        'app.kubernetes.io/component': 'developer-portal',
+        'app.kubernetes.io/part-of': 'platform',
+        'app.kubernetes.io/name': 'backstage'
+      },
+      syncPolicy: {
+        automated: {
+          prune: false,
+          selfHeal: false
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  {
     name: 'kargo-pipelines-project',
     namespace: 'kargo-pipelines',
     chart: {
