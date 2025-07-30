@@ -263,7 +263,7 @@ spec:
                 name: gitea-credentials
             - secretRef:
                 name: argocd-credentials
-          image: ghcr.io/cnoe-io/backstage-app:9232d633b2698fffa6d0a73b715e06640d170162
+          image: ghcr.io/pittampalliorg/backstage-app:v25
           name: backstage
           ports:
             - containerPort: 7007
@@ -273,6 +273,8 @@ spec:
               name: backstage-config
               readOnly: true
       serviceAccountName: backstage
+      imagePullSecrets:
+        - name: ghcr-dockercfg
       volumes:
         - name: backstage-config
           projected:
@@ -427,6 +429,42 @@ spec:
       remoteRef:
         key: gitea-credential
         property: password
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: ghcr-dockercfg-external
+  namespace: backstage
+  labels:
+    app.kubernetes.io/name: ghcr-dockercfg
+    app.kubernetes.io/part-of: backstage
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: azure-keyvault-store
+    kind: ClusterSecretStore
+  target:
+    name: ghcr-dockercfg
+    creationPolicy: Owner
+    template:
+      type: kubernetes.io/dockerconfigjson
+      data:
+        .dockerconfigjson: |
+          {
+            "auths": {
+              "ghcr.io": {
+                "username": "pittampalliorg",
+                "password": "{{ .pat }}",
+                "auth": "{{ printf "%s:%s" "pittampalliorg" .pat | b64enc }}"
+              }
+            }
+          }
+  data:
+    - secretKey: pat
+      remoteRef:
+        key: GITHUB-PAT
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

@@ -99,10 +99,22 @@ export class KargoBackstagePipelineChart extends Chart {
                 }
               },
               {
+                uses: 'yaml-update',
+                config: {
+                  path: './repo/stacks/ref-implementation/backstage/manifests/install.yaml',
+                  updates: [
+                    {
+                      key: 'spec.template.spec.containers[0].image',
+                      value: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
+                    }
+                  ]
+                }
+              },
+              {
                 uses: 'git-commit',
                 config: {
                   path: './repo',
-                  message: 'chore(backstage-dev): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
+                  message: 'chore(backstage-dev): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }} in images.json and manifests'
                 }
               },
               {
@@ -169,10 +181,22 @@ export class KargoBackstagePipelineChart extends Chart {
                 }
               },
               {
+                uses: 'yaml-update',
+                config: {
+                  path: './repo/stacks/ref-implementation/backstage/manifests/install.yaml',
+                  updates: [
+                    {
+                      key: 'spec.template.spec.containers[0].image',
+                      value: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
+                    }
+                  ]
+                }
+              },
+              {
                 uses: 'git-commit',
                 config: {
                   path: './repo',
-                  message: 'chore(backstage-prod): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
+                  message: 'chore(backstage-prod): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }} in images.json and manifests'
                 }
               },
               {
