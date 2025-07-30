@@ -38,13 +38,13 @@ export class ImageLoader {
       this.imageConfigs = {
         dev: {
           nextjs: 'ghcr.io/pittampalliorg/chat:latest',
-          backstage: 'ghcr.io/pittampalliorg/backstage:latest',
+          backstage: 'ghcr.io/pittampalliorg/backstage-app:latest',
           flagdUi: 'vpittamp.azurecr.io/flagd-ui:latest',
           claudecodeui: 'vpittamp.azurecr.io/claudecodeui:latest'
         },
         production: {
           nextjs: 'ghcr.io/pittampalliorg/chat:latest',
-          backstage: 'ghcr.io/pittampalliorg/backstage:latest',
+          backstage: 'ghcr.io/pittampalliorg/backstage-app:latest',
           flagdUi: 'vpittamp.azurecr.io/flagd-ui:latest',
           claudecodeui: 'vpittamp.azurecr.io/claudecodeui:latest'
         }
@@ -102,7 +102,7 @@ export class ImageLoader {
   private getDefaultImage(imageName: keyof ImageConfig): string {
     const defaults: ImageConfig = {
       nextjs: 'ghcr.io/pittampalliorg/chat:latest',
-      backstage: 'ghcr.io/pittampalliorg/backstage:latest',
+      backstage: 'ghcr.io/pittampalliorg/backstage-app:latest',
       flagdUi: 'vpittamp.azurecr.io/flagd-ui:latest',
       claudecodeui: 'vpittamp.azurecr.io/claudecodeui:latest'
     };

@@ -37,7 +37,7 @@ export class KargoBackstagePipelineChart extends Chart {
         subscriptions: [
           {
             image: {
-              repoUrl: 'ghcr.io/pittampalliorg/backstage',
+              repoUrl: 'ghcr.io/pittampalliorg/backstage-app',
               discoveryLimit: 10,
               imageSelectionStrategy: WarehouseSpecSubscriptionsImageImageSelectionStrategy.LEXICAL,
               allowTags: '^v\\d+.*',  // Tags starting with 'v' followed by digits (e.g., v124-dev)
@@ -93,7 +93,7 @@ export class KargoBackstagePipelineChart extends Chart {
                   updates: [
                     {
                       key: 'dev.backstage',
-                      value: 'ghcr.io/pittampalliorg/backstage:${{ imageFrom("ghcr.io/pittampalliorg/backstage").Tag }}'
+                      value: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
                     }
                   ]
                 }
@@ -102,7 +102,7 @@ export class KargoBackstagePipelineChart extends Chart {
                 uses: 'git-commit',
                 config: {
                   path: './repo',
-                  message: 'chore(backstage-dev): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage").Tag }}'
+                  message: 'chore(backstage-dev): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
                 }
               },
               {
@@ -163,7 +163,7 @@ export class KargoBackstagePipelineChart extends Chart {
                   updates: [
                     {
                       key: 'production.backstage',
-                      value: 'ghcr.io/pittampalliorg/backstage:${{ imageFrom("ghcr.io/pittampalliorg/backstage").Tag }}'
+                      value: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
                     }
                   ]
                 }
@@ -172,7 +172,7 @@ export class KargoBackstagePipelineChart extends Chart {
                 uses: 'git-commit',
                 config: {
                   path: './repo',
-                  message: 'chore(backstage-prod): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage").Tag }}'
+                  message: 'chore(backstage-prod): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
                 }
               },
               {

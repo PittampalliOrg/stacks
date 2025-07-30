@@ -113,7 +113,7 @@ export class KargoPipelinesCredentialsChart extends Chart {
             data: {
               username: 'pittampalliorg',
               password: '{{ .pat }}',
-              repoURL: 'ghcr.io/pittampalliorg/backstage'
+              repoURL: 'ghcr.io/pittampalliorg/backstage-app'
             }
           }
         },
