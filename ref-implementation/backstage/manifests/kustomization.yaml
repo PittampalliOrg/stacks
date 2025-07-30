@@ -4,4 +4,4 @@ resources:
 - install.yaml
 images:
 - name: ghcr.io/pittampalliorg/backstage-app
-  newTag: v30
+  newTag: v31
