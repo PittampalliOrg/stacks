@@ -104,7 +104,8 @@ export class KargoBackstagePipelineChart extends Chart {
                   path: './repo/ref-implementation/backstage/manifests',
                   images: [
                     {
-                      image: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
+                      image: 'ghcr.io/pittampalliorg/backstage-app',
+                      tag: '${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
                     }
                   ]
                 }
@@ -185,7 +186,8 @@ export class KargoBackstagePipelineChart extends Chart {
                   path: './repo/ref-implementation/backstage/manifests',
                   images: [
                     {
-                      image: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
+                      image: 'ghcr.io/pittampalliorg/backstage-app',
+                      tag: '${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
                     }
                   ]
                 }
