@@ -99,12 +99,13 @@ export class KargoBackstagePipelineChart extends Chart {
                 }
               },
               {
-                uses: 'exec',
+                uses: 'kustomize-set-image',
                 config: {
-                  command: '/bin/sh',
-                  args: [
-                    '-c',
-                    'yq eval \'(select(.kind == "Deployment" and .metadata.name == "backstage") | .spec.template.spec.containers[0].image) = "ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}"\' -i ./repo/ref-implementation/backstage/manifests/install.yaml'
+                  path: './repo/ref-implementation/backstage/manifests',
+                  images: [
+                    {
+                      image: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
+                    }
                   ]
                 }
               },
@@ -179,12 +180,13 @@ export class KargoBackstagePipelineChart extends Chart {
                 }
               },
               {
-                uses: 'exec',
+                uses: 'kustomize-set-image',
                 config: {
-                  command: '/bin/sh',
-                  args: [
-                    '-c',
-                    'yq eval \'(select(.kind == "Deployment" and .metadata.name == "backstage") | .spec.template.spec.containers[0].image) = "ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}"\' -i ./repo/ref-implementation/backstage/manifests/install.yaml'
+                  path: './repo/ref-implementation/backstage/manifests',
+                  images: [
+                    {
+                      image: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
+                    }
                   ]
                 }
               },
