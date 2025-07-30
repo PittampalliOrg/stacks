@@ -99,22 +99,10 @@ export class KargoBackstagePipelineChart extends Chart {
                 }
               },
               {
-                uses: 'kustomize-set-image',
-                config: {
-                  path: './repo/ref-implementation/backstage/manifests',
-                  images: [
-                    {
-                      image: 'ghcr.io/pittampalliorg/backstage-app',
-                      tag: '${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
-                    }
-                  ]
-                }
-              },
-              {
                 uses: 'git-commit',
                 config: {
                   path: './repo',
-                  message: 'chore(backstage-dev): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }} in images.json and manifests'
+                  message: 'chore(backstage-dev): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }} in images.json'
                 }
               },
               {
@@ -181,22 +169,10 @@ export class KargoBackstagePipelineChart extends Chart {
                 }
               },
               {
-                uses: 'kustomize-set-image',
-                config: {
-                  path: './repo/ref-implementation/backstage/manifests',
-                  images: [
-                    {
-                      image: 'ghcr.io/pittampalliorg/backstage-app',
-                      tag: '${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
-                    }
-                  ]
-                }
-              },
-              {
                 uses: 'git-commit',
                 config: {
                   path: './repo',
-                  message: 'chore(backstage-prod): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }} in images.json and manifests'
+                  message: 'chore(backstage-prod): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }} in images.json'
                 }
               },
               {
