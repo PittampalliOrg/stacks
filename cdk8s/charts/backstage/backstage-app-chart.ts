@@ -41,6 +41,9 @@ export class BackstageAppChart extends Chart {
       },
       spec: {
         replicas: 1,
+        strategy: {
+          type: 'Recreate'
+        },
         selector: {
           matchLabels: {
             app: 'backstage'
