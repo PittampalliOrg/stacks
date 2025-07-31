@@ -73,36 +73,79 @@ export class ArgoApplicationsChart extends Chart {
       annotations['argocd.argoproj.io/sync-wave'] = props.argoCdConfig.syncWave;
     }
 
-    // Create single ArgoCD application for this package
-    new Application(this, 'application', {
-      metadata: {
-        name: applicationName,
-        namespace: 'argocd',
-        labels,
-        ...(Object.keys(annotations).length > 0 && { annotations })
-      },
-      spec: {
-        project: 'default',
-        source: {
-          repoUrl: isLocal ? `cnoe://${applicationName}/${manifestPath}` : githubUrl,
-          path: isLocal ? '.' : `packages/${applicationName}/${manifestPath}`,
-          targetRevision: 'HEAD'
+    // Check if this is a multi-source application
+    const hasMultipleSources = props.argoCdConfig?.sources && props.argoCdConfig.sources.length > 0;
+
+    // Create ArgoCD application
+    if (hasMultipleSources) {
+      // Multi-source application
+      new Application(this, 'application', {
+        metadata: {
+          name: applicationName,
+          namespace: 'argocd',
+          labels,
+          ...(Object.keys(annotations).length > 0 && { annotations }),
+          // Add finalizers if present in original
+          finalizers: ['resources-finalizer.argocd.argoproj.io']
         },
-        destination: {
-          server: 'https://kubernetes.default.svc',
-          namespace: applicationNamespace
-        },
-        syncPolicy: props.argoCdConfig?.syncPolicy || {
-          automated: {
-            selfHeal: true,
-            prune: true
+        spec: {
+          project: 'default',
+          sources: props.argoCdConfig!.sources!.map(source => ({
+            repoUrl: source.repoURL,
+            ...(source.path && { path: source.path }),
+            ...(source.targetRevision && { targetRevision: source.targetRevision }),
+            ...(source.chart && { chart: source.chart }),
+            ...(source.helm && { helm: source.helm }),
+            ...(source.ref && { ref: source.ref })
+          })),
+          destination: {
+            server: 'https://kubernetes.default.svc',
+            namespace: applicationNamespace
           },
-          syncOptions: ['CreateNamespace=true']
+          syncPolicy: props.argoCdConfig?.syncPolicy || {
+            automated: {
+              selfHeal: true,
+              prune: true
+            },
+            syncOptions: ['CreateNamespace=true']
+          },
+          ...(props.argoCdConfig?.ignoreDifferences && {
+            ignoreDifferences: props.argoCdConfig.ignoreDifferences
+          })
+        }
+      });
+    } else {
+      // Single source application (existing behavior)
+      new Application(this, 'application', {
+        metadata: {
+          name: applicationName,
+          namespace: 'argocd',
+          labels,
+          ...(Object.keys(annotations).length > 0 && { annotations })
         },
-        ...(props.argoCdConfig?.ignoreDifferences && {
-          ignoreDifferences: props.argoCdConfig.ignoreDifferences
-        })
-      }
-    });
+        spec: {
+          project: 'default',
+          source: {
+            repoUrl: isLocal ? `cnoe://${applicationName}/${manifestPath}` : githubUrl,
+            path: isLocal ? '.' : `packages/${applicationName}/${manifestPath}`,
+            targetRevision: 'HEAD'
+          },
+          destination: {
+            server: 'https://kubernetes.default.svc',
+            namespace: applicationNamespace
+          },
+          syncPolicy: props.argoCdConfig?.syncPolicy || {
+            automated: {
+              selfHeal: true,
+              prune: true
+            },
+            syncOptions: ['CreateNamespace=true']
+          },
+          ...(props.argoCdConfig?.ignoreDifferences && {
+            ignoreDifferences: props.argoCdConfig.ignoreDifferences
+          })
+        }
+      });
+    }
   }
 }

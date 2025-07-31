@@ -4,6 +4,12 @@ import * as k8s from '../imports/k8s';
 
 export interface HeadlampChartProps extends ChartProps {
   // Additional props can be added here as needed
+  enablePluginManager?: boolean;
+  plugins?: Array<{
+    name: string;
+    source: string;
+    version: string;
+  }>;
 }
 
 /**
@@ -20,6 +26,8 @@ export class HeadlampChart extends Chart {
     const ingressHost = `headlamp.${baseHost}`;
     const keycloakUrl = process.env.KEYCLOAK_URL || 'https://cnoe.localtest.me:8443/keycloak';
     const keycloakRealm = process.env.KEYCLOAK_REALM || 'cnoe';
+    const enablePluginManager = props.enablePluginManager ?? true;
+    const plugins = props.plugins || [];
 
     // Create namespace
     new k8s.KubeNamespace(this, 'headlamp-namespace', {
@@ -34,6 +42,26 @@ export class HeadlampChart extends Chart {
         },
       },
     });
+
+    // Plugin ConfigMap (if plugin manager is enabled)
+    if (enablePluginManager && plugins.length > 0) {
+      new k8s.KubeConfigMap(this, 'headlamp-plugins-config', {
+        metadata: {
+          name: `${appName}-plugins`,
+          namespace,
+          labels: {
+            'app.kubernetes.io/name': appName,
+          },
+        },
+        data: {
+          'plugins.yaml': `plugins:
+${plugins.map(plugin => `  - name: ${plugin.name}
+    source: ${plugin.source}
+    version: ${plugin.version}`).join('\n')}
+`,
+        },
+      });
+    }
 
     // ServiceAccount
     new k8s.KubeServiceAccount(this, 'headlamp-sa', {
@@ -95,6 +123,18 @@ export class HeadlampChart extends Chart {
               runAsUser: 100,
               fsGroup: 101,
             },
+            volumes: [
+              {
+                name: 'plugins',
+                emptyDir: {},
+              },
+              ...(enablePluginManager && plugins.length > 0 ? [{
+                name: 'plugins-config',
+                configMap: {
+                  name: `${appName}-plugins`,
+                },
+              }] : []),
+            ],
             containers: [{
               name: appName,
               image: 'ghcr.io/headlamp-k8s/headlamp:v0.33.0',
@@ -103,6 +143,8 @@ export class HeadlampChart extends Chart {
                 '/headlamp/headlamp-server',
                 '-in-cluster',
                 '-html-static-dir', '/headlamp/frontend',
+                '-plugins-dir', '/headlamp/plugins',
+                ...(enablePluginManager ? ['-watch-plugins-changes'] : []),
               ],
               ports: [{
                 containerPort: 4466,
@@ -110,6 +152,12 @@ export class HeadlampChart extends Chart {
                 protocol: 'TCP',
               }],
               env: [],
+              volumeMounts: [
+                {
+                  name: 'plugins',
+                  mountPath: '/headlamp/plugins',
+                },
+              ],
               resources: {
                 requests: {
                   cpu: k8s.Quantity.fromString('100m'),
@@ -145,7 +193,52 @@ export class HeadlampChart extends Chart {
                 initialDelaySeconds: 5,
                 periodSeconds: 5,
               },
-            }],
+            },
+            // Plugin manager sidecar container
+            ...(enablePluginManager && plugins.length > 0 ? [{
+              name: 'plugin-manager',
+              image: 'busybox:1.36',
+              imagePullPolicy: 'IfNotPresent',
+              command: ['/bin/sh'],
+              args: [
+                '-c',
+                `echo "Plugin manager initialized. Plugins configured: ${plugins.map(p => p.name).join(', ')}";
+                # Copy plugin config to plugins directory for potential future use
+                cp /config/plugins.yaml /headlamp/plugins/plugins.yaml 2>/dev/null || true;
+                # Keep container running
+                while true; do sleep 3600; done`
+              ],
+              volumeMounts: [
+                {
+                  name: 'plugins',
+                  mountPath: '/headlamp/plugins',
+                },
+                {
+                  name: 'plugins-config',
+                  mountPath: '/config',
+                },
+              ],
+              resources: {
+                requests: {
+                  cpu: k8s.Quantity.fromString('10m'),
+                  memory: k8s.Quantity.fromString('32Mi'),
+                },
+                limits: {
+                  cpu: k8s.Quantity.fromString('50m'),
+                  memory: k8s.Quantity.fromString('64Mi'),
+                },
+              },
+              securityContext: {
+                allowPrivilegeEscalation: false,
+                readOnlyRootFilesystem: false,
+                runAsNonRoot: true,
+                runAsUser: 100,
+                capabilities: {
+                  drop: ['ALL'],
+                },
+              },
+            }] : []),
+            ],
           },
         },
       },

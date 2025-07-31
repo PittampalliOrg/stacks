@@ -30,6 +30,27 @@ export class BackstageAppChart extends Chart {
       }
     });
 
+    // Kubernetes Config Secret
+    new k8s.KubeSecret(this, 'k8s-config', {
+      metadata: {
+        name: 'k8s-config',
+        namespace: 'backstage'
+      },
+      stringData: {
+        'k8s-config.yaml': `type: 'config'
+clusters:
+  - url: https://kubernetes.default.svc.cluster.local
+    name: local
+    authProvider: 'serviceAccount'
+    skipTLSVerify: true
+    skipMetricsLookup: true
+    serviceAccountToken: 
+      $file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    caData: 
+      $file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt`
+      }
+    });
+
     // Backstage Deployment
     new k8s.KubeDeployment(this, 'backstage-deployment', {
       metadata: {
