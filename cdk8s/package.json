@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "import": "cdk8s import",
-    "synth": "npx cdk8s synth && node scripts/remove-cert-manager.js",
+    "synth": "npx cdk8s synth",
     "synth:dagger": "command -v dagger >/dev/null 2>&1 || (echo 'Dagger not installed. Visit https://docs.dagger.io/install' && exit 1) && dagger --mod . call synthesize --source . export --path ./dist",
     "synth:prod": "dagger call synthesize-with-env-file --source . --environment=production --env-file=.env-files/production.env export --path ./dist",
     "synth:dev": "dagger call synthesize-with-env-file --source . --environment=dev --env-file=.env-files/wi.env export --path ./dist",
@@ -36,7 +36,8 @@
     "synth:openfeature": "dagger --mod . call synthesize-with-feature-flags --source . export --path ./dist",
     "feature-flags:list": "kubectl get featureflagconfiguration -A",
     "feature-flags:get": "kubectl get featureflagconfiguration cdk8s-env-config -o yaml",
-    "feature-flags:update": "kubectl apply -f dist/FeatureFlagConfiguration.cdk8s-env-config.k8s.yaml"
+    "feature-flags:update": "kubectl apply -f dist/FeatureFlagConfiguration.cdk8s-env-config.k8s.yaml",
+    "migrate-secrets-to-azure": "ts-node scripts/migrate-secrets-to-azure.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-code": "^1.0.56",

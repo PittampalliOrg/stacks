@@ -1,5 +1,5 @@
 language: typescript
-app: ts-node main.ts
+app: ts-node main-v2.ts
 imports:
   - k8s@1.32.0
   - /tmp/externalsecrets-crd.yaml

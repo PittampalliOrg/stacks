@@ -82,6 +82,49 @@ export interface ApplicationConfig {
       name?: string;
       jsonPointers?: string[];
     }>;
+    
+    /**
+     * Multi-source configuration for ArgoCD applications
+     * If provided, will use 'sources' instead of 'source' in the Application spec
+     */
+    sources?: Array<{
+      /**
+       * Repository URL (Git or Helm)
+       */
+      repoURL: string;
+      
+      /**
+       * Path within the repository (for Git sources)
+       */
+      path?: string;
+      
+      /**
+       * Target revision (for Git sources)
+       */
+      targetRevision?: string;
+      
+      /**
+       * Helm chart name (for Helm sources)
+       */
+      chart?: string;
+      
+      /**
+       * Helm configuration
+       */
+      helm?: {
+        valueFiles?: string[];
+        values?: string;
+        parameters?: Array<{
+          name: string;
+          value: string;
+        }>;
+      };
+      
+      /**
+       * Reference name for multi-source apps
+       */
+      ref?: string;
+    }>;
   };
 }
 
