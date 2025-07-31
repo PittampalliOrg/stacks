@@ -20,6 +20,11 @@ import { KargoNextjsPipelineChart } from './charts/kargo-nextjs-pipeline-chart';
 import { KargoBackstagePipelineChart } from './charts/kargo-backstage-pipeline-chart';
 import { DaggerInfraChart } from './charts/dagger-infra-chart';
 import { BackstageChart } from './charts/backstage-chart';
+import { AiPlatformEngineeringChart } from './charts/ai-platform-engineering-chart';
+import { AiPlatformEngineeringChartV2 } from './charts/ai-platform-engineering-chart-v2';
+import { AiPlatformEngineeringAzureChart } from './charts/ai-platform-engineering-azure-chart';
+import { ClusterConfigChart } from './charts/cluster-config-chart';
+import { VaultChart } from './charts/vault-chart';
 import { ArgoApplicationsChart } from './charts/apps/argo-applications-chart';
 import { IdpBuilderChartFactory } from './lib/idpbuilder-chart-factory';
 import { applicationConfigs } from './config/applications';
@@ -46,6 +51,11 @@ IdpBuilderChartFactory.register('KargoBackstagePipelineChart', KargoBackstagePip
 IdpBuilderChartFactory.register('KargoWebhookPatchChart', KargoWebhookPatchChart);
 IdpBuilderChartFactory.register('DaggerInfraChart', DaggerInfraChart);
 IdpBuilderChartFactory.register('BackstageChart', BackstageChart);
+IdpBuilderChartFactory.register('AiPlatformEngineeringChart', AiPlatformEngineeringChart);
+IdpBuilderChartFactory.register('AiPlatformEngineeringChartV2', AiPlatformEngineeringChartV2);
+IdpBuilderChartFactory.register('AiPlatformEngineeringAzureChart', AiPlatformEngineeringAzureChart);
+IdpBuilderChartFactory.register('ClusterConfigChart', ClusterConfigChart);
+IdpBuilderChartFactory.register('VaultChart', VaultChart);
 // Add more chart registrations here as you create them
 
 // Main synthesis function
@@ -71,6 +81,14 @@ async function main() {
       const installYamlPath = path.join(`${outputDir}/${appConfig.name}/manifests`, 'install.yaml');
       if (fs.existsSync(appYamlPath)) {
         fs.renameSync(appYamlPath, installYamlPath);
+      }
+      
+      // Copy values.yaml if it exists in the source package
+      const sourceValuesPath = path.join(__dirname, '..', 'ai-platform-engineering', appConfig.name, 'values.yaml');
+      const destValuesPath = path.join(outputDir, appConfig.name, 'values.yaml');
+      if (fs.existsSync(sourceValuesPath)) {
+        fs.copyFileSync(sourceValuesPath, destValuesPath);
+        console.log(`  ✓ Copied values.yaml for ${appConfig.name}`);
       }
       
       // 2. Generate ArgoCD Application manifest

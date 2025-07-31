@@ -498,6 +498,106 @@ export const applicationConfigs: ApplicationConfig[] = [
         syncOptions: ['CreateNamespace=true']
       }
     }
+  },
+  {
+    name: 'cluster-config',
+    namespace: 'kube-system',
+    chart: {
+      type: 'ClusterConfigChart'
+    },
+    argocd: {
+      syncWave: '-200',  // Very early, cluster configuration
+      labels: {
+        'app.kubernetes.io/component': 'cluster-config',
+        'app.kubernetes.io/part-of': 'platform',
+        'app.kubernetes.io/name': 'cluster-config'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  {
+    name: 'vault',
+    namespace: 'vault',
+    chart: {
+      type: 'VaultChart'
+    },
+    argocd: {
+      syncWave: '-150',  // Early, before external secrets
+      labels: {
+        'app.kubernetes.io/component': 'secrets-management',
+        'app.kubernetes.io/part-of': 'platform',
+        'app.kubernetes.io/name': 'vault'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      },
+      // Multi-source configuration for Vault
+      sources: [
+        {
+          repoURL: 'https://helm.releases.hashicorp.com',
+          chart: 'vault',
+          targetRevision: '0.27.0',
+          helm: {
+            valueFiles: ['$values/values.yaml']
+          }
+        },
+        {
+          repoURL: 'cnoe://vault',
+          targetRevision: 'HEAD',
+          ref: 'values'
+        }
+      ],
+      ignoreDifferences: [
+        {
+          group: 'admissionregistration.k8s.io',
+          kind: 'MutatingWebhookConfiguration',
+          jsonPointers: ['/webhooks']
+        }
+      ]
+    }
+  },
+  {
+    name: 'ai-platform-engineering',
+    namespace: 'ai-platform-engineering',
+    chart: {
+      type: 'AiPlatformEngineeringAzureChart'
+    },
+    argocd: {
+      syncWave: '100',  // After most platform components
+      labels: {
+        'app.kubernetes.io/component': 'ai-platform',
+        'app.kubernetes.io/part-of': 'platform',
+        'app.kubernetes.io/name': 'ai-platform-engineering'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true', 'PrunePropagationPolicy=foreground', 'PruneLast=true'],
+        retry: {
+          limit: 5,
+          backoff: {
+            duration: '5s',
+            factor: 2,
+            maxDuration: '3m'
+          }
+        }
+      },
+      // Simplified single-source configuration
+      // The Helm chart is now deployed directly in the CDK8S chart
+      // with all values embedded in TypeScript
+    }
   }
   // Add more applications here as needed
 ];
