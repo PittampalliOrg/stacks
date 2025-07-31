@@ -54,22 +54,45 @@ mv argo-linux-amd64 ~/.local/bin/argo
 
 # Install Azure Workload Identity CLI (azwi)
 echo "Installing azwi..."
-if curl -sLO 'https://github.com/Azure/azure-workload-identity/releases/latest/download/azwi-v1.3.0-linux-amd64.tar.gz'; then
-    if tar -xzf azwi-v1.3.0-linux-amd64.tar.gz 2>/dev/null; then
-        chmod +x azwi
-        mv azwi ~/.local/bin/azwi
-        rm azwi-v1.3.0-linux-amd64.tar.gz
-        echo "azwi installed successfully"
-    else
-        echo "Warning: Failed to extract azwi tar.gz, trying direct binary download..."
-        curl -sL 'https://github.com/Azure/azure-workload-identity/releases/latest/download/azwi-v1.3.0-linux-amd64' -o ~/.local/bin/azwi || {
-            echo "Warning: Could not install azwi, skipping..."
-        }
-        chmod +x ~/.local/bin/azwi 2>/dev/null || true
-        rm -f azwi-v1.3.0-linux-amd64.tar.gz
-    fi
+
+# Get the latest version
+AZWI_VERSION=$(curl -s https://api.github.com/repos/Azure/azure-workload-identity/releases/latest | jq -r '.tag_name')
+
+if [ -z "$AZWI_VERSION" ]; then
+    echo "Warning: Could not determine latest azwi version, skipping..."
 else
-    echo "Warning: Could not download azwi, skipping..."
+    # Detect OS and architecture
+    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+    ARCH=$(uname -m)
+    
+    # Map architecture names
+    case $ARCH in
+        x86_64)
+            ARCH="amd64"
+            ;;
+        aarch64)
+            ARCH="arm64"
+            ;;
+    esac
+    
+    # Construct download URL
+    AZWI_URL="https://github.com/Azure/azure-workload-identity/releases/download/${AZWI_VERSION}/azwi-${AZWI_VERSION}-${OS}-${ARCH}.tar.gz"
+    
+    echo "Downloading azwi ${AZWI_VERSION} for ${OS}-${ARCH}..."
+    
+    if curl -sLO "$AZWI_URL"; then
+        if tar -xzf "azwi-${AZWI_VERSION}-${OS}-${ARCH}.tar.gz" 2>/dev/null; then
+            chmod +x azwi
+            mv azwi ~/.local/bin/azwi
+            rm "azwi-${AZWI_VERSION}-${OS}-${ARCH}.tar.gz"
+            echo "azwi ${AZWI_VERSION} installed successfully"
+        else
+            echo "Warning: Failed to extract azwi archive"
+            rm -f "azwi-${AZWI_VERSION}-${OS}-${ARCH}.tar.gz"
+        fi
+    else
+        echo "Warning: Could not download azwi from $AZWI_URL"
+    fi
 fi
 
 # Install npm packages
@@ -117,7 +140,7 @@ echo "  - dagger (with bash completion)"
 echo "  - claude-code (with MCP servers: fetch, context7)"
 echo "  - vcluster" 
 echo "  - argo"
-echo "  - azwi (if available)"
+echo "  - azwi (Azure Workload Identity CLI)"
 echo "  - devspace"
 echo "  - cdk8s-cli"
 echo "  - jq"
