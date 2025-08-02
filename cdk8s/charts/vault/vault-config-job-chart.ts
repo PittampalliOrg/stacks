@@ -129,7 +129,7 @@ vault kv put secret/ai-platform-engineering/global \\
   AZURE_OPENAI_ENDPOINT="" \\
   AZURE_OPENAI_API_VERSION="" \\
   AZURE_OPENAI_DEPLOYMENT="" \\
-  OPENAI_API_KEY="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" \\
+  OPENAI_API_KEY="" \\
   OPENAI_ENDPOINT="https://api.openai.com/v1/responses" \\
   OPENAI_MODEL_NAME="gpt-4.1" \\
   AWS_ACCESS_KEY_ID="" \\
@@ -154,7 +154,7 @@ vault kv put secret/ai-platform-engineering/pagerduty-secret \\
 # GitHub agent secrets
 echo "Creating github-secret..."
 vault kv put secret/ai-platform-engineering/github-secret \\
-  GITHUB_PERSONAL_ACCESS_TOKEN="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"
+  GITHUB_PERSONAL_ACCESS_TOKEN=""
 
 # Jira agent secrets
 echo "Creating jira-secret..."
