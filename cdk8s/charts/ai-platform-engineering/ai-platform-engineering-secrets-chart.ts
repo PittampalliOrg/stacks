@@ -72,7 +72,7 @@ export class AiPlatformEngineeringSecretsChart extends Chart {
     // ArgoCD Agent Secrets
     new ExternalSecret(this, 'argocd-secrets', {
       metadata: {
-        name: 'agent-argocd-secrets',
+        name: 'agent-argocd-secret-external',
         namespace,
         labels: {
           'app.kubernetes.io/name': 'agent-argocd',
@@ -91,7 +91,7 @@ export class AiPlatformEngineeringSecretsChart extends Chart {
           kind: 'ClusterSecretStore'
         },
         target: {
-          name: 'agent-argocd-secrets',
+          name: 'agent-argocd-secret',
           creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER
         },
         data: [

@@ -197,14 +197,24 @@ ${plugins.map(plugin => `  - name: ${plugin.name}
             // Plugin manager sidecar container
             ...(enablePluginManager && plugins.length > 0 ? [{
               name: 'plugin-manager',
-              image: 'busybox:1.36',
+              image: 'curlimages/curl:8.9.1',
               imagePullPolicy: 'IfNotPresent',
               command: ['/bin/sh'],
               args: [
                 '-c',
                 `echo "Plugin manager initialized. Plugins configured: ${plugins.map(p => p.name).join(', ')}";
-                # Copy plugin config to plugins directory for potential future use
+                # Download and extract plugins
+                ${plugins.map(plugin => `
+                echo "Downloading plugin: ${plugin.name}...";
+                curl -L "${plugin.source}" -o /tmp/${plugin.name}.tar.gz;
+                echo "Extracting plugin: ${plugin.name}...";
+                tar -xzf /tmp/${plugin.name}.tar.gz -C /headlamp/plugins/;
+                rm /tmp/${plugin.name}.tar.gz;
+                echo "Plugin ${plugin.name} installed successfully";
+                `).join('\n')}
+                # Copy plugin config
                 cp /config/plugins.yaml /headlamp/plugins/plugins.yaml 2>/dev/null || true;
+                echo "All plugins installed. Plugin manager ready.";
                 # Keep container running
                 while true; do sleep 3600; done`
               ],

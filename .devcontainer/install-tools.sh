@@ -52,6 +52,11 @@ gunzip argo-linux-amd64.gz
 chmod +x argo-linux-amd64
 mv argo-linux-amd64 ~/.local/bin/argo
 
+# Install ArgoCD CLI
+echo "Installing argocd CLI..."
+curl -sSL -o ~/.local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+chmod +x ~/.local/bin/argocd
+
 # Install Azure Workload Identity CLI (azwi)
 echo "Installing azwi..."
 
@@ -139,7 +144,8 @@ echo "  - idpbuilder"
 echo "  - dagger (with bash completion)"
 echo "  - claude-code (with MCP servers: fetch, context7)"
 echo "  - vcluster" 
-echo "  - argo"
+echo "  - argo (Argo Workflows CLI)"
+echo "  - argocd (ArgoCD CLI)"
 echo "  - azwi (Azure Workload Identity CLI)"
 echo "  - devspace"
 echo "  - cdk8s-cli"

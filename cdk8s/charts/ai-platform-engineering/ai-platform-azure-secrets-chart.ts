@@ -196,8 +196,70 @@ export class AiPlatformAzureSecretsChart extends Chart {
       }
     });
 
-    // Note: ArgoCD secret is handled differently
-    // The Helm chart creates the ArgoCD secret, but we don't have ArgoCD credentials in Azure Key Vault
-    // ArgoCD token needs to be populated through a different mechanism (e.g., Job or manual configuration)
+    // Backstage secrets from Azure Key Vault
+    new ExternalSecret(this, 'backstage-secrets', {
+      metadata: {
+        name: 'agent-backstage-secret-external',
+        namespace,
+        labels: {
+          'app.kubernetes.io/name': 'agent-backstage',
+          'app.kubernetes.io/component': 'external-secrets',
+          'app.kubernetes.io/part-of': 'ai-platform-engineering',
+          'app.kubernetes.io/managed-by': 'cdk8s'
+        },
+        annotations: {
+          'argocd.argoproj.io/sync-wave': '-60'
+        }
+      },
+      spec: {
+        refreshInterval: '1h',
+        secretStoreRef: {
+          name: 'azure-keyvault-store',
+          kind: 'ClusterSecretStore'
+        },
+        target: {
+          name: 'agent-backstage-secret',
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER
+        },
+        data: [
+          { secretKey: 'BACKSTAGE_API_TOKEN', remoteRef: { key: 'ai-platform-engineering-backstage', property: 'BACKSTAGE_API_TOKEN' } },
+          { secretKey: 'BACKSTAGE_API_URL', remoteRef: { key: 'ai-platform-engineering-backstage', property: 'BACKSTAGE_API_URL' } },
+          { secretKey: 'BACKSTAGE_URL', remoteRef: { key: 'ai-platform-engineering-backstage', property: 'BACKSTAGE_URL' } }
+        ]
+      }
+    });
+
+    // ArgoCD secrets from Azure Key Vault
+    new ExternalSecret(this, 'argocd-secrets', {
+      metadata: {
+        name: 'agent-argocd-secret-external',
+        namespace,
+        labels: {
+          'app.kubernetes.io/name': 'agent-argocd',
+          'app.kubernetes.io/component': 'external-secrets',
+          'app.kubernetes.io/part-of': 'ai-platform-engineering',
+          'app.kubernetes.io/managed-by': 'cdk8s'
+        },
+        annotations: {
+          'argocd.argoproj.io/sync-wave': '-60'
+        }
+      },
+      spec: {
+        refreshInterval: '1h',
+        secretStoreRef: {
+          name: 'azure-keyvault-store',
+          kind: 'ClusterSecretStore'
+        },
+        target: {
+          name: 'agent-argocd-secret',
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER
+        },
+        data: [
+          { secretKey: 'ARGOCD_TOKEN', remoteRef: { key: 'ai-platform-engineering-argocd', property: 'ARGOCD_TOKEN' } },
+          { secretKey: 'ARGOCD_API_URL', remoteRef: { key: 'ai-platform-engineering-argocd', property: 'ARGOCD_API_URL' } },
+          { secretKey: 'ARGOCD_VERIFY_SSL', remoteRef: { key: 'ai-platform-engineering-argocd', property: 'ARGOCD_VERIFY_SSL' } }
+        ]
+      }
+    });
   }
 }

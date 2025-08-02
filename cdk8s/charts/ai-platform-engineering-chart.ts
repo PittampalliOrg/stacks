@@ -35,9 +35,7 @@ export class AiPlatformEngineeringChart extends Chart {
             command: ['poetry', 'run', 'ai-platform-engineering'],
             args: ['platform-engineer']
           },
-          env: {
-            EXTERNAL_URL: `https://${baseHost}:8443/ai-platform-engineering`
-          },
+          // env removed to use Helm chart default (http://localhost:8000)
           multiAgentConfig: {
             protocol: 'a2a',
             port: '8000',

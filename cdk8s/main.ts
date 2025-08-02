@@ -23,7 +23,6 @@ import { BackstageChart } from './charts/backstage-chart';
 import { AiPlatformEngineeringChart } from './charts/ai-platform-engineering-chart';
 import { AiPlatformEngineeringChartV2 } from './charts/ai-platform-engineering-chart-v2';
 import { AiPlatformEngineeringAzureChart } from './charts/ai-platform-engineering-azure-chart';
-import { ClusterConfigChart } from './charts/cluster-config-chart';
 import { VaultChart } from './charts/vault-chart';
 import { ArgoApplicationsChart } from './charts/apps/argo-applications-chart';
 import { IdpBuilderChartFactory } from './lib/idpbuilder-chart-factory';
@@ -54,7 +53,6 @@ IdpBuilderChartFactory.register('BackstageChart', BackstageChart);
 IdpBuilderChartFactory.register('AiPlatformEngineeringChart', AiPlatformEngineeringChart);
 IdpBuilderChartFactory.register('AiPlatformEngineeringChartV2', AiPlatformEngineeringChartV2);
 IdpBuilderChartFactory.register('AiPlatformEngineeringAzureChart', AiPlatformEngineeringAzureChart);
-IdpBuilderChartFactory.register('ClusterConfigChart', ClusterConfigChart);
 IdpBuilderChartFactory.register('VaultChart', VaultChart);
 // Add more chart registrations here as you create them
 

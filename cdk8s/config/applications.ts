@@ -253,7 +253,17 @@ export const applicationConfigs: ApplicationConfig[] = [
     name: 'headlamp',
     namespace: 'headlamp',
     chart: {
-      type: 'HeadlampChart'
+      type: 'HeadlampChart',
+      props: {
+        enablePluginManager: true,
+        plugins: [
+          {
+            name: 'external-secrets-operator',
+            source: 'https://github.com/magohl/external-secrets-operator-headlamp-plugin/releases/download/0.1.0-beta7/external-secrets-operator-headlamp-plugin-0.1.0-beta7.tar.gz',
+            version: '0.1.0-beta7'
+          }
+        ]
+      }
     },
     dependencies: {
       headlampKeycloakSecrets: {
@@ -499,28 +509,32 @@ export const applicationConfigs: ApplicationConfig[] = [
       }
     }
   },
-  {
-    name: 'cluster-config',
-    namespace: 'kube-system',
-    chart: {
-      type: 'ClusterConfigChart'
-    },
-    argocd: {
-      syncWave: '-200',  // Very early, cluster configuration
-      labels: {
-        'app.kubernetes.io/component': 'cluster-config',
-        'app.kubernetes.io/part-of': 'platform',
-        'app.kubernetes.io/name': 'cluster-config'
-      },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true']
-      }
-    }
-  },
+  // Removed: Custom CoreDNS configuration is not needed
+  // The *.localtest.me domain already resolves to 127.0.0.1 globally
+  // Custom DNS rewriting was causing conflicts with IDPBuilder setup
+  // Original configuration attempted to rewrite cnoe.localtest.me to ingress controller
+  // {
+  //   name: 'cluster-config',
+  //   namespace: 'kube-system',
+  //   chart: {
+  //     type: 'ClusterConfigChart'
+  //   },
+  //   argocd: {
+  //     syncWave: '-200',  // Very early, cluster configuration
+  //     labels: {
+  //       'app.kubernetes.io/component': 'cluster-config',
+  //       'app.kubernetes.io/part-of': 'platform',
+  //       'app.kubernetes.io/name': 'cluster-config'
+  //     },
+  //     syncPolicy: {
+  //       automated: {
+  //         prune: true,
+  //         selfHeal: true
+  //     },
+  //       syncOptions: ['CreateNamespace=true']
+  //     }
+  //   }
+  // },
   {
     name: 'vault',
     namespace: 'vault',
