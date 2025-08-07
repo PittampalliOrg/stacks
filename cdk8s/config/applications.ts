@@ -432,6 +432,55 @@ export const applicationConfigs: ApplicationConfig[] = [
     }
   },
   {
+    name: 'kargo-gitea-credentials',
+    namespace: 'kargo-pipelines',
+    chart: {
+      type: 'KargoGiteaCredentialsChart'
+    },
+    dependencies: {
+      kargoPipelinesProject: {
+        type: 'KargoPipelinesProjectChart'
+      }
+    },
+    argocd: {
+      syncWave: '76',  // After project creation, same as other credentials
+      labels: {
+        'app.kubernetes.io/component': 'credentials',
+        'app.kubernetes.io/part-of': 'kargo-pipelines',
+        'app.kubernetes.io/name': 'kargo-gitea-credentials'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=false']  // Namespace created by project
+      }
+    }
+  },
+  {
+    name: 'kargo-ca-certificates',
+    namespace: 'kargo',
+    chart: {
+      type: 'KargoCACertificatesChart'
+    },
+    argocd: {
+      syncWave: '35',  // Before Kargo Helm chart (which is at 40)
+      labels: {
+        'app.kubernetes.io/component': 'certificates',
+        'app.kubernetes.io/part-of': 'kargo',
+        'app.kubernetes.io/name': 'kargo-ca-certificates'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=false']  // Namespace exists
+      }
+    }
+  },
+  {
     name: 'kargo-nextjs-pipeline',
     namespace: 'kargo-pipelines',
     chart: {

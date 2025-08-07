@@ -1,10 +1,11 @@
 import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
 import { 
-  ExternalSecretV1Beta1 as ExternalSecret,
-  ClusterSecretStoreV1Beta1 as ClusterSecretStore,
-  ClusterSecretStoreV1Beta1SpecProviderAzurekvAuthType,
-  ExternalSecretV1Beta1SpecTargetCreationPolicy
+  ExternalSecret,
+  ClusterSecretStore,
+  ClusterSecretStoreSpecProviderAzurekvAuthType,
+  ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretSpecSecretStoreRefKind
 } from '../imports/external-secrets.io';
 import { ExternalSecretsWorkloadIdentityChart } from './external-secrets-workload-identity-chart';
 
@@ -37,11 +38,11 @@ export class BootstrapSecretsChart extends Chart {
         refreshInterval: '10m',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
         },
         target: {
           name: 'github-app-repo-creds-from-external',
-          creationPolicy: ExternalSecretV1Beta1SpecTargetCreationPolicy.OWNER,
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
           template: {
             metadata: {
               labels: {
@@ -86,7 +87,7 @@ export class BootstrapSecretsChart extends Chart {
         provider: {
           azurekv: {
             vaultUrl: `https://${process.env.AZURE_KEYVAULT_NAME}.vault.azure.net`,
-            authType: ClusterSecretStoreV1Beta1SpecProviderAzurekvAuthType.WORKLOAD_IDENTITY,
+            authType: ClusterSecretStoreSpecProviderAzurekvAuthType.WORKLOAD_IDENTITY,
             serviceAccountRef: {
               name: 'external-secrets',
               namespace: 'external-secrets',
@@ -118,11 +119,11 @@ export class BootstrapSecretsChart extends Chart {
         refreshInterval: '10m',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
         },
         target: {
           name: 'github-pem',
-          creationPolicy: ExternalSecretV1Beta1SpecTargetCreationPolicy.OWNER,
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
         },
         data: [
           {

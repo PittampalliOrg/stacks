@@ -110,6 +110,21 @@ clusters:
                     secretRef: {
                       name: 'argocd-credentials'
                     }
+                  },
+                  {
+                    secretRef: {
+                      name: 'backstage-github-app'
+                    }
+                  },
+                  {
+                    secretRef: {
+                      name: 'backstage-github-oauth'
+                    }
+                  },
+                  {
+                    secretRef: {
+                      name: 'backstage-auth'
+                    }
                   }
                 ],
                 ports: [

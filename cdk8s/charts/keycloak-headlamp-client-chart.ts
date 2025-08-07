@@ -2,9 +2,10 @@ import { Construct } from 'constructs';
 import { Chart, ChartProps } from 'cdk8s';
 import * as k8s from '../imports/k8s';
 import { 
-  ExternalSecretV1Beta1 as ExternalSecret,
-  ExternalSecretV1Beta1SpecTargetCreationPolicy as ExternalSecretSpecTargetCreationPolicy,
-  ExternalSecretV1Beta1SpecTargetTemplateEngineVersion as ExternalSecretSpecTargetTemplateEngineVersion
+  ExternalSecret,
+  ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretSpecSecretStoreRefKind,
+  ExternalSecretSpecTargetTemplateEngineVersion
 } from '../imports/external-secrets.io';
 
 /**
@@ -35,7 +36,7 @@ export class KeycloakHeadlampClientChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'headlamp-client-credentials',

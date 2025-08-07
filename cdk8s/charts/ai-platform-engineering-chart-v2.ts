@@ -17,7 +17,6 @@ export class AiPlatformEngineeringChartV2 extends Chart {
     super(scope, id, props);
 
     const namespace = props.namespace || 'ai-platform-engineering';
-    const baseHost = process.env.INGRESS_HOST || 'cnoe.localtest.me';
     const secretStore = props.secretStore || process.env.AI_PLATFORM_SECRET_STORE || 'vault-secret-store';
     const useExternalSecrets = props.useExternalSecrets !== false; // Default true
 
@@ -59,8 +58,14 @@ export class AiPlatformEngineeringChartV2 extends Chart {
             args: ['platform-engineer']
           },
           env: {
-            EXTERNAL_URL: `https://${baseHost}:8443/ai-platform-engineering`
+            EXTERNAL_URL: process.env.EXTERNAL_URL || 'https://ai-platform-engineering.cnoe.localtest.me:8443'
           },
+          envVars: [
+            {
+              name: 'EXTERNAL_URL',
+              value: process.env.EXTERNAL_URL || 'https://ai-platform-engineering.cnoe.localtest.me:8443'
+            }
+          ],
           multiAgentConfig: {
             protocol: 'a2a',
             port: '8000',

@@ -379,7 +379,7 @@ echo "Deployment completed successfully"
               parameters: [
                 {
                   name: 'source-path',
-                  default: '/home/vscode/workspace/backstage-app',
+                  default: '/home/vscode/workspace/backstage-cnoe',
                   description: 'Local source path'
                 },
                 {
@@ -468,7 +468,7 @@ echo "Deployment completed successfully"
           {
             name: 'source',
             hostPath: {
-              path: '/home/vscode/workspace/backstage-app',
+              path: '/home/vscode/workspace/backstage-cnoe',
               type: 'Directory'
             }
           },

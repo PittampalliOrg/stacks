@@ -1,0 +1,37 @@
+# External Secrets Operator Helm Chart Values
+# https://github.com/external-secrets/external-secrets
+
+# Install CRDs as part of the Helm release
+installCRDs: true
+
+# Enable webhook for advanced features
+webhook:
+  create: true
+
+# Enable cert controller for webhook certificates
+certController:
+  create: true
+
+# Resources for the operator
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Service Account configuration
+serviceAccount:
+  create: true
+  name: external-secrets
+
+# Enable metrics
+serviceMonitor:
+  enabled: false
+
+# Log level
+logLevel: info
+
+# Enable leader election for HA
+leaderElect: true

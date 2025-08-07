@@ -40,6 +40,9 @@ claude mcp add-json server-fetch --scope user '{
 claude mcp add --transport sse context7 https://mcp.context7.com/sse
 claude mcp add -t http nx-mcp http://localhost:9445/mcp
 
+claude mcp add github -- docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server
+claude mcp add --transport http grep https://mcp.grep.app
+
 # Install vcluster
 echo "Installing vcluster..."
 curl -L 'https://github.com/loft-sh/vcluster/releases/latest/download/vcluster-linux-amd64' -o ~/.local/bin/vcluster

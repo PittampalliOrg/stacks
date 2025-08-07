@@ -1,4 +1,4 @@
-import { Chart, ChartProps, Helm } from 'cdk8s';
+import { Chart, ChartProps, Helm, ApiObject, JsonPatch } from 'cdk8s';
 import { Construct } from 'constructs';
 import { AiPlatformEngineeringIngressChart } from './ai-platform-engineering/ai-platform-engineering-ingress-chart';
 import { AiPlatformAzureSecretsChart } from './ai-platform-engineering/ai-platform-azure-secrets-chart';
@@ -16,7 +16,6 @@ export class AiPlatformEngineeringAzureChart extends Chart {
     super(scope, id, props);
 
     const namespace = props.namespace || 'ai-platform-engineering';
-    const baseHost = process.env.INGRESS_HOST || 'cnoe.localtest.me';
 
     // Create external secrets and local ArgoCD secret
     new AiPlatformAzureSecretsChart(this, 'secrets', {
@@ -24,7 +23,7 @@ export class AiPlatformEngineeringAzureChart extends Chart {
     });
 
     // Deploy AI Platform Engineering using Helm chart
-    new Helm(this, 'ai-platform', {
+    const helmChart = new Helm(this, 'ai-platform', {
       chart: 'oci://ghcr.io/cnoe-io/helm-charts/ai-platform-engineering',
       version: '0.1.10',
       namespace: namespace,
@@ -42,7 +41,6 @@ export class AiPlatformEngineeringAzureChart extends Chart {
             command: ['poetry', 'run', 'ai-platform-engineering'],
             args: ['platform-engineer']
           },
-          // env removed to use Helm chart default (http://localhost:8000)
           multiAgentConfig: {
             protocol: 'a2a',
             port: '8000',
@@ -136,6 +134,22 @@ export class AiPlatformEngineeringAzureChart extends Chart {
         }
       }
     });
+
+    // Use escape hatch to patch the EXTERNAL_URL environment variable
+    // Find the ai-platform-engineering deployment
+    const deployment = helmChart.apiObjects.find(obj => 
+      obj.kind === 'Deployment' && 
+      obj.name === 'ai-platform-engineering'
+    );
+
+    if (deployment) {
+      // The EXTERNAL_URL is the first environment variable (index 0) in the container
+      // Patch it to use our custom value instead of the hardcoded default
+      deployment.addJsonPatch(JsonPatch.replace(
+        '/spec/template/spec/containers/0/env/0/value',
+        process.env.EXTERNAL_URL || 'https://ai-platform-engineering.cnoe.localtest.me:8443'
+      ));
+    }
 
     // Create additional ingress resources if needed
     new AiPlatformEngineeringIngressChart(this, 'ingress', {

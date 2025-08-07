@@ -119,6 +119,39 @@ export class KargoHelmChart extends Chart {
               memory: '512Mi',
             },
           },
+          // Mount CA certificates for self-signed certificate trust
+          volumes: [
+            {
+              name: 'ca-certificates',
+              configMap: {
+                name: 'gitea-ca-cert',
+                items: [
+                  {
+                    key: 'ca.crt',
+                    path: 'gitea-ca.crt'
+                  }
+                ]
+              }
+            }
+          ],
+          volumeMounts: [
+            {
+              name: 'ca-certificates',
+              mountPath: '/etc/ssl/certs/gitea-ca.crt',
+              subPath: 'gitea-ca.crt',
+              readOnly: true
+            }
+          ],
+          env: [
+            {
+              name: 'SSL_CERT_FILE',
+              value: '/etc/ssl/certs/gitea-ca.crt'
+            },
+            {
+              name: 'SSL_CERT_DIR',
+              value: '/etc/ssl/certs'
+            }
+          ],
         },
         // Webhooks configuration - enable with custom certificates
         webhooksServer: {

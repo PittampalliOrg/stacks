@@ -1,6 +1,6 @@
 import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
-import { ExternalSecretV1Beta1, ExternalSecretV1Beta1SpecTargetCreationPolicy, ExternalSecretV1Beta1SpecTargetTemplateEngineVersion } from '../imports/external-secrets.io';
+import { ExternalSecret, ExternalSecretSpecTargetCreationPolicy, ExternalSecretSpecTargetTemplateEngineVersion, ExternalSecretSpecSecretStoreRefKind } from '../imports/external-secrets.io';
 import { KubeSecret } from '../imports/k8s';
 
 export interface KargoSecretsChartProps extends ChartProps {
@@ -14,7 +14,7 @@ export class KargoSecretsChart extends Chart {
     const namespace = props.namespace || 'kargo';
 
     // Create External Secret for Kargo admin credentials
-    new ExternalSecretV1Beta1(this, 'kargo-admin-external-secret', {
+    new ExternalSecret(this, 'kargo-admin-external-secret', {
       metadata: {
         name: 'kargo-admin-credentials',
         namespace: namespace,
@@ -25,13 +25,13 @@ export class KargoSecretsChart extends Chart {
       spec: {
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'kargo-admin-credentials',
-          creationPolicy: ExternalSecretV1Beta1SpecTargetCreationPolicy.OWNER,
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
           template: {
-            engineVersion: ExternalSecretV1Beta1SpecTargetTemplateEngineVersion.V2,
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
             type: 'Opaque',
             data: {
               // The password hash should be generated using:

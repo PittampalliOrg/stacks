@@ -1,12 +1,14 @@
 import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
 import { 
-  ExternalSecretV1Beta1 as ExternalSecret,
-  ExternalSecretV1Beta1SpecTargetCreationPolicy as ExternalSecretSpecTargetCreationPolicy,
-  ExternalSecretV1Beta1SpecDataRemoteRefConversionStrategy as ExternalSecretSpecDataRemoteRefConversionStrategy,
-  ExternalSecretV1Beta1SpecTargetTemplateEngineVersion as ExternalSecretSpecTargetTemplateEngineVersion
+  ExternalSecret,
+  ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretSpecSecretStoreRefKind,
+  ExternalSecretSpecDataRemoteRefConversionStrategy,
+  ExternalSecretSpecTargetTemplateEngineVersion,
+  ExternalSecretSpecDataFromSourceRefGeneratorRefKind
 } from '../../imports/external-secrets.io';
-import { Password } from '../../imports/generators.external-secrets.io';
+import { Password, GithubAccessToken } from '../../imports/generators.external-secrets.io';
 
 /**
  * Chart that manages ExternalSecrets and Password generators for Backstage
@@ -47,6 +49,59 @@ export class BackstageSecretsChart extends Chart {
       }
     });
 
+    // GitHub Access Token generator - Commented out, using PAT instead
+    // new GithubAccessToken(this, 'github-token', {
+    //   metadata: {
+    //     name: 'github-token',
+    //     namespace: 'backstage'
+    //   },
+    //   spec: {
+    //     appId: '1272071',
+    //     installId: '66754705',
+    //     auth: {
+    //       privateKey: {
+    //         secretRef: {
+    //           name: 'github-app-private-key',
+    //           namespace: 'backstage',
+    //           key: 'private-key'
+    //         }
+    //       }
+    //     },
+    //     // repositories: ['backstage-app'], // Commented out to allow access to all repositories
+    //     permissions: {
+    //       packages: 'read'
+    //     }
+    //   }
+    // });
+
+    // GitHub App Private Key secret - Commented out, using PAT instead
+    // new ExternalSecret(this, 'github-app-private-key', {
+    //   metadata: {
+    //     name: 'github-app-private-key',
+    //     namespace: 'backstage'
+    //   },
+    //   spec: {
+    //     refreshInterval: '1h',
+    //     secretStoreRef: {
+    //       name: 'azure-keyvault-store',
+    //       kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
+    //     },
+    //     target: {
+    //       name: 'github-app-private-key',
+    //       creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER
+    //     },
+    //     data: [
+    //       {
+    //         secretKey: 'private-key',
+    //         remoteRef: {
+    //           key: 'GITHUB-APP-PRIVATE-KEY',
+    //           conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
+    //         }
+    //       }
+    //     ]
+    //   }
+    // });
+
     // Main Backstage OIDC secret
     new ExternalSecret(this, 'backstage-oidc', {
       metadata: {
@@ -56,7 +111,7 @@ export class BackstageSecretsChart extends Chart {
       spec: {
         secretStoreRef: {
           name: 'keycloak',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         refreshInterval: '0',
         target: {
@@ -75,7 +130,8 @@ export class BackstageSecretsChart extends Chart {
               'KEYCLOAK_NAME_METADATA': 'https://cnoe.localtest.me:8443/keycloak/realms/cnoe/.well-known/openid-configuration',
               'KEYCLOAK_CLIENT_SECRET': '{{.BACKSTAGE_CLIENT_SECRET}}',
               'ARGOCD_AUTH_TOKEN': 'argocd.token={{.ARGOCD_SESSION_TOKEN}}',
-              'ARGO_CD_URL': 'https://argocd-server.argocd.svc.cluster.local/api/v1/'
+              'ARGO_CD_URL': 'https://argocd-server.argocd.svc.cluster.local/api/v1/',
+              'BACKSTAGE_SERVICE_TOKEN': '46Y8Je+VWx4djespJvjKg7Q1FKKE7eBM'
             }
           }
         },
@@ -100,7 +156,7 @@ export class BackstageSecretsChart extends Chart {
             sourceRef: {
               generatorRef: {
                 apiVersion: 'generators.external-secrets.io/v1alpha1',
-                kind: 'Password',
+                kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.PASSWORD,
                 name: 'backstage'
               }
             },
@@ -116,7 +172,7 @@ export class BackstageSecretsChart extends Chart {
             sourceRef: {
               generatorRef: {
                 apiVersion: 'generators.external-secrets.io/v1alpha1',
-                kind: 'Password',
+                kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.PASSWORD,
                 name: 'backstage-session'
               }
             },
@@ -141,7 +197,7 @@ export class BackstageSecretsChart extends Chart {
       spec: {
         secretStoreRef: {
           name: 'gitea',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         refreshInterval: '0',
         target: {
@@ -183,13 +239,14 @@ export class BackstageSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'ghcr-dockercfg',
           creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
           template: {
             type: 'kubernetes.io/dockerconfigjson',
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
             data: {
               '.dockerconfigjson': `{
   "auths": {
@@ -208,6 +265,129 @@ export class BackstageSecretsChart extends Chart {
             secretKey: 'pat',
             remoteRef: {
               key: 'GITHUB-PAT',
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
+            }
+          }
+        ]
+      }
+    });
+
+    // GitHub App credentials from Azure Key Vault
+    new ExternalSecret(this, 'backstage-github-app', {
+      metadata: {
+        name: 'backstage-github-app',
+        namespace: 'backstage',
+        labels: {
+          'app.kubernetes.io/name': 'backstage-github-app',
+          'app.kubernetes.io/part-of': 'backstage'
+        }
+      },
+      spec: {
+        refreshInterval: '1h',
+        secretStoreRef: {
+          name: 'azure-keyvault-store',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
+        },
+        target: {
+          name: 'backstage-github-app',
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+          template: {
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
+            data: {
+              'AUTH_ORG_APP_ID': '{{ .githubApp | fromJson | dig "app-id" "" }}',
+              'AUTH_ORG_CLIENT_ID': '{{ .githubApp | fromJson | dig "client-id" "" }}',
+              'AUTH_ORG_CLIENT_SECRET': '{{ .githubApp | fromJson | dig "client-secret" "" }}',
+              'AUTH_ORG1_PRIVATE_KEY': '{{ .githubApp | fromJson | dig "private-key" "" }}',
+              'AUTH_ORG_WEBHOOK_SECRET': '{{ .githubApp | fromJson | dig "webhook-secret" "" }}'
+            }
+          }
+        },
+        data: [
+          {
+            secretKey: 'githubApp',
+            remoteRef: {
+              key: 'BACKSTAGE-GITHUB-APP',
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
+            }
+          }
+        ]
+      }
+    });
+
+    // GitHub OAuth credentials from Azure Key Vault
+    new ExternalSecret(this, 'backstage-github-oauth', {
+      metadata: {
+        name: 'backstage-github-oauth',
+        namespace: 'backstage',
+        labels: {
+          'app.kubernetes.io/name': 'backstage-github-oauth',
+          'app.kubernetes.io/part-of': 'backstage'
+        }
+      },
+      spec: {
+        refreshInterval: '1h',
+        secretStoreRef: {
+          name: 'azure-keyvault-store',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
+        },
+        target: {
+          name: 'backstage-github-oauth',
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+          template: {
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
+            data: {
+              'AUTH_GITHUB_CLIENT_ID': '{{ .githubOAuth | fromJson | dig "dev" "client-id" "" }}',
+              'AUTH_GITHUB_CLIENT_SECRET': '{{ .githubOAuth | fromJson | dig "dev" "client-secret" "" }}'
+            }
+          }
+        },
+        data: [
+          {
+            secretKey: 'githubOAuth',
+            remoteRef: {
+              key: 'BACKSTAGE-GITHUB-OAUTH',
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
+            }
+          }
+        ]
+      }
+    });
+
+    // Microsoft Auth credentials from Azure Key Vault
+    new ExternalSecret(this, 'backstage-auth', {
+      metadata: {
+        name: 'backstage-auth',
+        namespace: 'backstage',
+        labels: {
+          'app.kubernetes.io/name': 'backstage-auth',
+          'app.kubernetes.io/part-of': 'backstage'
+        }
+      },
+      spec: {
+        refreshInterval: '1h',
+        secretStoreRef: {
+          name: 'azure-keyvault-store',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
+        },
+        target: {
+          name: 'backstage-auth',
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+          template: {
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
+            data: {
+              'AUTH_MICROSOFT_CLIENT_ID': '{{ .backstageAuth | fromJson | dig "microsoft-client-id" "" }}',
+              'AUTH_MICROSOFT_CLIENT_SECRET': '{{ .backstageAuth | fromJson | dig "microsoft-client-secret" "" }}',
+              'AUTH_MICROSOFT_TENANT_ID': '{{ .backstageAuth | fromJson | dig "microsoft-tenant-id" "" }}',
+              'AUTH_MICROSOFT_DOMAIN_HINT': '{{ .backstageAuth | fromJson | dig "microsoft-domain-hint" "" }}',
+              'BACKSTAGE_BACKEND_SECRET': '{{ .backstageAuth | fromJson | dig "backend-secret" "" }}'
+            }
+          }
+        },
+        data: [
+          {
+            secretKey: 'backstageAuth',
+            remoteRef: {
+              key: 'BACKSTAGE-AUTH',
               conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
             }
           }

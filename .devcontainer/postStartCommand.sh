@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Fix kubeconfig permissions
+/home/vscode/workspace/stacks/.devcontainer/fix-kubeconfig-permissions.sh
+
 # Import GPG key if both parts are available
 if [ -n "$GPG_SECRET_KEY_PART1" ] && [ -n "$GPG_SECRET_KEY_PART2" ]; then
     echo "Importing GPG key..."
@@ -25,12 +28,12 @@ else
 fi
 
 # Check if idpbuilder cluster exists and nginx proxy is not running
-if kubectl cluster-info &>/dev/null 2>&1; then
-    # Check if proxy container is running
-    if ! docker ps --filter "name=idpbuilder-nginx-proxy" --format '{{.Names}}' | grep -q "idpbuilder-nginx-proxy"; then
-        echo "🔄 Detected idpbuilder cluster but nginx proxy is not running. Starting proxy..."
-        /home/vscode/workspace/stacks/.devcontainer/setup-nginx-proxy.sh
-    else
-        echo "✅ Nginx proxy is already running"
-    fi
-fi
+# if kubectl cluster-info &>/dev/null 2>&1; then
+#     # Check if proxy container is running
+#     if ! docker ps --filter "name=idpbuilder-nginx-proxy" --format '{{.Names}}' | grep -q "idpbuilder-nginx-proxy"; then
+#         echo "🔄 Detected idpbuilder cluster but nginx proxy is not running. Starting proxy..."
+#         /home/vscode/workspace/stacks/.devcontainer/setup-nginx-proxy.sh
+#     else
+#         echo "✅ Nginx proxy is already running"
+#     fi
+# fi

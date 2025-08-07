@@ -2,9 +2,11 @@
 import { Chart, ApiObject, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
 import { 
-  ExternalSecretV1Beta1 as ExternalSecret,
-  ExternalSecretV1Beta1SpecTargetCreationPolicy as ExternalSecretSpecTargetCreationPolicy,
-  ExternalSecretV1Beta1SpecTargetTemplateEngineVersion as ExternalSecretSpecTargetTemplateEngineVersion
+  ExternalSecret,
+  ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretSpecSecretStoreRefKind,
+  ExternalSecretSpecTargetTemplateEngineVersion,
+  ExternalSecretSpecDataFromSourceRefGeneratorRefKind
 } from '../imports/external-secrets.io';
 
 export class InfraSecretsChart extends Chart {
@@ -87,7 +89,7 @@ export class InfraSecretsChart extends Chart {
             sourceRef: {
               generatorRef: {
                 apiVersion: 'generators.external-secrets.io/v1alpha1',
-                kind: 'ACRAccessToken',
+                kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.ACR_ACCESS_TOKEN,
                 name: 'vpittamp-acr-token',
               },
             },
@@ -132,7 +134,7 @@ export class InfraSecretsChart extends Chart {
             sourceRef: {
               generatorRef: {
                 apiVersion: 'generators.external-secrets.io/v1alpha1',
-                kind: 'ACRAccessToken',
+                kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.ACR_ACCESS_TOKEN,
                 name: 'vpittamp-acr-token',
               },
             },

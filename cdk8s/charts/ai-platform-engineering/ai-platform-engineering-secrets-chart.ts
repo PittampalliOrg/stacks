@@ -1,8 +1,9 @@
 import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
 import { 
-  ExternalSecretV1Beta1 as ExternalSecret,
-  ExternalSecretV1Beta1SpecTargetCreationPolicy as ExternalSecretSpecTargetCreationPolicy
+  ExternalSecret,
+  ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretSpecSecretStoreRefKind
 } from '../../imports/external-secrets.io';
 
 export interface AiPlatformEngineeringSecretsChartProps extends ChartProps {
@@ -41,7 +42,7 @@ export class AiPlatformEngineeringSecretsChart extends Chart {
         refreshInterval,
         secretStoreRef: {
           name: secretStore,
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'ai-platform-global-secrets',
@@ -88,7 +89,7 @@ export class AiPlatformEngineeringSecretsChart extends Chart {
         refreshInterval,
         secretStoreRef: {
           name: secretStore,
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-argocd-secret',
@@ -121,7 +122,7 @@ export class AiPlatformEngineeringSecretsChart extends Chart {
         refreshInterval,
         secretStoreRef: {
           name: secretStore,
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-github-secrets',
@@ -152,7 +153,7 @@ export class AiPlatformEngineeringSecretsChart extends Chart {
         refreshInterval,
         secretStoreRef: {
           name: secretStore,
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-jira-secrets',
@@ -186,7 +187,7 @@ export class AiPlatformEngineeringSecretsChart extends Chart {
         refreshInterval,
         secretStoreRef: {
           name: secretStore,
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-pagerduty-secrets',
@@ -218,7 +219,7 @@ export class AiPlatformEngineeringSecretsChart extends Chart {
         refreshInterval,
         secretStoreRef: {
           name: secretStore,
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-slack-secrets',
@@ -253,7 +254,7 @@ export class AiPlatformEngineeringSecretsChart extends Chart {
         refreshInterval,
         secretStoreRef: {
           name: secretStore,
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-backstage-secrets',

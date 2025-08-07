@@ -1,13 +1,14 @@
 import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
 import { 
-  ExternalSecretV1Beta1 as ExternalSecret,
-  ExternalSecretV1Beta1SpecTargetCreationPolicy as ExternalSecretSpecTargetCreationPolicy,
-  ExternalSecretV1Beta1SpecTargetTemplateEngineVersion as ExternalSecretSpecTargetTemplateEngineVersion,
-  ExternalSecretV1Beta1SpecTargetTemplateMergePolicy as ExternalSecretSpecTargetTemplateMergePolicy,
-  ExternalSecretV1Beta1SpecDataRemoteRefConversionStrategy as ExternalSecretSpecDataRemoteRefConversionStrategy,
-  ExternalSecretV1Beta1SpecDataRemoteRefDecodingStrategy as ExternalSecretSpecDataRemoteRefDecodingStrategy,
-  ExternalSecretV1Beta1SpecDataRemoteRefMetadataPolicy as ExternalSecretSpecDataRemoteRefMetadataPolicy
+  ExternalSecret,
+  ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretSpecTargetTemplateEngineVersion,
+  ExternalSecretSpecTargetTemplateMergePolicy as ExternalSecretSpecTargetTemplateMergePolicy,
+  ExternalSecretSpecDataRemoteRefConversionStrategy,
+  ExternalSecretSpecDataRemoteRefDecodingStrategy as ExternalSecretSpecDataRemoteRefDecodingStrategy,
+  ExternalSecretSpecDataRemoteRefMetadataPolicy as ExternalSecretSpecDataRemoteRefMetadataPolicy,
+  ExternalSecretSpecSecretStoreRefKind
 } from '../imports/external-secrets.io';
 
 export interface NextJsSecretsChartProps extends ChartProps {
@@ -38,7 +39,7 @@ export class NextJsSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: { 
           name: 'azure-keyvault-store', 
-          kind: 'ClusterSecretStore' 
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE 
         },
         target: { 
           name: 'app-env', 
@@ -103,7 +104,7 @@ export class NextJsSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: { 
           name: 'azure-keyvault-store', 
-          kind: 'ClusterSecretStore' 
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE 
         },
         target: { 
           name: 'neon-database-credentials', 
@@ -147,7 +148,7 @@ export class NextJsSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
         },
         target: {
           name: 'ghcr-dockercfg',
@@ -196,7 +197,7 @@ export class NextJsSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: { 
           name: 'azure-keyvault-store', 
-          kind: 'ClusterSecretStore' 
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE 
         },
         target: { 
           name: 'nextauth-credentials', 

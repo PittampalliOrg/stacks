@@ -1,14 +1,15 @@
 import { Chart, ChartProps, ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { 
-  ExternalSecretV1Beta1,
-  ExternalSecretV1Beta1SpecTargetCreationPolicy,
-  ExternalSecretV1Beta1SpecTargetDeletionPolicy,
-  ExternalSecretV1Beta1SpecTargetTemplateEngineVersion,
-  ExternalSecretV1Beta1SpecTargetTemplateMergePolicy,
-  ExternalSecretV1Beta1SpecDataRemoteRefConversionStrategy,
-  ExternalSecretV1Beta1SpecDataRemoteRefDecodingStrategy,
-  ExternalSecretV1Beta1SpecDataRemoteRefMetadataPolicy
+  ExternalSecret,
+  ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretSpecSecretStoreRefKind,
+  ExternalSecretSpecTargetDeletionPolicy,
+  ExternalSecretSpecTargetTemplateEngineVersion,
+  ExternalSecretSpecTargetTemplateMergePolicy,
+  ExternalSecretSpecDataRemoteRefConversionStrategy,
+  ExternalSecretSpecDataRemoteRefDecodingStrategy,
+  ExternalSecretSpecDataRemoteRefMetadataPolicy
 } from '../imports/external-secrets.io';
 
 /**
@@ -22,7 +23,7 @@ export class KargoPipelinesCredentialsChart extends Chart {
     const namespace = 'kargo-pipelines';
 
     // Create ExternalSecret for GHCR NextJS (chat) credentials
-    new ExternalSecretV1Beta1(this, 'ghcr-chat-credentials-external', {
+    new ExternalSecret(this, 'ghcr-chat-credentials-external', {
       metadata: {
         name: 'kargo-ghcr-chat-credentials-external',
         namespace,
@@ -39,15 +40,15 @@ export class KargoPipelinesCredentialsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'kargo-ghcr-chat-credentials',
-          creationPolicy: ExternalSecretV1Beta1SpecTargetCreationPolicy.OWNER,
-          deletionPolicy: ExternalSecretV1Beta1SpecTargetDeletionPolicy.RETAIN,
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+          deletionPolicy: ExternalSecretSpecTargetDeletionPolicy.RETAIN,
           template: {
-            engineVersion: ExternalSecretV1Beta1SpecTargetTemplateEngineVersion.V2,
-            mergePolicy: ExternalSecretV1Beta1SpecTargetTemplateMergePolicy.REPLACE,
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
+            mergePolicy: ExternalSecretSpecTargetTemplateMergePolicy.REPLACE,
             metadata: {
               labels: {
                 'app.kubernetes.io/name': 'kargo-ghcr-chat-credentials',
@@ -67,9 +68,9 @@ export class KargoPipelinesCredentialsChart extends Chart {
             secretKey: 'pat',
             remoteRef: {
               key: 'GITHUB-PAT',
-              conversionStrategy: ExternalSecretV1Beta1SpecDataRemoteRefConversionStrategy.DEFAULT,
-              decodingStrategy: ExternalSecretV1Beta1SpecDataRemoteRefDecodingStrategy.NONE,
-              metadataPolicy: ExternalSecretV1Beta1SpecDataRemoteRefMetadataPolicy.NONE
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT,
+              decodingStrategy: ExternalSecretSpecDataRemoteRefDecodingStrategy.NONE,
+              metadataPolicy: ExternalSecretSpecDataRemoteRefMetadataPolicy.NONE
             }
           }
         ]
@@ -77,7 +78,7 @@ export class KargoPipelinesCredentialsChart extends Chart {
     });
 
     // Create ExternalSecret for GHCR Backstage credentials
-    new ExternalSecretV1Beta1(this, 'ghcr-backstage-credentials-external', {
+    new ExternalSecret(this, 'ghcr-backstage-credentials-external', {
       metadata: {
         name: 'kargo-ghcr-backstage-credentials-external',
         namespace,
@@ -94,15 +95,15 @@ export class KargoPipelinesCredentialsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'kargo-ghcr-backstage-credentials',
-          creationPolicy: ExternalSecretV1Beta1SpecTargetCreationPolicy.OWNER,
-          deletionPolicy: ExternalSecretV1Beta1SpecTargetDeletionPolicy.RETAIN,
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+          deletionPolicy: ExternalSecretSpecTargetDeletionPolicy.RETAIN,
           template: {
-            engineVersion: ExternalSecretV1Beta1SpecTargetTemplateEngineVersion.V2,
-            mergePolicy: ExternalSecretV1Beta1SpecTargetTemplateMergePolicy.REPLACE,
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
+            mergePolicy: ExternalSecretSpecTargetTemplateMergePolicy.REPLACE,
             metadata: {
               labels: {
                 'app.kubernetes.io/name': 'kargo-ghcr-backstage-credentials',
@@ -113,7 +114,7 @@ export class KargoPipelinesCredentialsChart extends Chart {
             data: {
               username: 'pittampalliorg',
               password: '{{ .pat }}',
-              repoURL: 'ghcr.io/pittampalliorg/backstage-app'
+              repoURL: 'ghcr.io/pittampalliorg/backstage-cnoe'
             }
           }
         },
@@ -122,9 +123,9 @@ export class KargoPipelinesCredentialsChart extends Chart {
             secretKey: 'pat',
             remoteRef: {
               key: 'GITHUB-PAT',
-              conversionStrategy: ExternalSecretV1Beta1SpecDataRemoteRefConversionStrategy.DEFAULT,
-              decodingStrategy: ExternalSecretV1Beta1SpecDataRemoteRefDecodingStrategy.NONE,
-              metadataPolicy: ExternalSecretV1Beta1SpecDataRemoteRefMetadataPolicy.NONE
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT,
+              decodingStrategy: ExternalSecretSpecDataRemoteRefDecodingStrategy.NONE,
+              metadataPolicy: ExternalSecretSpecDataRemoteRefMetadataPolicy.NONE
             }
           }
         ]
@@ -132,7 +133,7 @@ export class KargoPipelinesCredentialsChart extends Chart {
     });
 
     // Create Git credentials for Kargo to clone GitHub stacks repository
-    new ExternalSecretV1Beta1(this, 'git-credentials-external', {
+    new ExternalSecret(this, 'git-credentials-external', {
       metadata: {
         name: 'kargo-git-credentials-external',
         namespace,
@@ -149,15 +150,15 @@ export class KargoPipelinesCredentialsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'kargo-git-credentials',
-          creationPolicy: ExternalSecretV1Beta1SpecTargetCreationPolicy.OWNER,
-          deletionPolicy: ExternalSecretV1Beta1SpecTargetDeletionPolicy.RETAIN,
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+          deletionPolicy: ExternalSecretSpecTargetDeletionPolicy.RETAIN,
           template: {
-            engineVersion: ExternalSecretV1Beta1SpecTargetTemplateEngineVersion.V2,
-            mergePolicy: ExternalSecretV1Beta1SpecTargetTemplateMergePolicy.REPLACE,
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
+            mergePolicy: ExternalSecretSpecTargetTemplateMergePolicy.REPLACE,
             metadata: {
               labels: {
                 'app.kubernetes.io/name': 'kargo-git-credentials',
@@ -179,9 +180,9 @@ export class KargoPipelinesCredentialsChart extends Chart {
             secretKey: 'pat',
             remoteRef: {
               key: 'GITHUB-PAT',
-              conversionStrategy: ExternalSecretV1Beta1SpecDataRemoteRefConversionStrategy.DEFAULT,
-              decodingStrategy: ExternalSecretV1Beta1SpecDataRemoteRefDecodingStrategy.NONE,
-              metadataPolicy: ExternalSecretV1Beta1SpecDataRemoteRefMetadataPolicy.NONE
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT,
+              decodingStrategy: ExternalSecretSpecDataRemoteRefDecodingStrategy.NONE,
+              metadataPolicy: ExternalSecretSpecDataRemoteRefMetadataPolicy.NONE
             }
           }
         ]

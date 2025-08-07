@@ -17,6 +17,8 @@ export class BackstageChart extends Chart {
     // Note: Some resources from argocd-secrets.yaml go into argocd namespace
     new BackstageArgoCDSecretsChart(this, 'argocd-secrets');
     new BackstageNamespaceRbacChart(this, 'namespace-rbac');
+    // DevSpace manages its own PVCs, so we don't need to create them here
+    // new BackstageDevspacePvcsChart(this, 'devspace-pvcs');
     new BackstageSecretsChart(this, 'secrets');
     new BackstageDatabaseChart(this, 'database');
     new BackstageAppChart(this, 'app');

@@ -1,6 +1,7 @@
 import { Chart, ChartProps, ApiObject } from 'cdk8s';
 import { Construct } from 'constructs';
 import { Project, ProjectConfig } from '../imports/kargo.akuity.io';
+import { KubeSecret } from '../imports/k8s';
 
 /**
  * Kargo Pipelines Project Chart
@@ -68,6 +69,56 @@ export class KargoPipelinesProjectChart extends Chart {
             autoPromotionEnabled: false
           }
         ]
+      }
+    });
+
+    // Create webhook secret for Gitea integration
+    // This secret will be used to authenticate webhook calls from Gitea
+    new KubeSecret(this, 'gitea-webhook-secret', {
+      metadata: {
+        name: 'kargo-gitea-webhook-secret',
+        namespace: 'kargo-pipelines',
+        labels: {
+          'app.kubernetes.io/name': 'kargo-gitea-webhook',
+          'app.kubernetes.io/part-of': 'kargo-pipelines',
+          'app.kubernetes.io/component': 'webhook-secret'
+        }
+      },
+      stringData: {
+        // Generate a secure random secret for webhook authentication
+        // In production, this should be stored in Azure Key Vault
+        webhookSecret: 'CHANGE_ME_TO_SECURE_SECRET',
+        'setup-instructions.txt': `Gitea Webhook Setup Instructions
+=============================
+
+1. Generate a secure webhook secret:
+   secret=$(openssl rand -base64 48 | tr -d '=+/' | head -c 32)
+   echo "Webhook Secret: $secret"
+
+2. Update this secret with the generated value:
+   kubectl patch secret kargo-gitea-webhook-secret \\
+     -n kargo-pipelines \\
+     --type json \\
+     -p='[{"op": "replace", "path": "/stringData/webhookSecret", "value": "'$secret'"}]'
+
+3. Get the webhook receiver URL:
+   kubectl get projectconfigs kargo-pipelines \\
+     -n kargo-pipelines \\
+     -o=jsonpath='{.status.webhookReceivers}'
+
+4. Configure webhook in Gitea:
+   - Go to your Gitea repository settings
+   - Navigate to Webhooks
+   - Add a new webhook with:
+     - Target URL: <webhook receiver URL from step 3>
+     - Secret: <secret from step 1>
+     - Trigger on: Push Events
+     - Active: Yes
+
+5. Test the webhook:
+   - Push a new image to the Gitea registry
+   - Check Kargo warehouse for new freight
+`
       }
     });
 

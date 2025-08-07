@@ -62,7 +62,7 @@ class FastSmartWatcher {
     const watchDirs = this.options.watchDirs || [
       path.join(this.projectRoot, 'charts'),
       path.join(this.projectRoot, 'lib'),
-      path.join(this.projectRoot, 'main.ts'),
+      path.join(this.projectRoot, 'main-v2.ts'),
       path.join(this.projectRoot, '..', '.env-files')
     ];
 
@@ -107,7 +107,7 @@ class FastSmartWatcher {
     
     // Create esbuild context for incremental builds
     this.esbuildContext = await esbuild.context({
-      entryPoints: [path.join(this.projectRoot, 'main.ts')],
+      entryPoints: [path.join(this.projectRoot, 'main-v2.ts')],
       bundle: true,
       platform: 'node',
       target: 'node18',

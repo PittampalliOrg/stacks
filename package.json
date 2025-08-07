@@ -1,5 +1,10 @@
 {
   "devDependencies": {
     "tsx": "^4.20.3"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-code": "^1.0.70",
+    "cdk8s-cli": "^2.200.148",
+    "devspace": "^6.3.16"
   }
 }

@@ -2,8 +2,9 @@ import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
 import * as k8s from '../../imports/k8s';
 import { 
-  ExternalSecretV1Beta1 as ExternalSecret,
-  ExternalSecretV1Beta1SpecTargetCreationPolicy as ExternalSecretSpecTargetCreationPolicy
+  ExternalSecret,
+  ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretSpecSecretStoreRefKind
 } from '../../imports/external-secrets.io';
 
 export interface AiPlatformAzureSecretsChartProps extends ChartProps {
@@ -40,7 +41,7 @@ export class AiPlatformAzureSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'llm-secret',
@@ -83,7 +84,7 @@ export class AiPlatformAzureSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-github-secret',
@@ -114,7 +115,7 @@ export class AiPlatformAzureSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-jira-secret',
@@ -148,7 +149,7 @@ export class AiPlatformAzureSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-pagerduty-secret',
@@ -180,7 +181,7 @@ export class AiPlatformAzureSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-slack-secret',
@@ -215,7 +216,7 @@ export class AiPlatformAzureSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-backstage-secret',
@@ -248,7 +249,7 @@ export class AiPlatformAzureSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         target: {
           name: 'agent-argocd-secret',

@@ -20,7 +20,7 @@ export class KargoBackstagePipelineChart extends Chart {
 
     // Note: Project is now managed by kargo-pipelines-project-chart.ts
 
-    // 2. Warehouse to monitor GHCR for new Backstage images
+    // 2. Warehouse to monitor local Gitea registry for new Backstage images
     new Warehouse(this, 'backstage-warehouse', {
       metadata: {
         name: 'backstage-warehouse',
@@ -37,7 +37,7 @@ export class KargoBackstagePipelineChart extends Chart {
         subscriptions: [
           {
             image: {
-              repoUrl: 'ghcr.io/pittampalliorg/backstage-app',
+              repoUrl: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe',
               discoveryLimit: 10,
               imageSelectionStrategy: WarehouseSpecSubscriptionsImageImageSelectionStrategy.LEXICAL,
               allowTags: '^v\\d+.*',  // Tags starting with 'v' followed by digits (e.g., v124-dev)
@@ -93,7 +93,7 @@ export class KargoBackstagePipelineChart extends Chart {
                   updates: [
                     {
                       key: 'dev.backstage',
-                      value: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
+                      value: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
                     }
                   ]
                 }
@@ -102,7 +102,7 @@ export class KargoBackstagePipelineChart extends Chart {
                 uses: 'git-commit',
                 config: {
                   path: './repo',
-                  message: 'chore(backstage-dev): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }} in images.json'
+                  message: 'chore(backstage-dev): promote image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }} in images.json'
                 }
               },
               {
@@ -163,7 +163,7 @@ export class KargoBackstagePipelineChart extends Chart {
                   updates: [
                     {
                       key: 'production.backstage',
-                      value: 'ghcr.io/pittampalliorg/backstage-app:${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }}'
+                      value: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
                     }
                   ]
                 }
@@ -172,7 +172,7 @@ export class KargoBackstagePipelineChart extends Chart {
                 uses: 'git-commit',
                 config: {
                   path: './repo',
-                  message: 'chore(backstage-prod): promote image to ${{ imageFrom("ghcr.io/pittampalliorg/backstage-app").Tag }} in images.json'
+                  message: 'chore(backstage-prod): promote image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }} in images.json'
                 }
               },
               {

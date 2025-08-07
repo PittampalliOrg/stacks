@@ -2,9 +2,10 @@ import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
 import * as k8s from '../../imports/k8s';
 import { 
-  ExternalSecretV1Beta1 as ExternalSecret,
-  ClusterSecretStoreV1Beta1 as ClusterSecretStore,
-  ClusterSecretStoreV1Beta1SpecProviderKubernetesServerCaProviderType as CaProviderType
+  ExternalSecret,
+  ClusterSecretStore,
+  ClusterSecretStoreSpecProviderKubernetesServerCaProviderType as CaProviderType,
+  ExternalSecretSpecSecretStoreRefKind
 } from '../../imports/external-secrets.io';
 
 /**
@@ -100,7 +101,7 @@ export class BackstageArgoCDSecretsChart extends Chart {
       spec: {
         secretStoreRef: {
           name: 'argocd',
-          kind: 'ClusterSecretStore'
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
         },
         refreshInterval: '0',
         target: {

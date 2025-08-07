@@ -1,6 +1,6 @@
 import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
-import { ClusterSecretStoreV1Beta1 as ClusterSecretStore, ClusterSecretStoreV1Beta1SpecProviderVaultVersion as ClusterSecretStoreSpecProviderVaultVersion } from '../../imports/external-secrets.io';
+import { ClusterSecretStore, ClusterSecretStoreSpecProviderVaultVersion } from '../../imports/external-secrets.io';
 
 export interface VaultSecretStoreChartProps extends ChartProps {
   namespace?: string;

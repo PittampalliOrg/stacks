@@ -239,7 +239,7 @@ export class DaggerInfraChart extends Chart {
               parameters: [
                 {
                   name: 'git-url',
-                  default: 'https://gitea.cnoe.localtest.me:8443/giteaadmin/backstage-app.git'
+                  default: 'https://gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe.git'
                 },
                 {
                   name: 'branch',

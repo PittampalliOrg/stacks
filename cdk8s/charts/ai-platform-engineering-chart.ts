@@ -35,7 +35,9 @@ export class AiPlatformEngineeringChart extends Chart {
             command: ['poetry', 'run', 'ai-platform-engineering'],
             args: ['platform-engineer']
           },
-          // env removed to use Helm chart default (http://localhost:8000)
+          env: {
+            EXTERNAL_URL: `https://ai-platform-engineering.${baseHost}:8443`
+          },
           multiAgentConfig: {
             protocol: 'a2a',
             port: '8000',
@@ -86,7 +88,7 @@ export class AiPlatformEngineeringChart extends Chart {
           },
           secrets: {
             externalSecret: {
-              enabled: true,
+              enabled: false,
               secretStore: 'vault-secret-store',
               data: [] // No specific secrets for backstage agent
             }

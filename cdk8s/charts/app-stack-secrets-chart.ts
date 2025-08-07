@@ -3,7 +3,8 @@ import { Construct } from 'constructs';
 import { 
   ExternalSecret,
   ExternalSecretSpecTargetCreationPolicy,
-  ExternalSecretSpecDataRemoteRefConversionStrategy
+  ExternalSecretSpecDataRemoteRefConversionStrategy,
+  ExternalSecretSpecSecretStoreRefKind
 } from '../imports/external-secrets.io';
 
 /**
@@ -29,7 +30,7 @@ export class AppStackSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
         },
         target: {
           name: 'neon-database-credentials',
@@ -99,7 +100,7 @@ export class AppStackSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
         },
         target: {
           name: 'ghcr-dockercfg',
@@ -148,7 +149,7 @@ export class AppStackSecretsChart extends Chart {
         refreshInterval: '1h',
         secretStoreRef: {
           name: 'azure-keyvault-store',
-          kind: 'ClusterSecretStore',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
         },
         target: {
           name: 'redis-credentials',

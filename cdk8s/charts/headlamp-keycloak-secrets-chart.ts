@@ -1,9 +1,10 @@
 import { Construct } from 'constructs';
 import { Chart, ChartProps } from 'cdk8s';
 import { 
-  ExternalSecretV1Beta1 as ExternalSecret, 
-  ExternalSecretV1Beta1SpecTargetCreationPolicy as ExternalSecretSpecTargetCreationPolicy,
-  ExternalSecretV1Beta1SpecTargetTemplateEngineVersion as ExternalSecretSpecTargetTemplateEngineVersion
+  ExternalSecret, 
+  ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretSpecTargetTemplateEngineVersion,
+  ExternalSecretSpecSecretStoreRefKind
 } from '../imports/external-secrets.io';
 
 /**
@@ -31,7 +32,7 @@ export class HeadlampKeycloakSecretsChart extends Chart {
         refreshInterval: '5m',
         secretStoreRef: {
           name: 'keycloak',
-          kind: 'ClusterSecretStore',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE,
         },
         target: {
           name: 'headlamp-oidc-secrets',

@@ -2,7 +2,7 @@
 set -e
 
 INSTALL_YAML="manifests/install.yaml"
-CHART_VERSION="0.9.11"
+CHART_VERSION="0.18.2"
 
 echo "# EXTERNAL SECRETS INSTALL RESOURCES" >${INSTALL_YAML}
 echo "# This file is auto-generated with 'ref-impelmentation/external-secrets/generate-manifests.sh'" >>${INSTALL_YAML}
