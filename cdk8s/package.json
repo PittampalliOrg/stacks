@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "import": "cdk8s import",
-    "synth": "DOCKER_CONFIG=/dev/null npx cdk8s synth",
+    "synth": "npx cdk8s synth",
     "compile": "tsc --build",
     "watch": "tsc --build -w",
     "watch:synth": "nodemon --watch charts --watch ../.env-files --ext ts,json --exec '. ../.env-files/wi.env && npx cdk8s synth -a 'npx ts-node main.ts''",

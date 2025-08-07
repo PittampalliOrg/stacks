@@ -537,6 +537,34 @@ export const applicationConfigs: ApplicationConfig[] = [
     }
   },
   {
+    name: 'kargo-gitea-webhook-setup',
+    namespace: 'kargo-pipelines',
+    chart: {
+      type: 'KargoGiteaWebhookSetupChart'
+    },
+    dependencies: {
+      kargoGiteaCredentials: {
+        type: 'KargoGiteaCredentialsChart'
+      }
+    },
+    argocd: {
+      syncWave: '85',  // After pipelines are created
+      labels: {
+        'app.kubernetes.io/component': 'webhook-setup',
+        'app.kubernetes.io/part-of': 'kargo-pipelines',
+        'app.kubernetes.io/name': 'kargo-gitea-webhook-setup',
+        'app.kubernetes.io/managed-by': 'argocd'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  {
     name: 'dagger-infra',
     namespace: 'argo',
     chart: {

@@ -139,6 +139,9 @@ clusters:
             imagePullSecrets: [
               {
                 name: 'ghcr-dockercfg'
+              },
+              {
+                name: 'gitea-dockercfg'
               }
             ]
           }

@@ -41,7 +41,8 @@ export class KargoBackstagePipelineChart extends Chart {
               discoveryLimit: 10,
               imageSelectionStrategy: WarehouseSpecSubscriptionsImageImageSelectionStrategy.LEXICAL,
               allowTags: '^v\\d+.*',  // Tags starting with 'v' followed by digits (e.g., v124-dev)
-              strictSemvers: false  // Not applicable for LEXICAL strategy
+              strictSemvers: false,  // Not applicable for LEXICAL strategy
+              insecureSkipTlsVerify: true  // For dev environment with self-signed certificates
             }
           }
         ]
@@ -74,25 +75,68 @@ export class KargoBackstagePipelineChart extends Chart {
         promotionTemplate: {
           spec: {
             steps: [
+              // GitHub promotion steps - commented out for testing Gitea approach
+              // {
+              //   uses: 'git-clone',
+              //   config: {
+              //     repoURL: githubRepo,
+              //     checkout: [
+              //       {
+              //         branch: gitBranch,
+              //         path: './repo'
+              //       }
+              //     ]
+              //   }
+              // },
+              // {
+              //   uses: 'json-update',
+              //   config: {
+              //     path: './repo/.env-files/images.json',
+              //     updates: [
+              //       {
+              //         key: 'dev.backstage',
+              //         value: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
+              //       }
+              //     ]
+              //   }
+              // },
+              // {
+              //   uses: 'git-commit',
+              //   config: {
+              //     path: './repo',
+              //     message: 'chore(backstage-dev): promote image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }} in images.json'
+              //   }
+              // },
+              // {
+              //   uses: 'git-push',
+              //   config: {
+              //     path: './repo',
+              //     targetBranch: gitBranch
+              //   }
+              // },
+              
+              // Gitea manifest repository update steps
               {
                 uses: 'git-clone',
                 config: {
-                  repoURL: githubRepo,
+                  repoURL: 'https://gitea.cnoe.localtest.me:8443/giteaAdmin/idpbuilder-localdev-backstage-manifests.git',
                   checkout: [
                     {
-                      branch: gitBranch,
-                      path: './repo'
+                      branch: 'main',
+                      path: './gitea-manifests'
                     }
-                  ]
+                  ],
+                  insecureSkipTLSVerify: true  // For dev environment with self-signed certificates
                 }
               },
+              // Now with FILE_PER_RESOURCE, we can target the specific Deployment file
               {
-                uses: 'json-update',
+                uses: 'yaml-update', 
                 config: {
-                  path: './repo/.env-files/images.json',
+                  path: './gitea-manifests/Deployment.backstage.k8s.yaml',
                   updates: [
                     {
-                      key: 'dev.backstage',
+                      key: 'spec.template.spec.containers.0.image',
                       value: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
                     }
                   ]
@@ -101,15 +145,15 @@ export class KargoBackstagePipelineChart extends Chart {
               {
                 uses: 'git-commit',
                 config: {
-                  path: './repo',
-                  message: 'chore(backstage-dev): promote image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }} in images.json'
+                  path: './gitea-manifests',
+                  message: 'chore(backstage-dev): update backstage image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
                 }
               },
               {
                 uses: 'git-push',
                 config: {
-                  path: './repo',
-                  targetBranch: gitBranch
+                  path: './gitea-manifests',
+                  targetBranch: 'main'
                 }
               }
             ]
@@ -144,6 +188,48 @@ export class KargoBackstagePipelineChart extends Chart {
         promotionTemplate: {
           spec: {
             steps: [
+              // For production, we'll keep GitHub update (but still commented for now)
+              // {
+              //   uses: 'git-clone',
+              //   config: {
+              //     repoURL: githubRepo,
+              //     checkout: [
+              //       {
+              //         branch: gitBranch,
+              //         path: './repo'
+              //       }
+              //     ]
+              //   }
+              // },
+              // {
+              //   uses: 'json-update',
+              //   config: {
+              //     path: './repo/.env-files/images.json',
+              //     updates: [
+              //       {
+              //         key: 'production.backstage',
+              //         value: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
+              //       }
+              //     ]
+              //   }
+              // },
+              // {
+              //   uses: 'git-commit',
+              //   config: {
+              //     path: './repo',
+              //     message: 'chore(backstage-prod): promote image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }} in images.json'
+              //   }
+              // },
+              // {
+              //   uses: 'git-push',
+              //   config: {
+              //     path: './repo',
+              //     targetBranch: gitBranch
+              //   }
+              // },
+              
+              // For now, production doesn't update Gitea manifests (dev environment only)
+              // This could be enabled later for production manifest updates
               {
                 uses: 'git-clone',
                 config: {

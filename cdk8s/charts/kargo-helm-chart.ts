@@ -1,4 +1,4 @@
-import { Chart, ChartProps, Helm, ApiObject } from 'cdk8s';
+import { Chart, ChartProps, Helm, ApiObject, JsonPatch } from 'cdk8s';
 import { Construct } from 'constructs';
 import { KubeNamespace, KubeSecret, KubeJob, KubeServiceAccount, KubeClusterRole, KubeClusterRoleBinding, Quantity } from '../imports/k8s';
 
@@ -56,7 +56,7 @@ export class KargoHelmChart extends Chart {
     // Deploy Kargo using Helm chart directly
     const kargoHelm = new Helm(this, 'kargo', {
       chart: 'oci://ghcr.io/akuity/kargo-charts/kargo',
-      version: '1.6.1',
+      version: '1.7.1',
       namespace: namespace,
       releaseName: 'kargo',
       values: {
@@ -230,172 +230,96 @@ export class KargoHelmChart extends Chart {
       },
     });
 
-    // Filter out cert-manager resources
-    // Since we can't modify Helm chart's included resources directly,
-    // we'll need to handle this at the manifest level.
-    // The cert-manager annotations will remain but should be ignored
-    // when cert-manager is not present.
-
-    // Create service account for webhook patching
-    new KubeServiceAccount(this, 'patch-webhook-sa', {
+    // Create Ingress for external webhooks server
+    new ApiObject(this, 'kargo-external-webhooks-ingress', {
+      apiVersion: 'networking.k8s.io/v1',
+      kind: 'Ingress',
       metadata: {
-        name: 'kargo-patch-webhook',
-        namespace: namespace,
+        name: 'kargo-external-webhooks',
+        namespace: 'kargo',
         annotations: {
-          'argocd.argoproj.io/hook': 'PostSync',
-          'argocd.argoproj.io/hook-delete-policy': 'HookSucceeded',
+          'nginx.ingress.kubernetes.io/backend-protocol': 'HTTP',
+          'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true',
+          'nginx.ingress.kubernetes.io/ssl-protocols': 'TLSv1.2 TLSv1.3',
         },
-      },
-    });
-
-    // Create cluster role for webhook patching
-    new KubeClusterRole(this, 'patch-webhook-role', {
-      metadata: {
-        name: 'kargo-patch-webhook',
-        annotations: {
-          'argocd.argoproj.io/hook': 'PostSync',
-          'argocd.argoproj.io/hook-delete-policy': 'HookSucceeded',
-        },
-      },
-      rules: [
-        {
-          apiGroups: ['admissionregistration.k8s.io'],
-          resources: ['validatingwebhookconfigurations', 'mutatingwebhookconfigurations'],
-          verbs: ['get', 'list', 'patch', 'update'],
-        },
-        {
-          apiGroups: [''],
-          resources: ['secrets'],
-          verbs: ['get'],
-        },
-      ],
-    });
-
-    // Create cluster role binding
-    new KubeClusterRoleBinding(this, 'patch-webhook-binding', {
-      metadata: {
-        name: 'kargo-patch-webhook',
-        annotations: {
-          'argocd.argoproj.io/hook': 'PostSync',
-          'argocd.argoproj.io/hook-delete-policy': 'HookSucceeded',
-        },
-      },
-      roleRef: {
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'ClusterRole',
-        name: 'kargo-patch-webhook',
-      },
-      subjects: [{
-        kind: 'ServiceAccount',
-        name: 'kargo-patch-webhook',
-        namespace: namespace,
-      }],
-    });
-
-    // Create PostSync hook job to patch webhooks
-    new KubeJob(this, 'patch-webhook-ca', {
-      metadata: {
-        name: 'kargo-patch-webhook-ca',
-        namespace: namespace,
-        annotations: {
-          'argocd.argoproj.io/hook': 'PostSync',
-          'argocd.argoproj.io/hook-delete-policy': 'BeforeHookCreation',
-        },
+        labels: {
+          'app.kubernetes.io/name': 'kargo-external-webhooks',
+          'app.kubernetes.io/part-of': 'kargo',
+          'app.kubernetes.io/managed-by': 'cdk8s'
+        }
       },
       spec: {
-        template: {
-          metadata: {
-            labels: {
-              'app.kubernetes.io/name': 'kargo-patch-webhook',
-              'app.kubernetes.io/component': 'job',
-            },
-          },
-          spec: {
-            serviceAccountName: 'kargo-patch-webhook',
-            restartPolicy: 'OnFailure',
-            containers: [{
-              name: 'patch',
-              image: 'bitnami/kubectl:latest',
-              command: ['/bin/bash'],
-              resources: {
-                requests: {
-                  cpu: Quantity.fromString('50m'),
-                  memory: Quantity.fromString('64Mi'),
-                },
-                limits: {
-                  cpu: Quantity.fromString('100m'),
-                  memory: Quantity.fromString('128Mi'),
-                },
-              },
-              args: [
-                '-c',
-                `
-                set -e
-                echo "Patching webhook configurations with CA bundle..."
-                
-                # Extract the CA certificate
-                CA_CERT=$(kubectl get secret kargo-webhooks-server-cert -n ${namespace} -o jsonpath='{.data.tls\\.crt}')
-                
-                if [ -z "$CA_CERT" ]; then
-                  echo "ERROR: Failed to extract CA certificate from secret"
-                  exit 1
-                fi
-                
-                # Wait for webhook configurations to exist
-                echo "Waiting for webhook configurations..."
-                for i in {1..60}; do
-                  if kubectl get validatingwebhookconfiguration kargo >/dev/null 2>&1 && \\
-                     kubectl get mutatingwebhookconfiguration kargo >/dev/null 2>&1; then
-                    echo "Webhook configurations found!"
-                    break
-                  fi
-                  echo "Waiting for webhook configurations... attempt $i/60"
-                  sleep 5
-                done
-                
-                # Patch validating webhook configuration
-                echo "Patching validating webhook configuration..."
-                # Get the number of webhooks
-                WEBHOOK_COUNT=$(kubectl get validatingwebhookconfiguration kargo -o json | jq '.webhooks | length')
-                echo "Found $WEBHOOK_COUNT validating webhooks"
-                
-                # Create patch for all webhooks
-                PATCHES=""
-                for i in $(seq 0 $((WEBHOOK_COUNT-1))); do
-                  if [ -n "$PATCHES" ]; then
-                    PATCHES="$PATCHES,"
-                  fi
-                  PATCHES="$PATCHES{\\"op\\": \\"add\\", \\"path\\": \\"/webhooks/$i/clientConfig/caBundle\\", \\"value\\": \\"$CA_CERT\\"}"
-                done
-                
-                kubectl patch validatingwebhookconfiguration kargo --type='json' -p="[$PATCHES]"
-                
-                # Patch mutating webhook configuration
-                echo "Patching mutating webhook configuration..."
-                # Get the number of webhooks
-                WEBHOOK_COUNT=$(kubectl get mutatingwebhookconfiguration kargo -o json | jq '.webhooks | length')
-                echo "Found $WEBHOOK_COUNT mutating webhooks"
-                
-                # Create patch for all webhooks
-                PATCHES=""
-                for i in $(seq 0 $((WEBHOOK_COUNT-1))); do
-                  if [ -n "$PATCHES" ]; then
-                    PATCHES="$PATCHES,"
-                  fi
-                  PATCHES="$PATCHES{\\"op\\": \\"add\\", \\"path\\": \\"/webhooks/$i/clientConfig/caBundle\\", \\"value\\": \\"$CA_CERT\\"}"
-                done
-                
-                kubectl patch mutatingwebhookconfiguration kargo --type='json' -p="[$PATCHES]"
-                
-                echo "Webhook configurations patched successfully"
-                `
-              ],
-            }],
-          },
-        },
-        backoffLimit: 3,
-        activeDeadlineSeconds: 600, // 10 minutes timeout
-      },
+        ingressClassName: 'nginx',
+        tls: [
+          {
+            hosts: ['kargo-webhooks.cnoe.localtest.me'],
+            secretName: 'cnoe-tls-secret'
+          }
+        ],
+        rules: [
+          {
+            host: 'kargo-webhooks.cnoe.localtest.me',
+            http: {
+              paths: [
+                {
+                  path: '/',
+                  pathType: 'Prefix',
+                  backend: {
+                    service: {
+                      name: 'kargo-external-webhooks-server',
+                      port: {
+                        number: 80
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
     });
+
+    // Fix webhook configurations by removing cert-manager annotations and adding CA bundle
+    // Find the ValidatingWebhookConfiguration
+    const validatingWebhook = kargoHelm.apiObjects.find(obj => 
+      obj.kind === 'ValidatingWebhookConfiguration' && obj.name === 'kargo'
+    );
+    
+    // Find the MutatingWebhookConfiguration
+    const mutatingWebhook = kargoHelm.apiObjects.find(obj => 
+      obj.kind === 'MutatingWebhookConfiguration' && obj.name === 'kargo'
+    );
+    
+    // Fix ValidatingWebhookConfiguration
+    if (validatingWebhook) {
+      // Remove cert-manager annotation
+      validatingWebhook.addJsonPatch(JsonPatch.remove('/metadata/annotations/cert-manager.io~1inject-ca-from'));
+      
+      // Add CA bundle to each webhook (there are 9 webhooks in the validating configuration)
+      for (let i = 0; i < 9; i++) {
+        validatingWebhook.addJsonPatch(JsonPatch.add(
+          `/webhooks/${i}/clientConfig/caBundle`,
+          tlsCert  // Use the same cert we created for the secret
+        ));
+      }
+    }
+    
+    // Fix MutatingWebhookConfiguration
+    if (mutatingWebhook) {
+      // Remove cert-manager annotation
+      mutatingWebhook.addJsonPatch(JsonPatch.remove('/metadata/annotations/cert-manager.io~1inject-ca-from'));
+      
+      // Add CA bundle to each webhook (there are 4 webhooks in the mutating configuration)
+      for (let i = 0; i < 4; i++) {
+        mutatingWebhook.addJsonPatch(JsonPatch.add(
+          `/webhooks/${i}/clientConfig/caBundle`,
+          tlsCert  // Use the same cert we created for the secret
+        ));
+      }
+    }
+
+    // PostSync hook job is no longer needed since we're fixing the webhooks at synthesis time
+    // The CA bundle is now added directly to the webhook configurations via JsonPatch
   }
 }

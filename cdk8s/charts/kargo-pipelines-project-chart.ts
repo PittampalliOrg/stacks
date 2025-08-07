@@ -68,6 +68,18 @@ export class KargoPipelinesProjectChart extends Chart {
             },
             autoPromotionEnabled: false
           }
+        ],
+        // Configure webhook receivers for Gitea integration
+        // Gitea is GitHub-compatible, so we use the github webhook receiver
+        webhookReceivers: [
+          {
+            name: 'gitea-backstage',
+            github: {
+              secretRef: {
+                name: 'kargo-gitea-webhook-secret'
+              }
+            }
+          }
         ]
       }
     });
@@ -85,9 +97,10 @@ export class KargoPipelinesProjectChart extends Chart {
         }
       },
       stringData: {
-        // Generate a secure random secret for webhook authentication
+        // Secure webhook secret for Gitea authentication
         // In production, this should be stored in Azure Key Vault
-        webhookSecret: 'CHANGE_ME_TO_SECURE_SECRET',
+        // The key must be named 'secret' for GitHub-compatible webhooks
+        secret: 'lwxtOFx10Jrox11Zi40r3L3zEvR6J8q9',
         'setup-instructions.txt': `Gitea Webhook Setup Instructions
 =============================
 

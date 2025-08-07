@@ -394,5 +394,56 @@ export class BackstageSecretsChart extends Chart {
         ]
       }
     });
+
+    // Gitea Docker registry secret
+    new ExternalSecret(this, 'gitea-dockercfg', {
+      metadata: {
+        name: 'gitea-dockercfg-external',
+        namespace: 'backstage',
+        labels: {
+          'app.kubernetes.io/name': 'gitea-dockercfg',
+          'app.kubernetes.io/part-of': 'backstage'
+        },
+        annotations: {
+          'argocd.argoproj.io/sync-wave': '-10'
+        }
+      },
+      spec: {
+        refreshInterval: '1h',
+        secretStoreRef: {
+          name: 'gitea',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
+        },
+        target: {
+          name: 'gitea-dockercfg',
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+          template: {
+            type: 'kubernetes.io/dockerconfigjson',
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
+            data: {
+              '.dockerconfigjson': '{"auths":{"gitea.cnoe.localtest.me:8443":{"username":"{{ .username }}","password":"{{ .password }}","auth":"{{ printf "%s:%s" .username .password | b64enc }}"}}}'
+            }
+          }
+        },
+        data: [
+          {
+            secretKey: 'username',
+            remoteRef: {
+              key: 'gitea-credential',
+              property: 'username',
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
+            }
+          },
+          {
+            secretKey: 'password',
+            remoteRef: {
+              key: 'gitea-credential',
+              property: 'password',
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
+            }
+          }
+        ]
+      }
+    });
   }
 }

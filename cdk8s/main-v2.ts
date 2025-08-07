@@ -24,6 +24,7 @@ import { KargoGiteaCredentialsChart } from './charts/kargo-gitea-credentials-cha
 import { KargoCACertificatesChart } from './charts/kargo-ca-certificates-chart';
 import { KargoNextjsPipelineChart } from './charts/kargo-nextjs-pipeline-chart';
 import { KargoBackstagePipelineChart } from './charts/kargo-backstage-pipeline-chart';
+import { KargoGiteaWebhookSetupChart } from './charts/kargo-gitea-webhook-setup-chart';
 import { KargoWebhookPatchChart } from './charts/kargo-webhook-patch-chart';
 import { DaggerInfraChart } from './charts/dagger-infra-chart';
 import { BackstageChart } from './charts/backstage-chart';
@@ -51,6 +52,7 @@ IdpBuilderChartFactory.register('KargoGiteaCredentialsChart', KargoGiteaCredenti
 IdpBuilderChartFactory.register('KargoCACertificatesChart', KargoCACertificatesChart);
 IdpBuilderChartFactory.register('KargoNextjsPipelineChart', KargoNextjsPipelineChart);
 IdpBuilderChartFactory.register('KargoBackstagePipelineChart', KargoBackstagePipelineChart);
+IdpBuilderChartFactory.register('KargoGiteaWebhookSetupChart', KargoGiteaWebhookSetupChart);
 IdpBuilderChartFactory.register('KargoWebhookPatchChart', KargoWebhookPatchChart);
 IdpBuilderChartFactory.register('DaggerInfraChart', DaggerInfraChart);
 IdpBuilderChartFactory.register('BackstageChart', BackstageChart);
@@ -106,7 +108,7 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
     
     // 1. Generate manifests for the application
     const manifestApp = new App({
-      yamlOutputType: YamlOutputType.FILE_PER_APP,
+      yamlOutputType: YamlOutputType.FILE_PER_RESOURCE,
       outdir: path.join(options.outputDir, appConfig.name, 'manifests'),
     });
     
@@ -114,17 +116,9 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
     await IdpBuilderChartFactory.createChart(manifestApp, appConfig);
     manifestApp.synth();
     
-    // Rename the output file to install.yaml
-    const manifestsDir = path.join(options.outputDir, appConfig.name, 'manifests');
-    const files = fs.readdirSync(manifestsDir);
-    const appFile = files.find(f => f === 'app.yaml' || f === 'app.k8s.yaml');
-    
-    if (appFile) {
-      fs.renameSync(
-        path.join(manifestsDir, appFile),
-        path.join(manifestsDir, 'install.yaml')
-      );
-    }
+    // With FILE_PER_RESOURCE, we'll have multiple YAML files in the manifests directory
+    // IDPBuilder will handle these individual resource files
+    console.log(`  ✓ Generated individual resource files for ${appConfig.name}`);
     
     // Copy values.yaml if it exists in the source package
     const sourceValuesPath = path.join(__dirname, '..', 'ai-platform-engineering', appConfig.name, 'values.yaml');

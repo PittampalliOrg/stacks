@@ -20,6 +20,7 @@ import { KargoGiteaCredentialsChart } from './charts/kargo-gitea-credentials-cha
 import { KargoCACertificatesChart } from './charts/kargo-ca-certificates-chart';
 import { KargoNextjsPipelineChart } from './charts/kargo-nextjs-pipeline-chart';
 import { KargoBackstagePipelineChart } from './charts/kargo-backstage-pipeline-chart';
+import { KargoGiteaWebhookSetupChart } from './charts/kargo-gitea-webhook-setup-chart';
 import { DaggerInfraChart } from './charts/dagger-infra-chart';
 import { BackstageChart } from './charts/backstage-chart';
 import { AiPlatformEngineeringChart } from './charts/ai-platform-engineering-chart';
@@ -51,6 +52,7 @@ IdpBuilderChartFactory.register('KargoGiteaCredentialsChart', KargoGiteaCredenti
 IdpBuilderChartFactory.register('KargoCACertificatesChart', KargoCACertificatesChart);
 IdpBuilderChartFactory.register('KargoNextjsPipelineChart', KargoNextjsPipelineChart);
 IdpBuilderChartFactory.register('KargoBackstagePipelineChart', KargoBackstagePipelineChart);
+IdpBuilderChartFactory.register('KargoGiteaWebhookSetupChart', KargoGiteaWebhookSetupChart);
 IdpBuilderChartFactory.register('KargoWebhookPatchChart', KargoWebhookPatchChart);
 IdpBuilderChartFactory.register('DaggerInfraChart', DaggerInfraChart);
 IdpBuilderChartFactory.register('BackstageChart', BackstageChart);
@@ -69,21 +71,20 @@ async function main() {
     try {
       // 1. Generate manifests for the application
       const manifestApp = new App({
-        yamlOutputType: YamlOutputType.FILE_PER_APP,  // All resources in one file
+        yamlOutputType: YamlOutputType.FILE_PER_RESOURCE,  // Separate file for each resource
         outdir: `${outputDir}/${appConfig.name}/manifests`,
-        outputFileExtension: '.yaml',  // Generate install.yaml directly
+        outputFileExtension: '.yaml',
       });
       
       // Use factory to create chart with dependencies
       await IdpBuilderChartFactory.createChart(manifestApp, appConfig);
       manifestApp.synth();
       
-      // Rename app.yaml to install.yaml
-      const appYamlPath = path.join(`${outputDir}/${appConfig.name}/manifests`, 'app.yaml');
-      const installYamlPath = path.join(`${outputDir}/${appConfig.name}/manifests`, 'install.yaml');
-      if (fs.existsSync(appYamlPath)) {
-        fs.renameSync(appYamlPath, installYamlPath);
-      }
+      // Note: With FILE_PER_RESOURCE, we get individual files like:
+      // - deployment-backstage.yaml
+      // - service-backstage.yaml
+      // - configmap-xyz.yaml
+      // IDPBuilder should handle this directory structure
       
       // Copy values.yaml if it exists in the source package
       const sourceValuesPath = path.join(__dirname, '..', 'ai-platform-engineering', appConfig.name, 'values.yaml');
