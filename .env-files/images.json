@@ -1,7 +1,7 @@
 {
   "dev": {
     "nextjs": "ghcr.io/pittampalliorg/chat:79",
-    "backstage": "gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:v122-20250808-121736",
+    "backstage": "gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:v123-20250808-123149",
     "flagdUi": "vpittamp.azurecr.io/flagd-ui:1.0.1",
     "claudecodeui": "vpittamp.azurecr.io/claudecodeui:v1.5.0"
   },
