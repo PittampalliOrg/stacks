@@ -130,11 +130,7 @@ clusters:
                       name: 'backstage-env-vars'
                     }
                   },
-                  {
-                    secretRef: {
-                      name: 'gitea-credentials'
-                    }
-                  },
+                  // gitea-credentials removed - not needed for public repos
                   {
                     secretRef: {
                       name: 'argocd-credentials'
@@ -165,14 +161,24 @@ clusters:
               }
             ],
             serviceAccountName: 'backstage',
-            imagePullSecrets: [
-              {
-                name: 'ghcr-dockercfg'
-              },
-              {
-                name: 'gitea-dockercfg'
+            imagePullSecrets: (() => {
+              // Conditionally add pull secrets based on the image source
+              const secrets: k8s.LocalObjectReference[] = [];
+              
+              if (imageRef.includes('ghcr.io')) {
+                secrets.push({ name: 'ghcr-dockercfg' });
               }
-            ]
+              
+              // Gitea registry allows anonymous pulls for public images
+              // No need for gitea-dockercfg
+              
+              // If using other registries, add them here
+              if (imageRef.includes('azurecr.io')) {
+                secrets.push({ name: 'azure-dockercfg' });
+              }
+              
+              return secrets.length > 0 ? secrets : undefined;
+            })()
           }
         }
       }

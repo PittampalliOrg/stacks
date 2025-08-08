@@ -23,7 +23,11 @@ export class KargoGiteaCredentialsChart extends Chart {
 
     const namespace = 'kargo-pipelines';
 
-    // Create ExternalSecret for Gitea registry credentials for Backstage images
+    // REMOVED: Image registry credentials - public images can be pulled without auth
+    // Kargo can monitor public Gitea registry without credentials
+    
+    // Keep only git credentials for PUSH operations
+    /*
     new ExternalSecret(this, 'gitea-backstage-credentials-external', {
       metadata: {
         name: 'kargo-gitea-backstage-credentials-external',
@@ -88,8 +92,10 @@ export class KargoGiteaCredentialsChart extends Chart {
         ]
       }
     });
+    */
 
     // Create ExternalSecret for Gitea git repository credentials for manifest updates
+    // REQUIRED: Git push operations need authentication even for public repos
     new ExternalSecret(this, 'gitea-git-manifest-credentials-external', {
       metadata: {
         name: 'kargo-gitea-manifest-credentials-external',

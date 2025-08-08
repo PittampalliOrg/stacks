@@ -188,41 +188,10 @@ export class BackstageSecretsChart extends Chart {
       }
     });
 
-    // Gitea credentials
-    new ExternalSecret(this, 'gitea-credentials', {
-      metadata: {
-        name: 'gitea-credentials',
-        namespace: 'backstage'
-      },
-      spec: {
-        secretStoreRef: {
-          name: 'gitea',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        refreshInterval: '0',
-        target: {
-          name: 'gitea-credentials'
-        },
-        data: [
-          {
-            secretKey: 'GITEA_USERNAME',
-            remoteRef: {
-              key: 'gitea-credential',
-              property: 'username'
-            }
-          },
-          {
-            secretKey: 'GITEA_PASSWORD',
-            remoteRef: {
-              key: 'gitea-credential',
-              property: 'password'
-            }
-          }
-        ]
-      }
-    });
+    // Gitea credentials - REMOVED: Not needed for public repositories
+    // Authentication is handled by IDPBuilder for public repo access
 
-    // GHCR Docker registry secret
+    // GHCR Docker registry secret with retry policy
     new ExternalSecret(this, 'ghcr-dockercfg', {
       metadata: {
         name: 'ghcr-dockercfg-external',
@@ -232,11 +201,13 @@ export class BackstageSecretsChart extends Chart {
           'app.kubernetes.io/part-of': 'backstage'
         },
         annotations: {
-          'argocd.argoproj.io/sync-wave': '-10'
+          'argocd.argoproj.io/sync-wave': '-10',
+          'argocd.argoproj.io/sync-options': 'Retry=true'
         }
       },
       spec: {
-        refreshInterval: '1h',
+        // More frequent checks during bootstrap for better resilience
+        refreshInterval: '30s',
         secretStoreRef: {
           name: 'azure-keyvault-store',
           kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
@@ -397,55 +368,7 @@ export class BackstageSecretsChart extends Chart {
       }
     });
 
-    // Gitea Docker registry secret
-    new ExternalSecret(this, 'gitea-dockercfg', {
-      metadata: {
-        name: 'gitea-dockercfg-external',
-        namespace: 'backstage',
-        labels: {
-          'app.kubernetes.io/name': 'gitea-dockercfg',
-          'app.kubernetes.io/part-of': 'backstage'
-        },
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-10'
-        }
-      },
-      spec: {
-        refreshInterval: '1h',
-        secretStoreRef: {
-          name: 'gitea',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        target: {
-          name: 'gitea-dockercfg',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
-          template: {
-            type: 'kubernetes.io/dockerconfigjson',
-            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
-            data: {
-              '.dockerconfigjson': '{"auths":{"gitea.cnoe.localtest.me:8443":{"username":"{{ .username }}","password":"{{ .password }}","auth":"{{ printf "%s:%s" .username .password | b64enc }}"}}}'
-            }
-          }
-        },
-        data: [
-          {
-            secretKey: 'username',
-            remoteRef: {
-              key: 'gitea-credential',
-              property: 'username',
-              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
-            }
-          },
-          {
-            secretKey: 'password',
-            remoteRef: {
-              key: 'gitea-credential',
-              property: 'password',
-              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
-            }
-          }
-        ]
-      }
-    });
+    // Gitea Docker registry secret - REMOVED: Not needed for public registry
+    // The Gitea registry in IDPBuilder allows anonymous pulls for public images
   }
 }

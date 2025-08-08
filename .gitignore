@@ -8,3 +8,7 @@ ref-implementation/keys/sa.pub
 node_modules/tsx/dist/
 
 node_modules/
+
+# Temporary clone directories
+cdk8s/idpbuilder-localdev-backstage-manifests/
+temp-backstage-repo/
