@@ -103,11 +103,19 @@ export class ArgoApplicationsChartV2 extends Chart {
       finalizers: ['resources-finalizer.argocd.argoproj.io']
     };
 
-    // Add sync wave annotation if specified
+    // Merge custom annotations and ensure sync-wave is preserved
+    const annotations: Record<string, string> = {
+      ...(props.argoCdConfig?.annotations || {})
+    };
     if (props.argoCdConfig?.syncWave) {
-      metadata.annotations = {
-        'argocd.argoproj.io/sync-wave': props.argoCdConfig.syncWave
-      };
+      annotations['argocd.argoproj.io/sync-wave'] = props.argoCdConfig.syncWave;
+    }
+    // Ensure Kargo can mutate the Backstage app for argocd-update
+    if (props.applicationName === 'backstage' && !annotations['kargo.akuity.io/authorized-stage']) {
+      annotations['kargo.akuity.io/authorized-stage'] = 'kargo-pipelines:backstage-dev';
+    }
+    if (Object.keys(annotations).length > 0) {
+      metadata.annotations = annotations;
     }
 
     return metadata;

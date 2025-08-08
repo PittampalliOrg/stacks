@@ -68,9 +68,13 @@ export class ArgoApplicationsChart extends Chart {
     };
 
     // Build annotations
-    const annotations: Record<string, string> = {};
+    const annotations: Record<string, string> = { ...(props.argoCdConfig?.annotations || {}) };
     if (props.argoCdConfig?.syncWave) {
       annotations['argocd.argoproj.io/sync-wave'] = props.argoCdConfig.syncWave;
+    }
+    // Ensure Kargo Stage is authorized to mutate the Backstage app (needed for argocd-update)
+    if (applicationName === 'backstage' && !annotations['kargo.akuity.io/authorized-stage']) {
+      annotations['kargo.akuity.io/authorized-stage'] = 'kargo-pipelines:backstage-dev';
     }
 
     // Check if this is a multi-source application

@@ -363,11 +363,23 @@ export const applicationConfigs: ApplicationConfig[] = [
     },
     argocd: {
       syncWave: '20',
+      annotations: {
+        'kargo.akuity.io/authorized-stage': 'kargo-pipelines:backstage-dev'
+      },
       labels: {
         'app.kubernetes.io/component': 'developer-portal',
         'app.kubernetes.io/part-of': 'platform',
         'app.kubernetes.io/name': 'backstage'
       },
+      // Point Argo CD at the Gitea-hosted manifests so cnoe:// plugin is not required
+      // This aligns with the Kargo pipeline which updates this repo and triggers argocd-update
+      sources: [
+        {
+          repoURL: 'https://gitea.cnoe.localtest.me:8443/giteaAdmin/idpbuilder-localdev-backstage-manifests.git',
+          path: '.',
+          targetRevision: 'main'
+        }
+      ],
       syncPolicy: {
         automated: {
           prune: false,

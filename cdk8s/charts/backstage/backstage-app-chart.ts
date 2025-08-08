@@ -10,6 +10,26 @@ export class BackstageAppChart extends Chart {
   constructor(scope: Construct, id: string, props?: ChartProps) {
     super(scope, id, props);
 
+    // Resolve the image reference for this environment
+    const imageRef: string = images[(process.env.ENVIRONMENT as keyof typeof images) || 'dev'].backstage as unknown as string;
+
+    // Extract repository and a label-safe tag identifier from the image reference
+    const parseRepo = (img: string) => img.split('@')[0].split(':')[0];
+    const parseTagOrDigest = (img: string) => {
+      if (img.includes('@')) {
+        // e.g. ghcr.io/org/app@sha256:abcd -> sha256-abcd (label safe)
+        const digest = img.split('@')[1];
+        return digest.replace(':', '-');
+      }
+      if (img.includes(':')) {
+        return img.split(':').pop() as string;
+      }
+      return 'latest';
+    };
+    const sanitizeLabel = (v: string) => v.toLowerCase().replace(/[^a-z0-9._-]/g, '-').slice(0, 63).replace(/^-+|[-.]+$/g, '');
+    const imageRepoLabel = sanitizeLabel(parseRepo(imageRef));
+    const imageTagLabel = sanitizeLabel(parseTagOrDigest(imageRef));
+
     // Backstage Service
     new k8s.KubeService(this, 'backstage-service', {
       metadata: {
@@ -73,14 +93,23 @@ clusters:
         template: {
           metadata: {
             labels: {
-              app: 'backstage'
+              app: 'backstage',
+              'app.kubernetes.io/name': 'backstage',
+              'app.kubernetes.io/part-of': 'backstage',
+              'app.kubernetes.io/component': 'backend',
+              'app.kubernetes.io/version': imageTagLabel,
+              'backstage.pittampalli.org/image-repo': imageRepoLabel,
+              'backstage.pittampalli.org/image-tag': imageTagLabel
+            },
+            annotations: {
+              'backstage.pittampalli.org/image': imageRef
             }
           },
           spec: {
             containers: [
               {
                 name: 'backstage',
-                image: images[(process.env.ENVIRONMENT as keyof typeof images) || 'dev'].backstage,
+                image: imageRef,
                 env: [
                   {
                     name: 'LOG_LEVEL',

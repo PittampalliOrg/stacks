@@ -379,7 +379,9 @@ export class BackstageSecretsChart extends Chart {
               'AUTH_MICROSOFT_CLIENT_SECRET': '{{ .backstageAuth | fromJson | dig "microsoft-client-secret" "" }}',
               'AUTH_MICROSOFT_TENANT_ID': '{{ .backstageAuth | fromJson | dig "microsoft-tenant-id" "" }}',
               'AUTH_MICROSOFT_DOMAIN_HINT': '{{ .backstageAuth | fromJson | dig "microsoft-domain-hint" "" }}',
-              'BACKSTAGE_BACKEND_SECRET': '{{ .backstageAuth | fromJson | dig "backend-secret" "" }}'
+              'BACKSTAGE_BACKEND_SECRET': '{{ .backstageAuth | fromJson | dig "backend-secret" "" }}',
+              // Provide the generic BACKEND_SECRET env var expected by app-config.production.yaml
+              'BACKEND_SECRET': '{{ .backstageAuth | fromJson | dig "backend-secret" "" }}'
             }
           }
         },

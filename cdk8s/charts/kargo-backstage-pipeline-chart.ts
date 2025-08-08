@@ -76,44 +76,44 @@ export class KargoBackstagePipelineChart extends Chart {
           spec: {
             steps: [
               // GitHub promotion steps - commented out for testing Gitea approach
-              // {
-              //   uses: 'git-clone',
-              //   config: {
-              //     repoURL: githubRepo,
-              //     checkout: [
-              //       {
-              //         branch: gitBranch,
-              //         path: './repo'
-              //       }
-              //     ]
-              //   }
-              // },
-              // {
-              //   uses: 'json-update',
-              //   config: {
-              //     path: './repo/.env-files/images.json',
-              //     updates: [
-              //       {
-              //         key: 'dev.backstage',
-              //         value: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
-              //       }
-              //     ]
-              //   }
-              // },
-              // {
-              //   uses: 'git-commit',
-              //   config: {
-              //     path: './repo',
-              //     message: 'chore(backstage-dev): promote image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }} in images.json'
-              //   }
-              // },
-              // {
-              //   uses: 'git-push',
-              //   config: {
-              //     path: './repo',
-              //     targetBranch: gitBranch
-              //   }
-              // },
+              {
+                uses: 'git-clone',
+                config: {
+                  repoURL: githubRepo,
+                  checkout: [
+                    {
+                      branch: gitBranch,
+                      path: './repo'
+                    }
+                  ]
+                }
+              },
+              {
+                uses: 'json-update',
+                config: {
+                  path: './repo/.env-files/images.json',
+                  updates: [
+                    {
+                      key: 'dev.backstage',
+                      value: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
+                    }
+                  ]
+                }
+              },
+              {
+                uses: 'git-commit',
+                config: {
+                  path: './repo',
+                  message: 'chore(backstage-dev): promote image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }} in images.json'
+                }
+              },
+              {
+                uses: 'git-push',
+                config: {
+                  path: './repo',
+                  targetBranch: gitBranch
+                }
+              },
               
               // Gitea manifest repository update steps
               {
@@ -155,6 +155,21 @@ export class KargoBackstagePipelineChart extends Chart {
                   path: './gitea-manifests',
                   targetBranch: 'main'
                 }
+              },
+              // Force Argo CD to sync the Backstage application immediately after promotion
+              {
+                uses: 'argocd-update',
+                config: {
+                  apps: [
+                    {
+                      name: 'backstage',
+                      namespace: 'argocd'
+                      // Optionally, you can specify health checks by defining sources
+                      // when the Application points at a Git repo. Since our dev app
+                      // uses a local CNOE source, we use a simple sync trigger here.
+                    }
+                  ]
+                }
               }
             ]
           }
@@ -189,44 +204,44 @@ export class KargoBackstagePipelineChart extends Chart {
           spec: {
             steps: [
               // For production, we'll keep GitHub update (but still commented for now)
-              // {
-              //   uses: 'git-clone',
-              //   config: {
-              //     repoURL: githubRepo,
-              //     checkout: [
-              //       {
-              //         branch: gitBranch,
-              //         path: './repo'
-              //       }
-              //     ]
-              //   }
-              // },
-              // {
-              //   uses: 'json-update',
-              //   config: {
-              //     path: './repo/.env-files/images.json',
-              //     updates: [
-              //       {
-              //         key: 'production.backstage',
-              //         value: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
-              //       }
-              //     ]
-              //   }
-              // },
-              // {
-              //   uses: 'git-commit',
-              //   config: {
-              //     path: './repo',
-              //     message: 'chore(backstage-prod): promote image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }} in images.json'
-              //   }
-              // },
-              // {
-              //   uses: 'git-push',
-              //   config: {
-              //     path: './repo',
-              //     targetBranch: gitBranch
-              //   }
-              // },
+              {
+                uses: 'git-clone',
+                config: {
+                  repoURL: githubRepo,
+                  checkout: [
+                    {
+                      branch: gitBranch,
+                      path: './repo'
+                    }
+                  ]
+                }
+              },
+              {
+                uses: 'json-update',
+                config: {
+                  path: './repo/.env-files/images.json',
+                  updates: [
+                    {
+                      key: 'production.backstage',
+                      value: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
+                    }
+                  ]
+                }
+              },
+              {
+                uses: 'git-commit',
+                config: {
+                  path: './repo',
+                  message: 'chore(backstage-prod): promote image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }} in images.json'
+                }
+              },
+              {
+                uses: 'git-push',
+                config: {
+                  path: './repo',
+                  targetBranch: gitBranch
+                }
+              },
               
               // For now, production doesn't update Gitea manifests (dev environment only)
               // This could be enabled later for production manifest updates

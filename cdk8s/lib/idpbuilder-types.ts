@@ -47,6 +47,10 @@ export interface ApplicationConfig {
      * Sync wave annotation
      */
     syncWave?: string;
+  /**
+   * Extra metadata annotations for the ArgoCD Application
+   */
+  annotations?: Record<string, string>;
     
     /**
      * Additional labels for the ArgoCD application
