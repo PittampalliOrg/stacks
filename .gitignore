@@ -12,3 +12,6 @@ node_modules/
 # Temporary clone directories
 cdk8s/idpbuilder-localdev-backstage-manifests/
 temp-backstage-repo/
+certificates/idpbuilder-static-cert.sh
+certificates/tls.key
+certificates/ca.crt

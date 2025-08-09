@@ -371,15 +371,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'platform',
         'app.kubernetes.io/name': 'backstage'
       },
-      // Point Argo CD at the Gitea-hosted manifests so cnoe:// plugin is not required
-      // This aligns with the Kargo pipeline which updates this repo and triggers argocd-update
-      sources: [
-        {
-          repoURL: 'https://gitea.cnoe.localtest.me:8443/giteaAdmin/idpbuilder-localdev-backstage-manifests.git',
-          path: '.',
-          targetRevision: 'main'
-        }
-      ],
+      // Use default cnoe:// pattern like other applications
       syncPolicy: {
         automated: {
           prune: false,
@@ -440,33 +432,6 @@ export const applicationConfigs: ApplicationConfig[] = [
           selfHeal: true
         },
         syncOptions: ['CreateNamespace=true']
-      }
-    }
-  },
-  {
-    name: 'kargo-gitea-credentials',
-    namespace: 'kargo-pipelines',
-    chart: {
-      type: 'KargoGiteaCredentialsChart'
-    },
-    dependencies: {
-      kargoPipelinesProject: {
-        type: 'KargoPipelinesProjectChart'
-      }
-    },
-    argocd: {
-      syncWave: '76',  // After project creation, same as other credentials
-      labels: {
-        'app.kubernetes.io/component': 'credentials',
-        'app.kubernetes.io/part-of': 'kargo-pipelines',
-        'app.kubernetes.io/name': 'kargo-gitea-credentials'
-      },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=false']  // Namespace created by project
       }
     }
   },
@@ -555,8 +520,8 @@ export const applicationConfigs: ApplicationConfig[] = [
       type: 'KargoGiteaWebhookSetupChart'
     },
     dependencies: {
-      kargoGiteaCredentials: {
-        type: 'KargoGiteaCredentialsChart'
+      kargoPipelinesProject: {
+        type: 'KargoPipelinesProjectChart'
       }
     },
     argocd: {

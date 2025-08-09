@@ -1,10 +1,74 @@
 import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
 import { ApiObject } from 'cdk8s';
+import { 
+  ExternalSecret,
+  ExternalSecretSpecTargetCreationPolicy,
+  ExternalSecretSpecSecretStoreRefKind,
+  ExternalSecretSpecTargetDeletionPolicy,
+  ExternalSecretSpecDataRemoteRefConversionStrategy
+} from '../imports/external-secrets.io';
 
 export class KargoGiteaWebhookSetupChart extends Chart {
   constructor(scope: Construct, id: string, props: ChartProps = {}) {
     super(scope, id, props);
+
+    const namespace = 'kargo-pipelines';
+
+    // Create ExternalSecret for Gitea API credentials for webhook setup
+    // This pulls the current token from the Gitea namespace, ensuring it's always fresh
+    new ExternalSecret(this, 'gitea-api-credentials-external', {
+      metadata: {
+        name: 'gitea-credentials-external',
+        namespace,
+        labels: {
+          'app.kubernetes.io/name': 'gitea-credentials',
+          'app.kubernetes.io/part-of': 'kargo-pipelines',
+          'app.kubernetes.io/component': 'webhook-setup'
+        },
+        annotations: {
+          'argocd.argoproj.io/sync-wave': '-20' // Create before webhook setup job
+        }
+      },
+      spec: {
+        refreshInterval: '5m', // Refresh frequently to catch token rotations
+        secretStoreRef: {
+          name: 'gitea',
+          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
+        },
+        target: {
+          name: 'gitea-credentials',
+          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+          deletionPolicy: ExternalSecretSpecTargetDeletionPolicy.RETAIN
+        },
+        data: [
+          {
+            secretKey: 'token',
+            remoteRef: {
+              key: 'gitea-credential',
+              property: 'token',
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
+            }
+          },
+          {
+            secretKey: 'username',
+            remoteRef: {
+              key: 'gitea-credential',
+              property: 'username',
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
+            }
+          },
+          {
+            secretKey: 'password',
+            remoteRef: {
+              key: 'gitea-credential',
+              property: 'password',
+              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
+            }
+          }
+        ]
+      }
+    });
 
     // Create a ConfigMap with the webhook configuration script
     new ApiObject(this, 'gitea-webhook-setup-script', {

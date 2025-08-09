@@ -40,7 +40,7 @@ export class KargoBackstagePipelineChart extends Chart {
               repoUrl: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe',
               discoveryLimit: 10,
               imageSelectionStrategy: WarehouseSpecSubscriptionsImageImageSelectionStrategy.LEXICAL,
-              allowTags: '^v\\d+.*',  // Tags starting with 'v' followed by digits (e.g., v124-dev)
+              allowTags: '.*',  // Accept any tag (matches both 'latest' and versioned tags)
               strictSemvers: false,  // Not applicable for LEXICAL strategy
               insecureSkipTlsVerify: true  // For dev environment with self-signed certificates
             }
@@ -115,47 +115,9 @@ export class KargoBackstagePipelineChart extends Chart {
                 }
               },
               
-              // Gitea manifest repository update steps
-              {
-                uses: 'git-clone',
-                config: {
-                  repoURL: 'https://gitea.cnoe.localtest.me:8443/giteaAdmin/idpbuilder-localdev-backstage-manifests.git',
-                  checkout: [
-                    {
-                      branch: 'main',
-                      path: './gitea-manifests'
-                    }
-                  ],
-                  insecureSkipTLSVerify: true  // For dev environment with self-signed certificates
-                }
-              },
-              // Now with FILE_PER_RESOURCE, we can target the specific Deployment file
-              {
-                uses: 'yaml-update', 
-                config: {
-                  path: './gitea-manifests/Deployment.backstage.k8s.yaml',
-                  updates: [
-                    {
-                      key: 'spec.template.spec.containers.0.image',
-                      value: 'gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
-                    }
-                  ]
-                }
-              },
-              {
-                uses: 'git-commit',
-                config: {
-                  path: './gitea-manifests',
-                  message: 'chore(backstage-dev): update backstage image to ${{ imageFrom("gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe").Tag }}'
-                }
-              },
-              {
-                uses: 'git-push',
-                config: {
-                  path: './gitea-manifests',
-                  targetBranch: 'main'
-                }
-              },
+              // Note: Since we're using cnoe:// pattern, manifests are local to IDPBuilder
+              // The ArgoCD application will sync from the local directory
+              // No need to update a separate Gitea repository
               // Force Argo CD to sync the Backstage application immediately after promotion
               {
                 uses: 'argocd-update',
