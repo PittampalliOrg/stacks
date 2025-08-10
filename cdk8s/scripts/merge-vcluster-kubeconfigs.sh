@@ -2,94 +2,241 @@
 
 set -euo pipefail
 
-# Merge kubeconfigs for all vclusters with localhost connections for Docker Desktop/WSL2
-# Uses dedicated ports per environment to avoid conflicts
-# Works with the new vcluster architecture using genericSync
-# Reads vcluster secrets directly from their namespaces
-# Requires: kubectl, jq
+# Script to set up vcluster connections for Docker Desktop/WSL2
+# Uses vcluster CLI for proper connection management
+# Supports both direct and port-forwarded connections
 
-if ! command -v jq >/dev/null 2>&1; then
-  echo "jq is required (brew install jq | apt-get install jq)" >&2
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Check prerequisites
+if ! command -v vcluster >/dev/null 2>&1; then
+  echo -e "${RED}Error: vcluster CLI is required${NC}" >&2
+  echo "Install with: curl -L -o vcluster 'https://github.com/loft-sh/vcluster/releases/latest/download/vcluster-linux-amd64' && chmod +x vcluster && sudo mv vcluster /usr/local/bin" >&2
   exit 1
 fi
 
-# Define vcluster environments with their dedicated localhost ports
-# These ports are used for direct vcluster connections bypassing ingress
-declare -A VCLUSTER_PORTS=(
-  ["dev"]=8443
-  ["staging"]=8444
-)
+if ! command -v kubectl >/dev/null 2>&1; then
+  echo -e "${RED}Error: kubectl is required${NC}" >&2
+  exit 1
+fi
 
-# Define vcluster environments
+# Configuration
 VCLUSTER_ENVS=("dev" "staging")
+USE_PORT_FORWARD=${USE_PORT_FORWARD:-true}
+PORT_START=${PORT_START:-8443}
 
-# Process each vcluster environment
+echo -e "${GREEN}=== VCluster Connection Setup ===${NC}"
+echo ""
+
+# Function to check if vcluster is ready
+check_vcluster_ready() {
+  local env=$1
+  local namespace="${env}-vcluster"
+  local name="vcluster-${env}-helm"
+  
+  # Check if namespace exists
+  if ! kubectl get namespace "${namespace}" >/dev/null 2>&1; then
+    echo -e "${YELLOW}Warning: Namespace ${namespace} not found${NC}"
+    return 1
+  fi
+  
+  # Check if vcluster pod is running
+  if ! kubectl get pod "${name}-0" -n "${namespace}" >/dev/null 2>&1; then
+    echo -e "${YELLOW}Warning: VCluster pod ${name}-0 not found in ${namespace}${NC}"
+    return 1
+  fi
+  
+  local pod_status=$(kubectl get pod "${name}-0" -n "${namespace}" -o jsonpath='{.status.phase}' 2>/dev/null)
+  if [[ "${pod_status}" != "Running" ]]; then
+    echo -e "${YELLOW}Warning: VCluster ${name} is not running (status: ${pod_status})${NC}"
+    return 1
+  fi
+  
+  return 0
+}
+
+# Function to connect to vcluster
+connect_vcluster() {
+  local env=$1
+  local port=$2
+  local namespace="${env}-vcluster"
+  local name="vcluster-${env}-helm"
+  local context="${env}-vcluster"
+  
+  echo -e "${GREEN}Processing ${env} vcluster...${NC}"
+  
+  # Check if vcluster is ready
+  if ! check_vcluster_ready "${env}"; then
+    echo -e "${YELLOW}Skipping ${env} vcluster (not ready)${NC}"
+    return 1
+  fi
+  
+  if [[ "${USE_PORT_FORWARD}" == "true" ]]; then
+    # Use port-forwarding method (recommended for Docker Desktop/WSL2)
+    echo "  Setting up port-forwarded connection on localhost:${port}..."
+    
+    # Create kubeconfig entry using vcluster CLI
+    # The --print option outputs the kubeconfig without starting port-forwarding
+    # We'll save it to a temp file and merge it
+    local temp_kubeconfig=$(mktemp)
+    trap "rm -f ${temp_kubeconfig}" EXIT
+    
+    # Note: We need to use insecure-skip-tls-verify when using localhost
+    # because the certificate is valid for cnoe.localtest.me, not localhost
+    if vcluster connect "${name}" \
+      --namespace "${namespace}" \
+      --server "https://localhost:${port}" \
+      --kube-config-context-name "${context}" \
+      --update-current=false \
+      --insecure \
+      --print > "${temp_kubeconfig}" 2>/dev/null; then
+      
+      # Merge the kubeconfig into the default config
+      KUBECONFIG="${HOME}/.kube/config:${temp_kubeconfig}" kubectl config view --flatten > "${HOME}/.kube/config.new" 2>/dev/null
+      mv "${HOME}/.kube/config.new" "${HOME}/.kube/config" 2>/dev/null
+      
+    else
+      echo -e "${YELLOW}  Warning: Failed to create kubeconfig for ${env}${NC}"
+      rm -f "${temp_kubeconfig}"
+      return 1
+    fi
+    
+    rm -f "${temp_kubeconfig}"
+    
+    echo -e "${GREEN}  ✓ Created context: ${context} (use with port-forward)${NC}"
+    echo "    To connect, run in a separate terminal:"
+    echo -e "${YELLOW}    vcluster connect ${name} --namespace ${namespace} --local-port ${port}${NC}"
+    
+  else
+    # Direct connection method (requires cluster network access)
+    echo "  Setting up direct cluster connection..."
+    
+    # Get the service endpoint
+    local server="https://${name}.${namespace}.svc:443"
+    
+    local temp_kubeconfig=$(mktemp)
+    trap "rm -f ${temp_kubeconfig}" EXIT
+    
+    if vcluster connect "${name}" \
+      --namespace "${namespace}" \
+      --server "${server}" \
+      --kube-config-context-name "${context}" \
+      --update-current=false \
+      --print > "${temp_kubeconfig}" 2>/dev/null; then
+      
+      # Merge the kubeconfig into the default config
+      KUBECONFIG="${HOME}/.kube/config:${temp_kubeconfig}" kubectl config view --flatten > "${HOME}/.kube/config.new" 2>/dev/null
+      mv "${HOME}/.kube/config.new" "${HOME}/.kube/config" 2>/dev/null
+      
+    else
+      echo -e "${YELLOW}  Warning: Failed to create kubeconfig for ${env}${NC}"
+      rm -f "${temp_kubeconfig}"
+      return 1
+    fi
+    
+    rm -f "${temp_kubeconfig}"
+    
+    echo -e "${GREEN}  ✓ Created context: ${context} (direct connection)${NC}"
+  fi
+  
+  return 0
+}
+
+# Function to test vcluster connection
+test_connection() {
+  local context=$1
+  
+  echo -n "  Testing connection... "
+  
+  if kubectl --context "${context}" get ns >/dev/null 2>&1; then
+    echo -e "${GREEN}✓ Success${NC}"
+    return 0
+  else
+    echo -e "${YELLOW}✗ Failed (port-forwarding may be required)${NC}"
+    return 1
+  fi
+}
+
+# Main execution
+SUCCESSFUL_CONTEXTS=()
+FAILED_ENVS=()
+CURRENT_PORT=${PORT_START}
+
 for ENV in "${VCLUSTER_ENVS[@]}"; do
-  NAMESPACE="${ENV}-vcluster"
-  SECRET_NAME="vc-${ENV}-vcluster-helm"
-  
-  # Check if the namespace exists
-  if ! kubectl get namespace "${NAMESPACE}" >/dev/null 2>&1; then
-    echo "Namespace ${NAMESPACE} not found, skipping..."
-    continue
+  if connect_vcluster "${ENV}" "${CURRENT_PORT}"; then
+    CONTEXT="${ENV}-vcluster"
+    
+    # Test connection (will likely fail without port-forwarding)
+    if [[ "${USE_PORT_FORWARD}" != "true" ]]; then
+      test_connection "${CONTEXT}" || true
+    fi
+    
+    SUCCESSFUL_CONTEXTS+=("${CONTEXT}")
+    CURRENT_PORT=$((CURRENT_PORT + 1))
+  else
+    FAILED_ENVS+=("${ENV}")
   fi
-  
-  # Check if the secret exists
-  if ! kubectl get secret "${SECRET_NAME}" -n "${NAMESPACE}" >/dev/null 2>&1; then
-    echo "Secret ${SECRET_NAME} not found in namespace ${NAMESPACE}, skipping..."
-    continue
-  fi
-  
-  echo "Processing ${ENV} vcluster..."
-  
-  # Get certificate data from the secret
-  CA_DATA=$(kubectl get secret "${SECRET_NAME}" -n "${NAMESPACE}" -o jsonpath='{.data.certificate-authority}')
-  CERT_DATA=$(kubectl get secret "${SECRET_NAME}" -n "${NAMESPACE}" -o jsonpath='{.data.client-certificate}')
-  KEY_DATA=$(kubectl get secret "${SECRET_NAME}" -n "${NAMESPACE}" -o jsonpath='{.data.client-key}')
-
-  # Set the cluster name and server URL using localhost with dedicated port
-  # This bypasses Docker Desktop/WSL2 networking issues
-  CLUSTER_NAME="${ENV}-vcluster"
-  PORT="${VCLUSTER_PORTS[$ENV]}"
-  SERVER="https://localhost:${PORT}"
-  
-  echo "  - Using localhost:${PORT} for ${ENV} vcluster connection"
-  
-  TMPDIR=$(mktemp -d)
-  trap 'rm -rf "${TMPDIR}"' EXIT
-
-  echo "${CA_DATA}"   | base64 -d > "${TMPDIR}/ca.crt"
-  echo "${CERT_DATA}" | base64 -d > "${TMPDIR}/client.crt"
-  echo "${KEY_DATA}"  | base64 -d > "${TMPDIR}/client.key"
-
-  # Merge into default kubeconfig with embedded certs
-  # Note: Using insecure-skip-tls-verify for localhost connections due to certificate mismatch
-  kubectl config set-cluster "${CLUSTER_NAME}" \
-    --server="${SERVER}" \
-    --insecure-skip-tls-verify=true 1>/dev/null
-
-  kubectl config set-credentials "${CLUSTER_NAME}" \
-    --client-certificate="${TMPDIR}/client.crt" \
-    --client-key="${TMPDIR}/client.key" \
-    --embed-certs=true 1>/dev/null
-
-  kubectl config set-context "${CLUSTER_NAME}" --cluster="${CLUSTER_NAME}" --user="${CLUSTER_NAME}" 1>/dev/null
-
-  echo "  - Merged context: ${CLUSTER_NAME}"
+  echo ""
 done
 
+# Summary
+echo -e "${GREEN}=== Setup Complete ===${NC}"
 echo ""
-echo "✅ Done! Kubeconfigs merged for localhost connections."
+
+if [[ ${#SUCCESSFUL_CONTEXTS[@]} -gt 0 ]]; then
+  echo -e "${GREEN}Successfully configured contexts:${NC}"
+  for ctx in "${SUCCESSFUL_CONTEXTS[@]}"; do
+    echo "  • ${ctx}"
+  done
+  echo ""
+fi
+
+if [[ ${#FAILED_ENVS[@]} -gt 0 ]]; then
+  echo -e "${YELLOW}Failed to configure:${NC}"
+  for env in "${FAILED_ENVS[@]}"; do
+    echo "  • ${env}"
+  done
+  echo ""
+fi
+
+if [[ "${USE_PORT_FORWARD}" == "true" ]]; then
+  echo -e "${GREEN}To use the vclusters:${NC}"
+  echo ""
+  echo "1. Start port-forwarding in separate terminals:"
+  
+  CURRENT_PORT=${PORT_START}
+  for ENV in "${VCLUSTER_ENVS[@]}"; do
+    if [[ " ${SUCCESSFUL_CONTEXTS[@]} " =~ " ${ENV}-vcluster " ]]; then
+      echo -e "   ${YELLOW}vcluster connect vcluster-${ENV}-helm --namespace ${ENV}-vcluster --local-port ${CURRENT_PORT}${NC}"
+      CURRENT_PORT=$((CURRENT_PORT + 1))
+    fi
+  done
+  
+  echo ""
+  echo "2. Then use the contexts:"
+  echo -e "   ${YELLOW}kubectl config use-context dev-vcluster${NC}"
+  echo -e "   ${YELLOW}kubectl config use-context staging-vcluster${NC}"
+  echo ""
+  echo "3. Verify connection:"
+  echo -e "   ${YELLOW}kubectl get ns${NC}"
+else
+  echo -e "${GREEN}To use the vclusters:${NC}"
+  echo -e "   ${YELLOW}kubectl config use-context dev-vcluster${NC}"
+  echo -e "   ${YELLOW}kubectl config use-context staging-vcluster${NC}"
+fi
+
 echo ""
-echo "To connect to a vcluster:"
-echo "  1. First, start port-forwarding (in a separate terminal):"
-echo "     vcluster connect dev-vcluster-helm --namespace dev-vcluster --server https://localhost:8443"
-echo "     OR"
-echo "     vcluster connect staging-vcluster-helm --namespace staging-vcluster --server https://localhost:8444"
-echo ""
-echo "  2. Then switch context:"
-echo "     kubectl config use-context dev-vcluster"
-echo "     OR"
-echo "     kubectl config use-context staging-vcluster"
-echo ""
-echo "Note: The vcluster connect command handles port-forwarding automatically."
+echo -e "${GREEN}Tips:${NC}"
+echo "• Set USE_PORT_FORWARD=false for direct cluster connections"
+echo "• Set PORT_START to change the starting port (default: 8443)"
+echo "• The vcluster CLI handles certificate management automatically"
+
+# Check if we need to update /etc/hosts (only for direct connections)
+if [[ "${USE_PORT_FORWARD}" != "true" ]]; then
+  echo ""
+  echo -e "${YELLOW}Note: For direct connections, you may need to add cluster DNS entries to /etc/hosts${NC}"
+fi
