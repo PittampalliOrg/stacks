@@ -5,26 +5,120 @@ import { ApplicationConfig } from '../lib/idpbuilder-types';
  * Add new applications here to have them automatically synthesized
  */
 export const applicationConfigs: ApplicationConfig[] = [
-
+  // VCluster RBAC - Wave 5 (before vclusters)
   {
-    name: 'vcluster-registration',
-    namespace: 'argocd',
-    chart: { 
-      type: 'VclusterRegistrationParameterizedChart',
-      props: {
-        environments: ['dev', 'staging']
+    name: 'vcluster-registration-rbac',
+    namespace: 'external-secrets',
+    chart: {
+      type: 'VclusterRegistrationRbacChart'
+    },
+    argocd: {
+      syncWave: '5',  // Before vclusters and registration
+      labels: {
+        'app.kubernetes.io/component': 'rbac',
+        'app.kubernetes.io/part-of': 'vcluster-registration',
+        'app.kubernetes.io/name': 'vcluster-registration-rbac'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=false']  // external-secrets namespace should already exist
       }
+    }
+  },
+  // Dev VCluster - Wave 10
+  {
+    name: 'vcluster-dev',
+    namespace: 'dev-vcluster',
+    chart: {
+      type: 'VclusterDevChart'
+    },
+    argocd: {
+      syncWave: '10',
+      labels: {
+        'app.kubernetes.io/component': 'vcluster',
+        'app.kubernetes.io/part-of': 'platform',
+        'app.kubernetes.io/name': 'vcluster-dev',
+        'app.kubernetes.io/instance': 'dev'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  // Staging VCluster - Wave 10
+  {
+    name: 'vcluster-staging',
+    namespace: 'staging-vcluster',
+    chart: {
+      type: 'VclusterStagingChart'
+    },
+    argocd: {
+      syncWave: '10',
+      labels: {
+        'app.kubernetes.io/component': 'vcluster',
+        'app.kubernetes.io/part-of': 'platform',
+        'app.kubernetes.io/name': 'vcluster-staging',
+        'app.kubernetes.io/instance': 'staging'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  // VCluster registration job - Wave 20 (after vclusters)
+  {
+    name: 'vcluster-registration-job',
+    namespace: 'argocd',
+    chart: {
+      type: 'VclusterRegistrationJobChart'
     },
     argocd: {
       syncWave: '20',
       labels: {
-        'app.kubernetes.io/component': 'vcluster-registration',
-        'app.kubernetes.io/part-of': 'vcluster',
-        'app.kubernetes.io/name': 'vcluster-registration'
+        'app.kubernetes.io/component': 'registration',
+        'app.kubernetes.io/part-of': 'vcluster-registration',
+        'app.kubernetes.io/name': 'vcluster-registration-job'
       },
       syncPolicy: {
-        automated: { prune: true, selfHeal: true },
-        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=false']  // argocd namespace should exist
+      }
+    }
+  },
+  // VCluster registration cronjob - Wave 25 (after initial job)
+  {
+    name: 'vcluster-registration-cronjob',
+    namespace: 'argocd',
+    chart: {
+      type: 'VclusterRegistrationCronJobChart'
+    },
+    argocd: {
+      syncWave: '25',
+      labels: {
+        'app.kubernetes.io/component': 'registration',
+        'app.kubernetes.io/part-of': 'vcluster-registration',
+        'app.kubernetes.io/name': 'vcluster-registration-cronjob'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=false']  // argocd namespace should exist
       }
     }
   },
@@ -41,7 +135,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/component': 'namespace',
         'app.kubernetes.io/part-of': 'application-stack',
         'app.kubernetes.io/name': 'nextjs-namespace',
-        'app.kubernetes.io/environment': 'staging'
+        'app.kubernetes.io/environment': 'host'
       },
       syncPolicy: {
         automated: {
@@ -79,25 +173,6 @@ export const applicationConfigs: ApplicationConfig[] = [
           selfHeal: true
         },
         syncOptions: ['ServerSideApply=true']
-      }
-    }
-  },
-  {
-    name: 'vcluster-multi-env',
-    namespace: 'argocd',
-    chart: {
-      type: 'VclusterMultiEnvChart'
-    },
-    argocd: {
-      // Labels to identify resulting Applications for registration
-      labels: {
-        'cnoe.io/stackName': 'vcluster-multi-env',
-        'cnoe.io/applicationName': 'vcluster-package'
-      },
-      syncWave: '30',
-      syncPolicy: {
-        automated: { prune: true, selfHeal: true },
-        syncOptions: ['CreateNamespace=true']
       }
     }
   },
@@ -141,7 +216,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/component': 'secrets',
         'app.kubernetes.io/part-of': 'application-stack',
         'app.kubernetes.io/name': 'nextjs-secrets',
-        'app.kubernetes.io/environment': 'staging'
+        'app.kubernetes.io/environment': 'host'
       },
       syncPolicy: {
         automated: {
@@ -226,7 +301,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/component': 'database',
         'app.kubernetes.io/part-of': 'data-layer',
         'app.kubernetes.io/name': 'postgres',
-        'app.kubernetes.io/environment': 'staging'
+        'app.kubernetes.io/environment': 'host'
       },
       syncPolicy: {
         automated: {
@@ -252,7 +327,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/component': 'cache',
         'app.kubernetes.io/part-of': 'data-layer',
         'app.kubernetes.io/name': 'redis',
-        'app.kubernetes.io/environment': 'staging'
+        'app.kubernetes.io/environment': 'host'
       },
       syncPolicy: {
         automated: {

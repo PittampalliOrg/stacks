@@ -43,7 +43,7 @@ export class BackstageMultiEnvApplicationSetChart extends Chart {
         spec: {
           project: 'default',
           destination: {
-            name: '{{.name}}-vcluster',
+            name: '{{.name}}-vcluster',  // This will match the cluster names registered by the job
             namespace: 'backstage',
           },
           syncPolicy: {

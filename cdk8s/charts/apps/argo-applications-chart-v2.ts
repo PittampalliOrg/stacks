@@ -210,7 +210,7 @@ export class ArgoApplicationsChartV2 extends Chart {
     // Choose destination by cluster name if environment label requests a vcluster
     const envLabel = props.argoCdConfig?.labels?.['app.kubernetes.io/environment'];
     const destination: ApplicationSpecDestination =
-      envLabel === 'staging' || envLabel === 'production'
+      envLabel === 'dev' || envLabel === 'staging'
         ? {
             name: `${envLabel}-vcluster`,
             namespace: props.applicationNamespace,

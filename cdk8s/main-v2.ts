@@ -31,12 +31,11 @@ import { AiPlatformEngineeringChart } from './charts/ai-platform-engineering-cha
 import { AiPlatformEngineeringChartV2 } from './charts/ai-platform-engineering-chart-v2';
 import { AiPlatformEngineeringAzureChart } from './charts/ai-platform-engineering-azure-chart';
 import { VaultChart } from './charts/vault-chart';
-import { VclusterMultiEnvChart, VclusterMultiEnvApplicationSetChart } from './charts/apps/vcluster-multi-env-chart';
-import { VclusterRegistrationApplicationSetChart } from './charts/apps/vcluster-registration-chart';
-import { VclusterRegistrationResourcesChart } from './charts/apps/vcluster-registration-resources-chart';
-import { VclusterRegistrationAppSetChart } from './charts/apps/vcluster-registration-appset-chart';
-import { VclusterRegistrationParameterizedChart } from './charts/apps/vcluster-registration-parameterized-chart';
-import { VclusterRegistrationSimplifiedAppSetChart } from './charts/apps/vcluster-registration-simplified-appset-chart';
+import { VclusterDevChart } from './charts/apps/vcluster-dev-chart';
+import { VclusterStagingChart } from './charts/apps/vcluster-staging-chart';
+import { VclusterRegistrationRbacChart } from './charts/vcluster-registration-rbac-chart';
+import { VclusterRegistrationJobChart } from './charts/vcluster-registration-job-chart';
+import { VclusterRegistrationCronJobChart } from './charts/vcluster-registration-cronjob-chart';
 import { NextJsParameterizedChart } from './charts/apps/nextjs-parameterized-chart';
 import { NextJsMultiEnvApplicationSetChart } from './charts/apps/nextjs-multi-env-appset-chart';
 import { BackstageParameterizedChart } from './charts/apps/backstage-parameterized-chart';
@@ -68,12 +67,11 @@ IdpBuilderChartFactory.register('AiPlatformEngineeringChart', AiPlatformEngineer
 IdpBuilderChartFactory.register('AiPlatformEngineeringChartV2', AiPlatformEngineeringChartV2);
 IdpBuilderChartFactory.register('AiPlatformEngineeringAzureChart', AiPlatformEngineeringAzureChart);
 IdpBuilderChartFactory.register('VaultChart', VaultChart);
-IdpBuilderChartFactory.register('VclusterMultiEnvChart', VclusterMultiEnvChart);
-IdpBuilderChartFactory.register('VclusterRegistrationApplicationSetChart', VclusterRegistrationApplicationSetChart);
-IdpBuilderChartFactory.register('VclusterRegistrationResourcesChart', VclusterRegistrationResourcesChart);
-IdpBuilderChartFactory.register('VclusterRegistrationAppSetChart', VclusterRegistrationAppSetChart);
-IdpBuilderChartFactory.register('VclusterRegistrationParameterizedChart', VclusterRegistrationParameterizedChart);
-IdpBuilderChartFactory.register('VclusterRegistrationSimplifiedAppSetChart', VclusterRegistrationSimplifiedAppSetChart);
+IdpBuilderChartFactory.register('VclusterDevChart', VclusterDevChart);
+IdpBuilderChartFactory.register('VclusterStagingChart', VclusterStagingChart);
+IdpBuilderChartFactory.register('VclusterRegistrationRbacChart', VclusterRegistrationRbacChart);
+IdpBuilderChartFactory.register('VclusterRegistrationJobChart', VclusterRegistrationJobChart);
+IdpBuilderChartFactory.register('VclusterRegistrationCronJobChart', VclusterRegistrationCronJobChart);
 IdpBuilderChartFactory.register('NextJsParameterizedChart', NextJsParameterizedChart);
 IdpBuilderChartFactory.register('NextJsMultiEnvApplicationSetChart', NextJsMultiEnvApplicationSetChart);
 IdpBuilderChartFactory.register('BackstageParameterizedChart', BackstageParameterizedChart);
@@ -172,54 +170,8 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
       outdir: options.outputDir,
     });
     
-    // Check if this is a vcluster application
-    if (appConfig.chart?.type === 'VclusterMultiEnvChart') {
-      // Generate an ApplicationSet for vcluster environments
-      new VclusterMultiEnvApplicationSetChart(argoApp, appConfig.name, {});
-    } else if (appConfig.chart?.type === 'VclusterRegistrationApplicationSetChart') {
-      // Generate ApplicationSet directly (like VclusterMultiEnvChart) so idpbuilder can resolve cnoe:// URLs
-      new VclusterRegistrationApplicationSetChart(argoApp, appConfig.name, appConfig.chart.props || {});
-    } else if (appConfig.chart?.type === 'VclusterRegistrationAppSetChart') {
-      // Generate ApplicationSet directly so idpbuilder can resolve cnoe:// URLs
-      new VclusterRegistrationAppSetChart(argoApp, appConfig.name, appConfig.chart.props || {});
-    } else if (appConfig.chart?.type === 'VclusterRegistrationParameterizedChart') {
-      // Generate separate manifests for each environment
-      const environments = appConfig.chart.props?.environments || ['staging', 'production'];
-      for (const env of environments) {
-        const envApp = new App({
-          yamlOutputType: YamlOutputType.FILE_PER_RESOURCE,
-          outdir: path.join(options.outputDir, `vcluster-registration-${env}`, 'manifests'),
-        });
-        
-        // Create package structure for this environment
-        await createPackageStructure(`vcluster-registration-${env}`, options.outputDir);
-        
-        // Generate manifests for this environment
-        new VclusterRegistrationParameterizedChart(envApp, `${env}-vcluster-registration`, {
-          environmentName: env,
-        });
-        envApp.synth();
-        
-        // Create kustomization.yaml for this environment's manifests
-        const envManifestsDir = path.join(options.outputDir, `vcluster-registration-${env}`, 'manifests');
-        const files = fs.readdirSync(envManifestsDir)
-          .filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'))
-          .sort();
-        const kustomizationPath = path.join(envManifestsDir, 'kustomization.yaml');
-        const kustomization = [
-          'apiVersion: kustomize.config.k8s.io/v1beta1',
-          'kind: Kustomization',
-          'resources:',
-          ...files.map((f) => `  - ${f}`),
-          ''
-        ].join('\n');
-        fs.writeFileSync(kustomizationPath, kustomization);
-        console.log(`  ✓ Generated manifests for vcluster-registration-${env}`);
-      }
-      
-      // Generate the ApplicationSet
-      new VclusterRegistrationSimplifiedAppSetChart(argoApp, 'vcluster-registration-appset', {});
-    } else if (appConfig.chart?.type === 'NextJsParameterizedChart') {
+    // Check if this is a NextJs parameterized application
+    if (appConfig.chart?.type === 'NextJsParameterizedChart') {
       // Generate separate manifests for each environment
       const environments = appConfig.chart.props?.environments || ['dev', 'staging'];
       for (const env of environments) {
@@ -293,6 +245,22 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
       
       // Generate the ApplicationSet
       new BackstageMultiEnvApplicationSetChart(argoApp, 'backstage-multi-env-appset', {});
+    } else if (appConfig.chart?.type === 'VclusterDevChart' || appConfig.chart?.type === 'VclusterStagingChart') {
+      // Generate vcluster Application directly without ArgoApplicationsChartV2 wrapper
+      // These charts already contain the full Application definition with Helm source
+      const ChartClass = appConfig.chart.type === 'VclusterDevChart' ? VclusterDevChart : VclusterStagingChart;
+      new ChartClass(argoApp, appConfig.name, appConfig.chart.props || {});
+    } else if (appConfig.chart?.type === 'VclusterRegistrationJobChart') {
+      // Registration job needs special handling - bypass wrapper to avoid cnoe:// URLs
+      // Just generate the manifests, ArgoCD app will be created separately
+      // For now, use standard approach but this needs to be fixed for production
+      new ArgoApplicationsChartV2(argoApp, appConfig.name, {
+        applicationName: appConfig.name,
+        applicationNamespace: appConfig.namespace,
+        manifestPath: 'manifests',
+        argoCdConfig: appConfig.argocd,
+        environment: options.environment
+      });
     } else if (appConfig.argocd?.sources && appConfig.argocd.sources.length > 0) {
       // Multi-source application
       new ArgoApplicationsChartV2(argoApp, appConfig.name, {

@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-# Merge kubeconfigs for all vclusters
+# Merge kubeconfigs for all vclusters with localhost connections for Docker Desktop/WSL2
+# Uses dedicated ports per environment to avoid conflicts
 # Works with the new vcluster architecture using genericSync
 # Reads vcluster secrets directly from their namespaces
 # Requires: kubectl, jq
@@ -12,9 +13,12 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-# Optional: override the host port in kubeconfigs (useful for kind mapping 0.0.0.0:8443->443)
-# Set HOST_PORT_OVERRIDE=8443 to use that port instead of the one from the secret
-HOST_PORT_OVERRIDE="${HOST_PORT_OVERRIDE:-}"
+# Define vcluster environments with their dedicated localhost ports
+# These ports are used for direct vcluster connections bypassing ingress
+declare -A VCLUSTER_PORTS=(
+  ["dev"]=8443
+  ["staging"]=8444
+)
 
 # Define vcluster environments
 VCLUSTER_ENVS=("dev" "staging")
@@ -43,17 +47,13 @@ for ENV in "${VCLUSTER_ENVS[@]}"; do
   CERT_DATA=$(kubectl get secret "${SECRET_NAME}" -n "${NAMESPACE}" -o jsonpath='{.data.client-certificate}')
   KEY_DATA=$(kubectl get secret "${SECRET_NAME}" -n "${NAMESPACE}" -o jsonpath='{.data.client-key}')
 
-  # Set the cluster name and server URL
+  # Set the cluster name and server URL using localhost with dedicated port
+  # This bypasses Docker Desktop/WSL2 networking issues
   CLUSTER_NAME="${ENV}-vcluster"
-  SERVER="https://${ENV}-vcluster.cnoe.localtest.me:443"
+  PORT="${VCLUSTER_PORTS[$ENV]}"
+  SERVER="https://localhost:${PORT}"
   
-  # Optionally override the host port (e.g., 8443) while preserving hostname for TLS SNI
-  if [[ -n "${HOST_PORT_OVERRIDE}" ]]; then
-    # Replace or append port in URL
-    # from https://host[:port] -> https://host:HOST_PORT_OVERRIDE
-    SERVER_HOST=$(echo "${SERVER}" | sed -E 's#^https://([^/:]+).*$#\1#')
-    SERVER="https://${SERVER_HOST}:${HOST_PORT_OVERRIDE}"
-  fi
+  echo "  - Using localhost:${PORT} for ${ENV} vcluster connection"
   
   TMPDIR=$(mktemp -d)
   trap 'rm -rf "${TMPDIR}"' EXIT
@@ -63,10 +63,10 @@ for ENV in "${VCLUSTER_ENVS[@]}"; do
   echo "${KEY_DATA}"  | base64 -d > "${TMPDIR}/client.key"
 
   # Merge into default kubeconfig with embedded certs
+  # Note: Using insecure-skip-tls-verify for localhost connections due to certificate mismatch
   kubectl config set-cluster "${CLUSTER_NAME}" \
     --server="${SERVER}" \
-    --certificate-authority="${TMPDIR}/ca.crt" \
-    --embed-certs=true 1>/dev/null
+    --insecure-skip-tls-verify=true 1>/dev/null
 
   kubectl config set-credentials "${CLUSTER_NAME}" \
     --client-certificate="${TMPDIR}/client.crt" \
@@ -75,7 +75,21 @@ for ENV in "${VCLUSTER_ENVS[@]}"; do
 
   kubectl config set-context "${CLUSTER_NAME}" --cluster="${CLUSTER_NAME}" --user="${CLUSTER_NAME}" 1>/dev/null
 
-  echo "Merged context: ${CLUSTER_NAME}"
+  echo "  - Merged context: ${CLUSTER_NAME}"
 done
 
-echo "Done. Switch with: kubectl config use-context <env>-vcluster"
+echo ""
+echo "✅ Done! Kubeconfigs merged for localhost connections."
+echo ""
+echo "To connect to a vcluster:"
+echo "  1. First, start port-forwarding (in a separate terminal):"
+echo "     vcluster connect dev-vcluster-helm --namespace dev-vcluster --server https://localhost:8443"
+echo "     OR"
+echo "     vcluster connect staging-vcluster-helm --namespace staging-vcluster --server https://localhost:8444"
+echo ""
+echo "  2. Then switch context:"
+echo "     kubectl config use-context dev-vcluster"
+echo "     OR"
+echo "     kubectl config use-context staging-vcluster"
+echo ""
+echo "Note: The vcluster connect command handles port-forwarding automatically."
