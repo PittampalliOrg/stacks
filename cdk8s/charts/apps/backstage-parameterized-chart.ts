@@ -296,6 +296,9 @@ clusters:
           },
           spec: {
             serviceAccountName: `backstage-${envName}`,
+            imagePullSecrets: [
+              { name: 'ghcr-dockercfg' }
+            ],
             containers: [
               {
                 name: 'backstage',
@@ -341,15 +344,15 @@ clusters:
                   },
                   {
                     name: 'APP_CONFIG_app_baseUrl',
-                    value: `https://backstage-${envName}.cnoe.localtest.me:8443`
+                    value: envName === 'dev' ? 'https://cnoe.localtest.me:8443' : `https://backstage-${envName}.cnoe.localtest.me:8443`
                   },
                   {
                     name: 'APP_CONFIG_backend_baseUrl',
-                    value: `https://backstage-${envName}.cnoe.localtest.me:8443`
+                    value: envName === 'dev' ? 'https://cnoe.localtest.me:8443' : `https://backstage-${envName}.cnoe.localtest.me:8443`
                   },
                   {
                     name: 'APP_CONFIG_backend_cors_origin',
-                    value: `https://backstage-${envName}.cnoe.localtest.me:8443`
+                    value: envName === 'dev' ? 'https://cnoe.localtest.me:8443' : `https://backstage-${envName}.cnoe.localtest.me:8443`
                   }
                 ],
                 ports: [
@@ -377,24 +380,27 @@ clusters:
                   }
                 },
                 imagePullPolicy: 'Always',
-                livenessProbe: {
-                  httpGet: {
-                    path: '/healthcheck',
-                    port: k8s.IntOrString.fromNumber(7007)
+                // Only add health probes for non-dev environments
+                ...(envName !== 'dev' ? {
+                  livenessProbe: {
+                    httpGet: {
+                      path: '/healthcheck',
+                      port: k8s.IntOrString.fromNumber(7007)
+                    },
+                    initialDelaySeconds: 60,
+                    periodSeconds: 10,
+                    timeoutSeconds: 5
                   },
-                  initialDelaySeconds: 60,
-                  periodSeconds: 10,
-                  timeoutSeconds: 5
-                },
-                readinessProbe: {
-                  httpGet: {
-                    path: '/healthcheck',
-                    port: k8s.IntOrString.fromNumber(7007)
-                  },
-                  initialDelaySeconds: 30,
-                  periodSeconds: 10,
-                  timeoutSeconds: 5
-                }
+                  readinessProbe: {
+                    httpGet: {
+                      path: '/healthcheck',
+                      port: k8s.IntOrString.fromNumber(7007)
+                    },
+                    initialDelaySeconds: 30,
+                    periodSeconds: 10,
+                    timeoutSeconds: 5
+                  }
+                } : {})
               }
             ],
             volumes: [
@@ -428,7 +434,7 @@ clusters:
         ingressClassName: 'nginx',
         rules: [
           {
-            host: `backstage-${envName}.cnoe.localtest.me`,
+            host: envName === 'dev' ? 'cnoe.localtest.me' : `backstage-${envName}.cnoe.localtest.me`,
             http: {
               paths: [
                 {

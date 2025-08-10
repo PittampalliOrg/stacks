@@ -16,10 +16,24 @@ export class VclusterStagingChart extends Chart {
           nodes: { enabled: true },
           // Enable ingress class syncing to use host cluster's nginx ingress controller
           ingressClasses: { enabled: true },
+          // Sync secrets from host namespaces to virtual cluster
+          secrets: {
+            enabled: true,
+            mappings: {
+              byName: {
+                // Sync all secrets from nextjs namespace
+                'nextjs/*': 'nextjs/*',
+                // Sync all secrets from backstage namespace
+                'backstage/*': 'backstage/*',
+              },
+            },
+          },
         },
         toHost: {
           // Sync service accounts to host for Azure Workload Identity
           serviceAccounts: { enabled: true },
+          // Sync ingresses from vcluster to host so they're accessible from outside
+          ingresses: { enabled: true },
         },
       },
       controlPlane: {

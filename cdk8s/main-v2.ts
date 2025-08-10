@@ -37,9 +37,12 @@ import { VclusterRegistrationRbacChart } from './charts/vcluster-registration-rb
 import { VclusterRegistrationJobChart } from './charts/vcluster-registration-job-chart';
 import { VclusterRegistrationCronJobChart } from './charts/vcluster-registration-cronjob-chart';
 import { NextJsParameterizedChart } from './charts/apps/nextjs-parameterized-chart';
-import { NextJsMultiEnvApplicationSetChart } from './charts/apps/nextjs-multi-env-appset-chart';
 import { BackstageParameterizedChart } from './charts/apps/backstage-parameterized-chart';
-import { BackstageMultiEnvApplicationSetChart } from './charts/apps/backstage-multi-env-appset-chart';
+import { BackstageDevApplicationChart } from './charts/apps/backstage-dev-application-chart';
+import { BackstageStagingApplicationChart } from './charts/apps/backstage-staging-application-chart';
+import { BackstageSecretsChart } from './charts/backstage-secrets-chart';
+import { NextJsDevApplicationChart } from './charts/apps/nextjs-dev-application-chart';
+import { NextJsStagingApplicationChart } from './charts/apps/nextjs-staging-application-chart';
 
 // Register all charts
 IdpBuilderChartFactory.register('BootstrapSecretsChart', BootstrapSecretsChart);
@@ -73,9 +76,12 @@ IdpBuilderChartFactory.register('VclusterRegistrationRbacChart', VclusterRegistr
 IdpBuilderChartFactory.register('VclusterRegistrationJobChart', VclusterRegistrationJobChart);
 IdpBuilderChartFactory.register('VclusterRegistrationCronJobChart', VclusterRegistrationCronJobChart);
 IdpBuilderChartFactory.register('NextJsParameterizedChart', NextJsParameterizedChart);
-IdpBuilderChartFactory.register('NextJsMultiEnvApplicationSetChart', NextJsMultiEnvApplicationSetChart);
 IdpBuilderChartFactory.register('BackstageParameterizedChart', BackstageParameterizedChart);
-IdpBuilderChartFactory.register('BackstageMultiEnvApplicationSetChart', BackstageMultiEnvApplicationSetChart);
+IdpBuilderChartFactory.register('BackstageDevApplicationChart', BackstageDevApplicationChart);
+IdpBuilderChartFactory.register('BackstageStagingApplicationChart', BackstageStagingApplicationChart);
+IdpBuilderChartFactory.register('BackstageSecretsChart', BackstageSecretsChart);
+IdpBuilderChartFactory.register('NextJsDevApplicationChart', NextJsDevApplicationChart);
+IdpBuilderChartFactory.register('NextJsStagingApplicationChart', NextJsStagingApplicationChart);
 
 const outputDir = 'dist';
 
@@ -170,81 +176,35 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
       outdir: options.outputDir,
     });
     
-    // Check if this is a NextJs parameterized application
-    if (appConfig.chart?.type === 'NextJsParameterizedChart') {
-      // Generate separate manifests for each environment
-      const environments = appConfig.chart.props?.environments || ['dev', 'staging'];
-      for (const env of environments) {
-        const envApp = new App({
-          yamlOutputType: YamlOutputType.FILE_PER_RESOURCE,
-          outdir: path.join(options.outputDir, `nextjs-${env}`, 'manifests'),
-        });
-        
-        // Create package structure for this environment
-        await createPackageStructure(`nextjs-${env}`, options.outputDir);
-        
-        // Generate manifests for this environment
-        new NextJsParameterizedChart(envApp, `${env}-nextjs`, {
-          environmentName: env,
-        });
-        envApp.synth();
-        
-        // Create kustomization.yaml for this environment's manifests
-        const envManifestsDir = path.join(options.outputDir, `nextjs-${env}`, 'manifests');
-        const files = fs.readdirSync(envManifestsDir)
-          .filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'))
-          .sort();
-        const kustomizationPath = path.join(envManifestsDir, 'kustomization.yaml');
-        const kustomization = [
-          'apiVersion: kustomize.config.k8s.io/v1beta1',
-          'kind: Kustomization',
-          'resources:',
-          ...files.map((f) => `  - ${f}`),
-          ''
-        ].join('\n');
-        fs.writeFileSync(kustomizationPath, kustomization);
-        console.log(`  ✓ Generated manifests for nextjs-${env}`);
+    // Check if this is a parameterized application (NextJs or Backstage)
+    // These now generate individual applications, not ApplicationSets
+    if (appConfig.chart?.type === 'NextJsParameterizedChart' || appConfig.chart?.type === 'BackstageParameterizedChart') {
+      const envName = appConfig.chart.props?.environmentName;
+      if (!envName) {
+        console.error(`Missing environmentName for ${appConfig.name}`);
+        return;
       }
       
-      // Generate the ApplicationSet
-      new NextJsMultiEnvApplicationSetChart(argoApp, 'nextjs-multi-env-appset', {});
-    } else if (appConfig.chart?.type === 'BackstageParameterizedChart') {
-      // Generate separate manifests for each environment
-      const environments = appConfig.chart.props?.environments || ['dev', 'staging'];
-      for (const env of environments) {
-        const envApp = new App({
-          yamlOutputType: YamlOutputType.FILE_PER_RESOURCE,
-          outdir: path.join(options.outputDir, `backstage-${env}`, 'manifests'),
-        });
-        
-        // Create package structure for this environment
-        await createPackageStructure(`backstage-${env}`, options.outputDir);
-        
-        // Generate manifests for this environment
-        new BackstageParameterizedChart(envApp, `${env}-backstage`, {
-          environmentName: env,
-        });
-        envApp.synth();
-        
-        // Create kustomization.yaml for this environment's manifests
-        const envManifestsDir = path.join(options.outputDir, `backstage-${env}`, 'manifests');
-        const files = fs.readdirSync(envManifestsDir)
-          .filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'))
-          .sort();
-        const kustomizationPath = path.join(envManifestsDir, 'kustomization.yaml');
-        const kustomization = [
-          'apiVersion: kustomize.config.k8s.io/v1beta1',
-          'kind: Kustomization',
-          'resources:',
-          ...files.map((f) => `  - ${f}`),
-          ''
-        ].join('\n');
-        fs.writeFileSync(kustomizationPath, kustomization);
-        console.log(`  ✓ Generated manifests for backstage-${env}`);
+      // Generate the actual manifests for this specific environment
+      const ChartClass = appConfig.chart.type === 'NextJsParameterizedChart' 
+        ? NextJsParameterizedChart 
+        : BackstageParameterizedChart;
+      
+      new ChartClass(manifestApp, appConfig.name, {
+        environmentName: envName,
+      });
+      
+      // Generate the ArgoCD Application that points to these manifests
+      // Map the chart type and environment to the correct Application chart
+      let ApplicationChartClass;
+      if (appConfig.chart.type === 'NextJsParameterizedChart') {
+        ApplicationChartClass = envName === 'dev' ? NextJsDevApplicationChart : NextJsStagingApplicationChart;
+      } else {
+        ApplicationChartClass = envName === 'dev' ? BackstageDevApplicationChart : BackstageStagingApplicationChart;
       }
       
-      // Generate the ApplicationSet
-      new BackstageMultiEnvApplicationSetChart(argoApp, 'backstage-multi-env-appset', {});
+      new ApplicationChartClass(argoApp, `${appConfig.name}-app`, {});
+      
     } else if (appConfig.chart?.type === 'VclusterDevChart' || appConfig.chart?.type === 'VclusterStagingChart') {
       // Generate vcluster Application directly without ArgoApplicationsChartV2 wrapper
       // These charts already contain the full Application definition with Helm source

@@ -231,6 +231,33 @@ export const applicationConfigs: ApplicationConfig[] = [
       }
     }
   },
+  {
+    name: 'backstage-secrets',
+    namespace: 'backstage',
+    chart: {
+      type: 'BackstageSecretsChart'
+    },
+    argocd: {
+      syncWave: '80',
+      labels: {
+        'app.kubernetes.io/component': 'secrets',
+        'app.kubernetes.io/part-of': 'application-stack',
+        'app.kubernetes.io/name': 'backstage-secrets',
+        'app.kubernetes.io/environment': 'host'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true', 'SkipDryRunOnMissingResource=true'],
+        retry: {
+          limit: 10,
+          backoff: { duration: '10s', factor: 2, maxDuration: '5m' }
+        }
+      }
+    }
+  },
   // Replaced with multi-env version below
   // {
   //   name: 'nextjs',
@@ -826,14 +853,14 @@ export const applicationConfigs: ApplicationConfig[] = [
       // with all values embedded in TypeScript
     }
   },
-  // Multi-environment applications using ApplicationSets
+  // Individual environment applications (no more ApplicationSets)
   {
-    name: 'nextjs-multi-env',
-    namespace: 'argocd',
+    name: 'nextjs-dev',
+    namespace: 'nextjs',
     chart: { 
       type: 'NextJsParameterizedChart',
       props: {
-        environments: ['dev', 'staging']
+        environmentName: 'dev'
       }
     },
     argocd: {
@@ -841,7 +868,7 @@ export const applicationConfigs: ApplicationConfig[] = [
       labels: {
         'app.kubernetes.io/component': 'frontend',
         'app.kubernetes.io/part-of': 'application-stack',
-        'app.kubernetes.io/name': 'nextjs-multi-env'
+        'app.kubernetes.io/name': 'nextjs-dev'
       },
       syncPolicy: {
         automated: { prune: true, selfHeal: true },
@@ -850,12 +877,34 @@ export const applicationConfigs: ApplicationConfig[] = [
     }
   },
   {
-    name: 'backstage-multi-env',
-    namespace: 'argocd',
+    name: 'nextjs-staging',
+    namespace: 'nextjs',
+    chart: { 
+      type: 'NextJsParameterizedChart',
+      props: {
+        environmentName: 'staging'
+      }
+    },
+    argocd: {
+      syncWave: '115',
+      labels: {
+        'app.kubernetes.io/component': 'frontend',
+        'app.kubernetes.io/part-of': 'application-stack',
+        'app.kubernetes.io/name': 'nextjs-staging'
+      },
+      syncPolicy: {
+        automated: { prune: true, selfHeal: true },
+        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
+      }
+    }
+  },
+  {
+    name: 'backstage-dev',
+    namespace: 'backstage',
     chart: { 
       type: 'BackstageParameterizedChart',
       props: {
-        environments: ['dev', 'staging']
+        environmentName: 'dev'
       }
     },
     argocd: {
@@ -863,7 +912,29 @@ export const applicationConfigs: ApplicationConfig[] = [
       labels: {
         'app.kubernetes.io/component': 'developer-portal',
         'app.kubernetes.io/part-of': 'platform',
-        'app.kubernetes.io/name': 'backstage-multi-env'
+        'app.kubernetes.io/name': 'backstage-dev'
+      },
+      syncPolicy: {
+        automated: { prune: true, selfHeal: true },
+        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
+      }
+    }
+  },
+  {
+    name: 'backstage-staging',
+    namespace: 'backstage',
+    chart: { 
+      type: 'BackstageParameterizedChart',
+      props: {
+        environmentName: 'staging'
+      }
+    },
+    argocd: {
+      syncWave: '20',
+      labels: {
+        'app.kubernetes.io/component': 'developer-portal',
+        'app.kubernetes.io/part-of': 'platform',
+        'app.kubernetes.io/name': 'backstage-staging'
       },
       syncPolicy: {
         automated: { prune: true, selfHeal: true },
