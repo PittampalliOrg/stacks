@@ -161,8 +161,14 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
       // Generate an ApplicationSet for vcluster environments
       new VclusterMultiEnvApplicationSetChart(argoApp, appConfig.name, {});
     } else if (appConfig.chart?.type === 'VclusterRegistrationApplicationSetChart') {
-      // Generate an ApplicationSet that registers vclusters in Argo CD
-      new VclusterRegistrationApplicationSetChart(argoApp, appConfig.name, appConfig.chart.props || {});
+      // Generate an ArgoCD Application that deploys the ApplicationSet
+      new ArgoApplicationsChartV2(argoApp, appConfig.name, {
+        applicationName: appConfig.name,
+        applicationNamespace: appConfig.namespace,
+        manifestPath: 'manifests',
+        argoCdConfig: appConfig.argocd,
+        environment: options.environment
+      });
     } else if (appConfig.argocd?.sources && appConfig.argocd.sources.length > 0) {
       // Multi-source application
       new ArgoApplicationsChartV2(argoApp, appConfig.name, {
