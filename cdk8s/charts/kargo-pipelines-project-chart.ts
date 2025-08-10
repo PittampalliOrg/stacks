@@ -11,8 +11,28 @@ export class KargoPipelinesProjectChart extends Chart {
   constructor(scope: Construct, id: string, props?: ChartProps) {
     super(scope, id, props);
 
-    // Create the central Kargo Project FIRST
-    // Kargo will automatically create the namespace, or adopt an existing one with the label
+    // Create/ensure the namespace with the required Kargo label
+    // Using ServerSideApply to merge labels into existing namespace
+    new ApiObject(this, 'pipelines-namespace', {
+      apiVersion: 'v1',
+      kind: 'Namespace',
+      metadata: {
+        name: 'kargo-pipelines',
+        annotations: {
+          'argocd.argoproj.io/sync-wave': '-15',  // Before Project creation
+          'argocd.argoproj.io/sync-options': 'ServerSideApply=true'  // Merge labels into existing namespace
+        },
+        labels: {
+          'app.kubernetes.io/name': 'kargo-pipelines',
+          'app.kubernetes.io/part-of': 'kargo',
+          'app.kubernetes.io/component': 'namespace',
+          'kargo.akuity.io/project': 'true'  // Required by Kargo for adoption
+        }
+      }
+    });
+
+    // Create the central Kargo Project
+    // Now that namespace is guaranteed to have the label, this will succeed
     new Project(this, 'pipelines-project', {
       metadata: {
         name: 'kargo-pipelines',
@@ -26,25 +46,6 @@ export class KargoPipelinesProjectChart extends Chart {
         }
       }
       // No spec field - Kargo Project v1alpha1 doesn't have a spec
-    });
-
-    // Create/ensure the namespace with the required Kargo label
-    // This will be adopted by the Project if it already exists
-    new ApiObject(this, 'pipelines-namespace', {
-      apiVersion: 'v1',
-      kind: 'Namespace',
-      metadata: {
-        name: 'kargo-pipelines',
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-5'  // After Project creation
-        },
-        labels: {
-          'app.kubernetes.io/name': 'kargo-pipelines',
-          'app.kubernetes.io/part-of': 'kargo',
-          'app.kubernetes.io/component': 'namespace',
-          'kargo.akuity.io/project': 'true'  // Required by Kargo for adoption
-        }
-      }
     });
 
     // Create ProjectConfig for promotion policies

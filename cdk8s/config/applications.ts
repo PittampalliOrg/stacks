@@ -465,7 +465,8 @@ export const applicationConfigs: ApplicationConfig[] = [
           'CreateNamespace=true', 
           'ServerSideApply=true',  // Ensures idempotent Project creation
           'Replace=true',          // Force replace if resources exist
-          'RespectIgnoreDifferences=true'  // Respect the ignore differences below
+          'RespectIgnoreDifferences=true',  // Respect the ignore differences below
+          'PruneLast=true'         // Don't delete namespace until end
         ]
       },
       ignoreDifferences: [
