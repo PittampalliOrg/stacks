@@ -116,6 +116,8 @@ export class NextJsParameterizedChart extends Chart {
                 name: 'nextjs',
                 image: imageRef,
                 imagePullPolicy: 'Always',
+                // Dev containers sleep by default for development
+                ...(envName === 'dev' ? { command: ['sleep', 'infinity'] } : {}),
                 ports: [{ containerPort: envName === 'dev' ? 3000 : 80 }],
                 envFrom: [
                   { configMapRef: { name: configMap.metadata.name } },

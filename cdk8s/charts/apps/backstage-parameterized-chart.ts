@@ -300,6 +300,8 @@ clusters:
               {
                 name: 'backstage',
                 image: imageRef,
+                // Dev containers sleep by default for development
+                ...(envName === 'dev' ? { command: ['sleep', 'infinity'] } : {}),
                 env: [
                   {
                     name: 'LOG_LEVEL',
