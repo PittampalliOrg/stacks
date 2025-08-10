@@ -33,6 +33,8 @@ import { AiPlatformEngineeringAzureChart } from './charts/ai-platform-engineerin
 import { VaultChart } from './charts/vault-chart';
 import { VclusterMultiEnvChart, VclusterMultiEnvApplicationSetChart } from './charts/apps/vcluster-multi-env-chart';
 import { VclusterRegistrationApplicationSetChart } from './charts/apps/vcluster-registration-chart';
+import { VclusterRegistrationResourcesChart } from './charts/apps/vcluster-registration-resources-chart';
+import { VclusterRegistrationAppSetChart } from './charts/apps/vcluster-registration-appset-chart';
 
 // Register all charts
 IdpBuilderChartFactory.register('BootstrapSecretsChart', BootstrapSecretsChart);
@@ -62,6 +64,8 @@ IdpBuilderChartFactory.register('AiPlatformEngineeringAzureChart', AiPlatformEng
 IdpBuilderChartFactory.register('VaultChart', VaultChart);
 IdpBuilderChartFactory.register('VclusterMultiEnvChart', VclusterMultiEnvChart);
 IdpBuilderChartFactory.register('VclusterRegistrationApplicationSetChart', VclusterRegistrationApplicationSetChart);
+IdpBuilderChartFactory.register('VclusterRegistrationResourcesChart', VclusterRegistrationResourcesChart);
+IdpBuilderChartFactory.register('VclusterRegistrationAppSetChart', VclusterRegistrationAppSetChart);
 
 const outputDir = 'dist';
 
@@ -161,14 +165,11 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
       // Generate an ApplicationSet for vcluster environments
       new VclusterMultiEnvApplicationSetChart(argoApp, appConfig.name, {});
     } else if (appConfig.chart?.type === 'VclusterRegistrationApplicationSetChart') {
-      // Generate an ArgoCD Application that deploys the ApplicationSet
-      new ArgoApplicationsChartV2(argoApp, appConfig.name, {
-        applicationName: appConfig.name,
-        applicationNamespace: appConfig.namespace,
-        manifestPath: 'manifests',
-        argoCdConfig: appConfig.argocd,
-        environment: options.environment
-      });
+      // Generate ApplicationSet directly (like VclusterMultiEnvChart) so idpbuilder can resolve cnoe:// URLs
+      new VclusterRegistrationApplicationSetChart(argoApp, appConfig.name, appConfig.chart.props || {});
+    } else if (appConfig.chart?.type === 'VclusterRegistrationAppSetChart') {
+      // Generate ApplicationSet directly so idpbuilder can resolve cnoe:// URLs
+      new VclusterRegistrationAppSetChart(argoApp, appConfig.name, appConfig.chart.props || {});
     } else if (appConfig.argocd?.sources && appConfig.argocd.sources.length > 0) {
       // Multi-source application
       new ArgoApplicationsChartV2(argoApp, appConfig.name, {

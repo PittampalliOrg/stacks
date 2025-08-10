@@ -7,15 +7,32 @@ import { ApplicationConfig } from '../lib/idpbuilder-types';
 export const applicationConfigs: ApplicationConfig[] = [
 
   {
-    name: 'vcluster-registration',
+    name: 'vcluster-registration-resources',
     namespace: 'argocd',
-    chart: { type: 'VclusterRegistrationApplicationSetChart' },
+    chart: { type: 'VclusterRegistrationResourcesChart' },
     argocd: {
       syncWave: '20',
       labels: {
-        'app.kubernetes.io/component': 'vcluster-registration',
+        'app.kubernetes.io/component': 'vcluster-registration-resources',
         'app.kubernetes.io/part-of': 'vcluster',
-        'app.kubernetes.io/name': 'vcluster-registration'
+        'app.kubernetes.io/name': 'vcluster-registration-resources'
+      },
+      syncPolicy: {
+        automated: { prune: true, selfHeal: true },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  {
+    name: 'vcluster-registration-appset',
+    namespace: 'argocd',
+    chart: { type: 'VclusterRegistrationAppSetChart' },
+    argocd: {
+      syncWave: '25',
+      labels: {
+        'app.kubernetes.io/component': 'vcluster-registration-appset',
+        'app.kubernetes.io/part-of': 'vcluster',
+        'app.kubernetes.io/name': 'vcluster-registration-appset'
       },
       syncPolicy: {
         automated: { prune: true, selfHeal: true },
