@@ -17,7 +17,7 @@ fi
 HOST_PORT_OVERRIDE="${HOST_PORT_OVERRIDE:-}"
 
 # Define vcluster environments
-VCLUSTER_ENVS=("staging" "production")
+VCLUSTER_ENVS=("dev" "staging")
 
 # Process each vcluster environment
 for ENV in "${VCLUSTER_ENVS[@]}"; do

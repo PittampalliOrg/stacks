@@ -193,7 +193,7 @@ export class VclusterMultiEnvApplicationSetChart extends Chart {
       generators: [
         {
           list: {
-            elements: [{ name: 'staging' }, { name: 'production' }],
+            elements: [{ name: 'dev' }, { name: 'staging' }],
           },
         },
       ],

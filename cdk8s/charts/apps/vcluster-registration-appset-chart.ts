@@ -48,18 +48,36 @@ export class VclusterRegistrationAppSetChart extends Chart {
         spec: {
           ...templateSpec,
           source: {
-            repoUrl: 'cnoe://vcluster-registration-resources/manifests',
+            repoUrl: 'https://gitea.cnoe.localtest.me:8443/giteaAdmin/idpbuilder-localdev-vcluster-registration-resources-manifests.git',
             targetRevision: 'HEAD',
             path: '.',
             kustomize: {
               patches: [
                 {
-                  target: { kind: 'ClusterSecretStore', name: 'unpatched-kubernetes-vcluster' },
-                  patch: `- op: replace\n  path: /metadata/name\n  value: kubernetes-{{.name}}-vcluster\n- op: replace\n  path: /spec/provider/kubernetes/remoteNamespace\n  value: {{.name}}-vcluster`,
+                  patch: `[
+  {"op": "replace", "path": "/metadata/name", "value": "kubernetes-{{.name}}-vcluster"},
+  {"op": "replace", "path": "/spec/provider/kubernetes/remoteNamespace", "value": "{{.name}}-vcluster"}
+]`,
+                  target: {
+                    kind: 'ClusterSecretStore',
+                    name: 'unpatched-kubernetes-vcluster',
+                  },
                 },
                 {
-                  target: { kind: 'ExternalSecret', name: 'unpatched-vcluster-secret' },
-                  patch: `- op: replace\n  path: /metadata/name\n  value: {{.name}}-vcluster-secret\n- op: replace\n  path: /spec/secretStoreRef/name\n  value: kubernetes-{{.name}}-vcluster\n- op: replace\n  path: /spec/target/name\n  value: {{.name}}-vcluster-secret\n- op: replace\n  path: /spec/target/template/data/name\n  value: {{.name}}-vcluster\n- op: replace\n  path: /spec/target/template/data/server\n  value: https://{{.name}}-vcluster-helm.{{.name}}-vcluster.svc:443\n- op: replace\n  path: /spec/data/0/remoteRef/key\n  value: vc-{{.name}}-vcluster-helm\n- op: replace\n  path: /spec/data/1/remoteRef/key\n  value: vc-{{.name}}-vcluster-helm\n- op: replace\n  path: /spec/data/2/remoteRef/key\n  value: vc-{{.name}}-vcluster-helm`,
+                  patch: `[
+  {"op": "replace", "path": "/metadata/name", "value": "{{.name}}-vcluster-secret"},
+  {"op": "replace", "path": "/spec/secretStoreRef/name", "value": "kubernetes-{{.name}}-vcluster"},
+  {"op": "replace", "path": "/spec/target/name", "value": "{{.name}}-vcluster-secret"},
+  {"op": "replace", "path": "/spec/target/template/data/name", "value": "{{.name}}-vcluster"},
+  {"op": "replace", "path": "/spec/target/template/data/server", "value": "https://{{.name}}-vcluster-helm.{{.name}}-vcluster.svc:443"},
+  {"op": "replace", "path": "/spec/data/0/remoteRef/key", "value": "vc-{{.name}}-vcluster-helm"},
+  {"op": "replace", "path": "/spec/data/1/remoteRef/key", "value": "vc-{{.name}}-vcluster-helm"},
+  {"op": "replace", "path": "/spec/data/2/remoteRef/key", "value": "vc-{{.name}}-vcluster-helm"}
+]`,
+                  target: {
+                    kind: 'ExternalSecret',
+                    name: 'unpatched-vcluster-secret',
+                  },
                 },
               ],
             },

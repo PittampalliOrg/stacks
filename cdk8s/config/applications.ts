@@ -7,36 +7,24 @@ import { ApplicationConfig } from '../lib/idpbuilder-types';
 export const applicationConfigs: ApplicationConfig[] = [
 
   {
-    name: 'vcluster-registration-resources',
+    name: 'vcluster-registration',
     namespace: 'argocd',
-    chart: { type: 'VclusterRegistrationResourcesChart' },
+    chart: { 
+      type: 'VclusterRegistrationParameterizedChart',
+      props: {
+        environments: ['dev', 'staging']
+      }
+    },
     argocd: {
       syncWave: '20',
       labels: {
-        'app.kubernetes.io/component': 'vcluster-registration-resources',
+        'app.kubernetes.io/component': 'vcluster-registration',
         'app.kubernetes.io/part-of': 'vcluster',
-        'app.kubernetes.io/name': 'vcluster-registration-resources'
+        'app.kubernetes.io/name': 'vcluster-registration'
       },
       syncPolicy: {
         automated: { prune: true, selfHeal: true },
-        syncOptions: ['CreateNamespace=true']
-      }
-    }
-  },
-  {
-    name: 'vcluster-registration-appset',
-    namespace: 'argocd',
-    chart: { type: 'VclusterRegistrationAppSetChart' },
-    argocd: {
-      syncWave: '25',
-      labels: {
-        'app.kubernetes.io/component': 'vcluster-registration-appset',
-        'app.kubernetes.io/part-of': 'vcluster',
-        'app.kubernetes.io/name': 'vcluster-registration-appset'
-      },
-      syncPolicy: {
-        automated: { prune: true, selfHeal: true },
-        syncOptions: ['CreateNamespace=true']
+        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
       }
     }
   },
@@ -168,63 +156,64 @@ export const applicationConfigs: ApplicationConfig[] = [
       }
     }
   },
-  {
-    name: 'nextjs',
-    namespace: 'nextjs',
-    chart: {
-      type: 'NextJsChart',
-      props: {
-        // Chart-specific properties can be added here
-      }
-    },
-    argocd: {
-      syncWave: '115',
-      labels: {
-        'app.kubernetes.io/component': 'frontend',
-        'app.kubernetes.io/part-of': 'application-stack',
-        'app.kubernetes.io/name': 'nextjs',
-        'app.kubernetes.io/environment': 'staging'
-      },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true,
-          allowEmpty: false
-        },
-        syncOptions: [
-          'CreateNamespace=true',
-          'ServerSideApply=true',
-          'ApplyOutOfSyncOnly=true'
-        ],
-        retry: {
-          limit: 5,
-          backoff: {
-            duration: '10s',
-            factor: 2,
-            maxDuration: '3m'
-          }
-        }
-      },
-      ignoreDifferences: [
-        {
-          group: 'apps',
-          kind: 'Deployment',
-          jsonPointers: [
-            '/spec/replicas',
-            '/spec/template/metadata/annotations'
-          ]
-        },
-        {
-          group: '',
-          kind: 'Service',
-          jsonPointers: [
-            '/spec/clusterIP',
-            '/spec/clusterIPs'
-          ]
-        }
-      ]
-    }
-  },
+  // Replaced with multi-env version below
+  // {
+  //   name: 'nextjs',
+  //   namespace: 'nextjs',
+  //   chart: {
+  //     type: 'NextJsChart',
+  //     props: {
+  //       // Chart-specific properties can be added here
+  //     }
+  //   },
+  //   argocd: {
+  //     syncWave: '115',
+  //     labels: {
+  //       'app.kubernetes.io/component': 'frontend',
+  //       'app.kubernetes.io/part-of': 'application-stack',
+  //       'app.kubernetes.io/name': 'nextjs',
+  //       'app.kubernetes.io/environment': 'staging'
+  //     },
+  //     syncPolicy: {
+  //       automated: {
+  //         prune: true,
+  //         selfHeal: true,
+  //         allowEmpty: false
+  //       },
+  //       syncOptions: [
+  //         'CreateNamespace=true',
+  //         'ServerSideApply=true',
+  //         'ApplyOutOfSyncOnly=true'
+  //       ],
+  //       retry: {
+  //         limit: 5,
+  //         backoff: {
+  //           duration: '10s',
+  //           factor: 2,
+  //           maxDuration: '3m'
+  //         }
+  //       }
+  //     },
+  //     ignoreDifferences: [
+  //       {
+  //         group: 'apps',
+  //         kind: 'Deployment',
+  //         jsonPointers: [
+  //           '/spec/replicas',
+  //           '/spec/template/metadata/annotations'
+  //         ]
+  //       },
+  //       {
+  //         group: '',
+  //         kind: 'Service',
+  //         jsonPointers: [
+  //           '/spec/clusterIP',
+  //           '/spec/clusterIPs'
+  //         ]
+  //       }
+  //     ]
+  //   }
+  // },
   {
     name: 'postgres',
     namespace: 'nextjs',
@@ -429,32 +418,33 @@ export const applicationConfigs: ApplicationConfig[] = [
       ]
     }
   },
-  {
-    name: 'backstage',
-    namespace: 'backstage',
-    chart: {
-      type: 'BackstageChart'
-    },
-    argocd: {
-      syncWave: '20',
-      annotations: {
-        'kargo.akuity.io/authorized-stage': 'kargo-pipelines:backstage-dev'
-      },
-      labels: {
-        'app.kubernetes.io/component': 'developer-portal',
-        'app.kubernetes.io/part-of': 'platform',
-        'app.kubernetes.io/name': 'backstage'
-      },
-      // Use default cnoe:// pattern like other applications
-      syncPolicy: {
-        automated: {
-          prune: false,
-          selfHeal: false
-        },
-        syncOptions: ['CreateNamespace=true']
-      }
-    }
-  },
+  // Replaced with multi-env version - see bottom of file
+  // {
+  //   name: 'backstage',
+  //   namespace: 'backstage',
+  //   chart: {
+  //     type: 'BackstageChart'
+  //   },
+  //   argocd: {
+  //     syncWave: '20',
+  //     annotations: {
+  //       'kargo.akuity.io/authorized-stage': 'kargo-pipelines:backstage-dev'
+  //     },
+  //     labels: {
+  //       'app.kubernetes.io/component': 'developer-portal',
+  //       'app.kubernetes.io/part-of': 'platform',
+  //       'app.kubernetes.io/name': 'backstage'
+  //     },
+  //     // Use default cnoe:// pattern like other applications
+  //     syncPolicy: {
+  //       automated: {
+  //         prune: false,
+  //         selfHeal: false
+  //       },
+  //       syncOptions: ['CreateNamespace=true']
+  //     }
+  //   }
+  // },
   {
     name: 'kargo-pipelines-project',
     namespace: 'kargo-pipelines',
@@ -759,6 +749,51 @@ export const applicationConfigs: ApplicationConfig[] = [
       // Simplified single-source configuration
       // The Helm chart is now deployed directly in the CDK8S chart
       // with all values embedded in TypeScript
+    }
+  },
+  // Multi-environment applications using ApplicationSets
+  {
+    name: 'nextjs-multi-env',
+    namespace: 'argocd',
+    chart: { 
+      type: 'NextJsParameterizedChart',
+      props: {
+        environments: ['dev', 'staging']
+      }
+    },
+    argocd: {
+      syncWave: '115',
+      labels: {
+        'app.kubernetes.io/component': 'frontend',
+        'app.kubernetes.io/part-of': 'application-stack',
+        'app.kubernetes.io/name': 'nextjs-multi-env'
+      },
+      syncPolicy: {
+        automated: { prune: true, selfHeal: true },
+        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
+      }
+    }
+  },
+  {
+    name: 'backstage-multi-env',
+    namespace: 'argocd',
+    chart: { 
+      type: 'BackstageParameterizedChart',
+      props: {
+        environments: ['dev', 'staging']
+      }
+    },
+    argocd: {
+      syncWave: '20',
+      labels: {
+        'app.kubernetes.io/component': 'developer-portal',
+        'app.kubernetes.io/part-of': 'platform',
+        'app.kubernetes.io/name': 'backstage-multi-env'
+      },
+      syncPolicy: {
+        automated: { prune: true, selfHeal: true },
+        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
+      }
     }
   }
   // Add more applications here as needed

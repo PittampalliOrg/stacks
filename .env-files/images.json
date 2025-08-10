@@ -1,5 +1,11 @@
 {
   "dev": {
+    "nextjs": "ghcr.io/vpittamp/devspace-containers/typescript:20",
+    "backstage": "ghcr.io/vpittamp/devspace-containers/typescript:20",
+    "flagdUi": "ghcr.io/vpittamp/devspace-containers/typescript:20",
+    "claudecodeui": "ghcr.io/vpittamp/devspace-containers/typescript:20"
+  },
+  "staging": {
     "nextjs": "ghcr.io/pittampalliorg/chat:79",
     "backstage": "gitea.cnoe.localtest.me:8443/giteaadmin/backstage-cnoe:v136-20250809-123301",
     "flagdUi": "vpittamp.azurecr.io/flagd-ui:1.0.1",
