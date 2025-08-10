@@ -32,7 +32,7 @@ export class NextJsSecretsChart extends Chart {
         name: 'app-env', 
         namespace,
         annotations: {
-          'argocd.argoproj.io/sync-wave': '80', // After data services, before NextJS
+          'argocd.argoproj.io/sync-wave': '80',
         },
       },
       spec: {
@@ -48,27 +48,18 @@ export class NextJsSecretsChart extends Chart {
             engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
             mergePolicy: ExternalSecretSpecTargetTemplateMergePolicy.REPLACE,
             data: {
-              // AI Provider API Keys
-              'OPENAI_API_KEY': '{{ .OPENAI_API_KEY }}',
-              'AZURE_API_KEY': '{{ .AZURE_API_KEY }}',
-              'ANTHROPIC_API_KEY': '{{ .ANTHROPIC_API_KEY }}',
-              'GEMINI_API_KEY': '{{ .GEMINI_API_KEY }}',
-              'XAI_API_KEY': '{{ .XAI_API_KEY }}',
-              
-              // Authentication
-              'AUTH_SECRET': '{{ .AUTH_SECRET }}',
-              
-              // Database
-              'POSTGRES_PASSWORD': '{{ .POSTGRES_PASSWORD }}',
-              'POSTGRES_URL': '{{ .POSTGRES_URL }}',
-              
-              // Other APIs
-              'TIMEZONE_DB_API_KEY': '{{ .TIMEZONE_DB_API_KEY }}',
-              
-              // Neon specific
-              'NEON_DATABASE_PASSWORD': '{{ .NEON_DATABASE_PASSWORD }}',
-              'NEON_API_KEY': '{{ .NEON_API_KEY }}',
-              'NEON_PROJECT_ID': '{{ .NEON_PROJECT_ID }}',
+              OPENAI_API_KEY: '{{ .OPENAI_API_KEY }}',
+              AZURE_API_KEY: '{{ .AZURE_API_KEY }}',
+              ANTHROPIC_API_KEY: '{{ .ANTHROPIC_API_KEY }}',
+              GEMINI_API_KEY: '{{ .GEMINI_API_KEY }}',
+              XAI_API_KEY: '{{ .XAI_API_KEY }}',
+              AUTH_SECRET: '{{ .AUTH_SECRET }}',
+              POSTGRES_PASSWORD: '{{ .POSTGRES_PASSWORD }}',
+              POSTGRES_URL: '{{ .POSTGRES_URL }}',
+              TIMEZONE_DB_API_KEY: '{{ .TIMEZONE_DB_API_KEY }}',
+              NEON_DATABASE_PASSWORD: '{{ .NEON_DATABASE_PASSWORD }}',
+              NEON_API_KEY: '{{ .NEON_API_KEY }}',
+              NEON_PROJECT_ID: '{{ .NEON_PROJECT_ID }}',
             },
           },
         },
@@ -155,17 +146,10 @@ export class NextJsSecretsChart extends Chart {
           creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
           template: {
             type: 'kubernetes.io/dockerconfigjson',
+            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
             data: {
-              '.dockerconfigjson': `{
-                "auths": {
-                  "ghcr.io": {
-                    "username": "pittampalliorg",
-                    "password": "{{ .pat }}",
-                    "auth": "{{ printf "%s:%s" "pittampalliorg" .pat | b64enc }}"
-                  }
-                }
-              }`
-            }
+              '.dockerconfigjson': '{\n  "auths": {\n    "ghcr.io": {\n      "username": "pittampalliorg",\n      "password": "{{ .pat }}",\n      "auth": "{{ printf "%s:%s" "pittampalliorg" .pat | b64enc }}"\n    }\n  }\n}'
+            },
           }
         },
         data: [

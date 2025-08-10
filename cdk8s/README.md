@@ -133,6 +133,26 @@ npm run synth:fast -- --compile
 | `npm run deploy` | Deploy to Kubernetes |
 | `npm run destroy` | Remove from Kubernetes |
 
+## VCluster Targets
+
+- Some apps (for example `sample-vcluster-app`) target a vcluster using Argo CD `spec.destination.name` (e.g., `staging-vcluster`).
+- Ensure vclusters are registered as Argo CD clusters before syncing these apps:
+
+```bash
+# After creating vclusters via IDPBuilder
+idpbuilder create -p vcluster-multi-env
+
+# Register vclusters in Argo CD (idempotent)
+bash scripts/ensure-vclusters-registered.sh
+
+# Then synthesize and sync CDK8s apps
+npm run synth:fast
+idpbuilder create -p cdk8s/dist
+```
+
+Troubleshooting:
+- If an Argo CD Application shows `InvalidSpecError: there are no clusters with this name: staging-vcluster`, run `bash scripts/ensure-vclusters-registered.sh` and retry.
+
 ## Documentation
 
 - [Synthesis Optimizations Guide](docs/synthesis-optimizations.md) - Detailed guide on performance features

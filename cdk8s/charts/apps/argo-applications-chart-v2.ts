@@ -207,10 +207,18 @@ export class ArgoApplicationsChartV2 extends Chart {
     props: ArgoApplicationsChartV2Props,
     sourceConfig: { source?: ApplicationSpecSource; sources?: ApplicationSpecSources[] }
   ): ApplicationSpec {
-    const destination: ApplicationSpecDestination = {
-      server: 'https://kubernetes.default.svc',
-      namespace: props.applicationNamespace
-    };
+    // Choose destination by cluster name if environment label requests a vcluster
+    const envLabel = props.argoCdConfig?.labels?.['app.kubernetes.io/environment'];
+    const destination: ApplicationSpecDestination =
+      envLabel === 'staging' || envLabel === 'production'
+        ? {
+            name: `${envLabel}-vcluster`,
+            namespace: props.applicationNamespace,
+          }
+        : {
+            server: 'https://kubernetes.default.svc',
+            namespace: props.applicationNamespace,
+          };
 
     const syncPolicy: ApplicationSpecSyncPolicy = props.argoCdConfig?.syncPolicy || {
       automated: {

@@ -11,7 +11,7 @@ import { ExternalSecretsWorkloadIdentityChart } from './charts/external-secrets-
 import { HeadlampChart } from './charts/headlamp-chart';
 import { HeadlampKeycloakSecretsChart } from './charts/headlamp-keycloak-secrets-chart';
 import { KeycloakHeadlampClientChart } from './charts/keycloak-headlamp-client-chart';
-import { InfraSecretsChart } from './charts/infra-secrets-chart';
+import { NamespaceChart } from './charts/namespace-chart';
 import { NextJsChart } from './charts/nextjs-chart';
 import { NextJsSecretsChart } from './charts/nextjs-secrets-chart';
 import { PostgresChart } from './charts/postgres-chart';
@@ -31,6 +31,8 @@ import { AiPlatformEngineeringChart } from './charts/ai-platform-engineering-cha
 import { AiPlatformEngineeringChartV2 } from './charts/ai-platform-engineering-chart-v2';
 import { AiPlatformEngineeringAzureChart } from './charts/ai-platform-engineering-azure-chart';
 import { VaultChart } from './charts/vault-chart';
+import { VclusterMultiEnvChart, VclusterMultiEnvApplicationSetChart } from './charts/apps/vcluster-multi-env-chart';
+import { VclusterRegistrationApplicationSetChart } from './charts/apps/vcluster-registration-chart';
 
 // Register all charts
 IdpBuilderChartFactory.register('BootstrapSecretsChart', BootstrapSecretsChart);
@@ -38,7 +40,7 @@ IdpBuilderChartFactory.register('ExternalSecretsWorkloadIdentityChart', External
 IdpBuilderChartFactory.register('HeadlampChart', HeadlampChart);
 IdpBuilderChartFactory.register('HeadlampKeycloakSecretsChart', HeadlampKeycloakSecretsChart);
 IdpBuilderChartFactory.register('KeycloakHeadlampClientChart', KeycloakHeadlampClientChart);
-IdpBuilderChartFactory.register('InfraSecretsChart', InfraSecretsChart);
+IdpBuilderChartFactory.register('NamespaceChart', NamespaceChart);
 IdpBuilderChartFactory.register('NextJsChart', NextJsChart);
 IdpBuilderChartFactory.register('NextJsSecretsChart', NextJsSecretsChart);
 IdpBuilderChartFactory.register('PostgresChart', PostgresChart);
@@ -58,6 +60,8 @@ IdpBuilderChartFactory.register('AiPlatformEngineeringChart', AiPlatformEngineer
 IdpBuilderChartFactory.register('AiPlatformEngineeringChartV2', AiPlatformEngineeringChartV2);
 IdpBuilderChartFactory.register('AiPlatformEngineeringAzureChart', AiPlatformEngineeringAzureChart);
 IdpBuilderChartFactory.register('VaultChart', VaultChart);
+IdpBuilderChartFactory.register('VclusterMultiEnvChart', VclusterMultiEnvChart);
+IdpBuilderChartFactory.register('VclusterRegistrationApplicationSetChart', VclusterRegistrationApplicationSetChart);
 
 const outputDir = 'dist';
 
@@ -113,10 +117,30 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
     // Use factory to create chart with dependencies
     await IdpBuilderChartFactory.createChart(manifestApp, appConfig);
     manifestApp.synth();
-    
+
     // With FILE_PER_RESOURCE, we'll have multiple YAML files in the manifests directory
     // IDPBuilder will handle these individual resource files
     console.log(`  ✓ Generated individual resource files for ${appConfig.name}`);
+
+    // Ensure a kustomization.yaml exists so Argo CD can apply kustomize patches when needed
+    try {
+      const manifestsDir = path.join(options.outputDir, appConfig.name, 'manifests');
+      const files = fs.readdirSync(manifestsDir)
+        .filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'))
+        .sort();
+      const kustomizationPath = path.join(manifestsDir, 'kustomization.yaml');
+      const kustomization = [
+        'apiVersion: kustomize.config.k8s.io/v1beta1',
+        'kind: Kustomization',
+        'resources:',
+        ...files.map((f) => `  - ${f}`),
+        ''
+      ].join('\n');
+      fs.writeFileSync(kustomizationPath, kustomization);
+      console.log(`  ✓ Wrote kustomization.yaml for ${appConfig.name}`);
+    } catch (e) {
+      console.warn(`  ⚠ Could not write kustomization.yaml for ${appConfig.name}:`, e);
+    }
     
     // Copy values.yaml if it exists in the source package
     const sourceValuesPath = path.join(__dirname, '..', 'ai-platform-engineering', appConfig.name, 'values.yaml');
@@ -126,14 +150,20 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
       console.log(`  ✓ Copied values.yaml for ${appConfig.name}`);
     }
     
-    // 2. Generate ArgoCD Application manifest
+    // 2. Generate ArgoCD Application manifest (or ApplicationSet for special cases)
     const argoApp = new App({
       yamlOutputType: YamlOutputType.FILE_PER_APP,
       outdir: options.outputDir,
     });
     
-    // Use the new typed chart
-    if (appConfig.argocd?.sources && appConfig.argocd.sources.length > 0) {
+    // Check if this is a vcluster application
+    if (appConfig.chart?.type === 'VclusterMultiEnvChart') {
+      // Generate an ApplicationSet for vcluster environments
+      new VclusterMultiEnvApplicationSetChart(argoApp, appConfig.name, {});
+    } else if (appConfig.chart?.type === 'VclusterRegistrationApplicationSetChart') {
+      // Generate an ApplicationSet that registers vclusters in Argo CD
+      new VclusterRegistrationApplicationSetChart(argoApp, appConfig.name, appConfig.chart.props || {});
+    } else if (appConfig.argocd?.sources && appConfig.argocd.sources.length > 0) {
       // Multi-source application
       new ArgoApplicationsChartV2(argoApp, appConfig.name, {
         applicationName: appConfig.name,

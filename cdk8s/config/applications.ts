@@ -5,6 +5,56 @@ import { ApplicationConfig } from '../lib/idpbuilder-types';
  * Add new applications here to have them automatically synthesized
  */
 export const applicationConfigs: ApplicationConfig[] = [
+
+  {
+    name: 'vcluster-registration',
+    namespace: 'argocd',
+    chart: { type: 'VclusterRegistrationApplicationSetChart' },
+    argocd: {
+      syncWave: '20',
+      labels: {
+        'app.kubernetes.io/component': 'vcluster-registration',
+        'app.kubernetes.io/part-of': 'vcluster',
+        'app.kubernetes.io/name': 'vcluster-registration'
+      },
+      syncPolicy: {
+        automated: { prune: true, selfHeal: true },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  {
+    name: 'nextjs-namespace',
+    namespace: 'nextjs',
+    chart: {
+      type: 'NamespaceChart',
+      props: { name: 'nextjs' }
+    },
+    argocd: {
+      syncWave: '45',
+      labels: {
+        'app.kubernetes.io/component': 'namespace',
+        'app.kubernetes.io/part-of': 'application-stack',
+        'app.kubernetes.io/name': 'nextjs-namespace',
+        'app.kubernetes.io/environment': 'staging'
+      },
+      syncPolicy: {
+        automated: {
+          prune: true,
+          selfHeal: true
+        },
+        syncOptions: ['CreateNamespace=true'],
+        retry: {
+          limit: 15,
+          backoff: {
+            duration: '10s',
+            factor: 2,
+            maxDuration: '5m'
+          }
+        }
+      }
+    }
+  },
   {
     name: 'external-secrets-workload-identity',
     namespace: 'external-secrets',
@@ -27,6 +77,26 @@ export const applicationConfigs: ApplicationConfig[] = [
       }
     }
   },
+  {
+    name: 'vcluster-multi-env',
+    namespace: 'argocd',
+    chart: {
+      type: 'VclusterMultiEnvChart'
+    },
+    argocd: {
+      // Labels to identify resulting Applications for registration
+      labels: {
+        'cnoe.io/stackName': 'vcluster-multi-env',
+        'cnoe.io/applicationName': 'vcluster-package'
+      },
+      syncWave: '30',
+      syncPolicy: {
+        automated: { prune: true, selfHeal: true },
+        syncOptions: ['CreateNamespace=true']
+      }
+    }
+  },
+  
   {
     name: 'bootstrap-secrets',
     namespace: 'argocd',
@@ -55,27 +125,6 @@ export const applicationConfigs: ApplicationConfig[] = [
     }
   },
   {
-    name: 'infra-secrets',
-    namespace: 'infra',
-    chart: {
-      type: 'InfraSecretsChart'
-    },
-    argocd: {
-      syncWave: '10',
-      labels: {
-        'app.kubernetes.io/component': 'infrastructure',
-        'app.kubernetes.io/part-of': 'platform'
-      },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true']
-      }
-    }
-  },
-  {
     name: 'nextjs-secrets',
     namespace: 'nextjs',
     chart: {
@@ -86,14 +135,19 @@ export const applicationConfigs: ApplicationConfig[] = [
       labels: {
         'app.kubernetes.io/component': 'secrets',
         'app.kubernetes.io/part-of': 'application-stack',
-        'app.kubernetes.io/name': 'nextjs-secrets'
+        'app.kubernetes.io/name': 'nextjs-secrets',
+        'app.kubernetes.io/environment': 'staging'
       },
       syncPolicy: {
         automated: {
           prune: true,
           selfHeal: true
         },
-        syncOptions: ['CreateNamespace=true']
+        syncOptions: ['CreateNamespace=true', 'SkipDryRunOnMissingResource=true'],
+        retry: {
+          limit: 10,
+          backoff: { duration: '10s', factor: 2, maxDuration: '5m' }
+        }
       }
     }
   },
@@ -111,7 +165,8 @@ export const applicationConfigs: ApplicationConfig[] = [
       labels: {
         'app.kubernetes.io/component': 'frontend',
         'app.kubernetes.io/part-of': 'application-stack',
-        'app.kubernetes.io/name': 'nextjs'
+        'app.kubernetes.io/name': 'nextjs',
+        'app.kubernetes.io/environment': 'staging'
       },
       syncPolicy: {
         automated: {
@@ -164,7 +219,8 @@ export const applicationConfigs: ApplicationConfig[] = [
       labels: {
         'app.kubernetes.io/component': 'database',
         'app.kubernetes.io/part-of': 'data-layer',
-        'app.kubernetes.io/name': 'postgres'
+        'app.kubernetes.io/name': 'postgres',
+        'app.kubernetes.io/environment': 'staging'
       },
       syncPolicy: {
         automated: {
@@ -189,7 +245,8 @@ export const applicationConfigs: ApplicationConfig[] = [
       labels: {
         'app.kubernetes.io/component': 'cache',
         'app.kubernetes.io/part-of': 'data-layer',
-        'app.kubernetes.io/name': 'redis'
+        'app.kubernetes.io/name': 'redis',
+        'app.kubernetes.io/environment': 'staging'
       },
       syncPolicy: {
         automated: {
@@ -404,8 +461,27 @@ export const applicationConfigs: ApplicationConfig[] = [
           prune: true,
           selfHeal: true
         },
-        syncOptions: ['CreateNamespace=true']
-      }
+        syncOptions: [
+          'CreateNamespace=true', 
+          'ServerSideApply=true',  // Ensures idempotent Project creation
+          'Replace=true',          // Force replace if resources exist
+          'RespectIgnoreDifferences=true'  // Respect the ignore differences below
+        ]
+      },
+      ignoreDifferences: [
+        // Kargo controllers may mutate metadata (owner refs, labels/annotations)
+        { group: 'kargo.akuity.io', kind: 'Project', jsonPointers: ['/metadata'] },
+        { group: 'kargo.akuity.io', kind: 'ProjectConfig', jsonPointers: ['/metadata'] },
+        // Namespace labels/annotations may be injected by controllers
+        { group: '', kind: 'Namespace', name: 'kargo-pipelines', jsonPointers: ['/metadata/labels', '/metadata/annotations'] },
+        // Secret stringData becomes data; ignore data drift for this static helper secret
+        { group: '', kind: 'Secret', name: 'kargo-gitea-webhook-secret', jsonPointers: ['/data'] },
+        // RBAC resources may receive owner refs/labels
+        { group: 'rbac.authorization.k8s.io', kind: 'ClusterRole', name: 'kargo-pipelines-argocd-updater', jsonPointers: ['/metadata'] },
+        { group: 'rbac.authorization.k8s.io', kind: 'ClusterRoleBinding', name: 'kargo-pipelines-argocd-updater', jsonPointers: ['/metadata'] },
+        { group: 'rbac.authorization.k8s.io', kind: 'ClusterRoleBinding', name: 'kargo-admin-kargo-pipelines', jsonPointers: ['/metadata'] },
+        { group: 'rbac.authorization.k8s.io', kind: 'RoleBinding', name: 'kargo-project-admin', jsonPointers: ['/metadata'] },
+      ]
     }
   },
   {

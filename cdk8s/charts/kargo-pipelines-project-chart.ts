@@ -11,34 +11,40 @@ export class KargoPipelinesProjectChart extends Chart {
   constructor(scope: Construct, id: string, props?: ChartProps) {
     super(scope, id, props);
 
-    // Create the namespace first with the required Kargo label
-    // This ensures Kargo recognizes it as a project namespace
-    new ApiObject(this, 'pipelines-namespace', {
-      apiVersion: 'v1',
-      kind: 'Namespace',
-      metadata: {
-        name: 'kargo-pipelines',
-        labels: {
-          'app.kubernetes.io/name': 'kargo-pipelines',
-          'app.kubernetes.io/part-of': 'kargo',
-          'app.kubernetes.io/component': 'namespace',
-          'kargo.akuity.io/project': 'true'  // Required by Kargo
-        }
-      }
-    });
-
-    // Create the central Kargo Project
-    // This will adopt the namespace we just created
+    // Create the central Kargo Project FIRST
+    // Kargo will automatically create the namespace, or adopt an existing one with the label
     new Project(this, 'pipelines-project', {
       metadata: {
         name: 'kargo-pipelines',
+        annotations: {
+          'argocd.argoproj.io/sync-wave': '-10'  // Create Project first
+        },
         labels: {
           'app.kubernetes.io/name': 'kargo-pipelines',
           'app.kubernetes.io/part-of': 'kargo',
           'app.kubernetes.io/component': 'project'
         }
-      },
-      spec: {}
+      }
+      // No spec field - Kargo Project v1alpha1 doesn't have a spec
+    });
+
+    // Create/ensure the namespace with the required Kargo label
+    // This will be adopted by the Project if it already exists
+    new ApiObject(this, 'pipelines-namespace', {
+      apiVersion: 'v1',
+      kind: 'Namespace',
+      metadata: {
+        name: 'kargo-pipelines',
+        annotations: {
+          'argocd.argoproj.io/sync-wave': '-5'  // After Project creation
+        },
+        labels: {
+          'app.kubernetes.io/name': 'kargo-pipelines',
+          'app.kubernetes.io/part-of': 'kargo',
+          'app.kubernetes.io/component': 'namespace',
+          'kargo.akuity.io/project': 'true'  // Required by Kargo for adoption
+        }
+      }
     });
 
     // Create ProjectConfig for promotion policies
@@ -46,6 +52,9 @@ export class KargoPipelinesProjectChart extends Chart {
       metadata: {
         name: 'kargo-pipelines',
         namespace: 'kargo-pipelines',
+        annotations: {
+          'argocd.argoproj.io/sync-wave': '0'  // After namespace exists
+        },
         labels: {
           'app.kubernetes.io/name': 'kargo-pipelines-config',
           'app.kubernetes.io/part-of': 'kargo',
@@ -90,6 +99,9 @@ export class KargoPipelinesProjectChart extends Chart {
       metadata: {
         name: 'kargo-gitea-webhook-secret',
         namespace: 'kargo-pipelines',
+        annotations: {
+          'argocd.argoproj.io/sync-wave': '5'  // After namespace and project config
+        },
         labels: {
           'app.kubernetes.io/name': 'kargo-gitea-webhook',
           'app.kubernetes.io/part-of': 'kargo-pipelines',
@@ -142,7 +154,10 @@ export class KargoPipelinesProjectChart extends Chart {
       kind: 'Role',
       metadata: {
         name: 'kargo-git-promoter',
-        namespace: 'kargo-pipelines'
+        namespace: 'kargo-pipelines',
+        annotations: {
+          'argocd.argoproj.io/sync-wave': '10'  // After namespace resources
+        }
       },
       rules: [
         {
