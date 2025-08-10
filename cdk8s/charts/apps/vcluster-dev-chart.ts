@@ -26,7 +26,7 @@ export class VclusterDevChart extends Chart {
         advanced: { virtualScheduler: { enabled: true } },
         proxy: {
           extraSANs: [
-            'dev-vcluster-helm.dev-vcluster.svc',
+            'vcluster-dev-helm.dev-vcluster.svc',
             'dev-vcluster.cnoe.localtest.me',
           ],
         },

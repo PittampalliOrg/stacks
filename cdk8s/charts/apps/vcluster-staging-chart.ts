@@ -26,7 +26,7 @@ export class VclusterStagingChart extends Chart {
         advanced: { virtualScheduler: { enabled: true } },
         proxy: {
           extraSANs: [
-            'staging-vcluster-helm.staging-vcluster.svc',
+            'vcluster-staging-helm.staging-vcluster.svc',
             'staging-vcluster.cnoe.localtest.me',
           ],
         },

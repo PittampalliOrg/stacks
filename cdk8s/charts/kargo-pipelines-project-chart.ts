@@ -12,7 +12,7 @@ export class KargoPipelinesProjectChart extends Chart {
     super(scope, id, props);
 
     // Create/ensure the namespace with the required Kargo label
-    // Using ServerSideApply to merge labels into existing namespace
+    // Using a patch to ensure labels are applied even if namespace exists
     new ApiObject(this, 'pipelines-namespace', {
       apiVersion: 'v1',
       kind: 'Namespace',
@@ -20,7 +20,6 @@ export class KargoPipelinesProjectChart extends Chart {
         name: 'kargo-pipelines',
         annotations: {
           'argocd.argoproj.io/sync-wave': '-15',  // Before Project creation
-          'argocd.argoproj.io/sync-options': 'ServerSideApply=true'  // Merge labels into existing namespace
         },
         labels: {
           'app.kubernetes.io/name': 'kargo-pipelines',
