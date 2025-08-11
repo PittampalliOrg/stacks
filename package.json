@@ -4,7 +4,7 @@
   },
   "dependencies": {
     "@anthropic-ai/claude-code": "^1.0.72",
-    "cdk8s-cli": "^2.200.150",
+    "cdk8s-cli": "^2.200.151",
     "devspace": "^6.3.16"
   }
 }

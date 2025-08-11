@@ -29,6 +29,8 @@ import { AiPlatformEngineeringAzureChart } from './charts/ai-platform-engineerin
 import { VaultChart } from './charts/infra/vault/vault-composite-chart';
 import { VclusterDevChart } from './charts/apps/vcluster-dev-chart';
 import { VclusterStagingChart } from './charts/apps/vcluster-staging-chart';
+import { VclusterDevIngressChart } from './charts/apps/vcluster-dev-ingress-chart';
+import { VclusterStagingIngressChart } from './charts/apps/vcluster-staging-ingress-chart';
 import { VclusterRegistrationRbacChart } from './charts/vcluster-registration-rbac-chart';
 import { VclusterRegistrationJobChart } from './charts/vcluster-registration-job-chart';
 import { VclusterRegistrationCronJobChart } from './charts/vcluster-registration-cronjob-chart';
@@ -64,6 +66,8 @@ IdpBuilderChartFactory.register('AiPlatformEngineeringAzureChart', AiPlatformEng
 IdpBuilderChartFactory.register('VaultChart', VaultChart);
 IdpBuilderChartFactory.register('VclusterDevChart', VclusterDevChart);
 IdpBuilderChartFactory.register('VclusterStagingChart', VclusterStagingChart);
+IdpBuilderChartFactory.register('VclusterDevIngressChart', VclusterDevIngressChart);
+IdpBuilderChartFactory.register('VclusterStagingIngressChart', VclusterStagingIngressChart);
 IdpBuilderChartFactory.register('VclusterRegistrationRbacChart', VclusterRegistrationRbacChart);
 IdpBuilderChartFactory.register('VclusterRegistrationJobChart', VclusterRegistrationJobChart);
 IdpBuilderChartFactory.register('VclusterRegistrationCronJobChart', VclusterRegistrationCronJobChart);

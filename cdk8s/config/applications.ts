@@ -41,6 +41,24 @@ export const applicationConfigs: ApplicationConfig[] = [
       syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'])
     }
   },
+  // Dev VCluster Ingress - Wave 15 (after vcluster is created)
+  {
+    name: 'vcluster-dev-ingress',
+    namespace: 'dev-vcluster',
+    chart: {
+      type: 'VclusterDevIngressChart'
+    },
+    argocd: {
+      syncWave: '15',
+      labels: {
+        'app.kubernetes.io/component': 'ingress',
+        'app.kubernetes.io/part-of': 'vcluster',
+        'app.kubernetes.io/name': 'vcluster-dev-ingress',
+        'app.kubernetes.io/instance': 'dev'
+      },
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'])
+    }
+  },
   // Staging VCluster - Wave 10
   {
     name: 'vcluster-staging',
@@ -54,6 +72,24 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/component': 'vcluster',
         'app.kubernetes.io/part-of': 'platform',
         'app.kubernetes.io/name': 'vcluster-staging',
+        'app.kubernetes.io/instance': 'staging'
+      },
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'])
+    }
+  },
+  // Staging VCluster Ingress - Wave 15 (after vcluster is created)
+  {
+    name: 'vcluster-staging-ingress',
+    namespace: 'staging-vcluster',
+    chart: {
+      type: 'VclusterStagingIngressChart'
+    },
+    argocd: {
+      syncWave: '15',
+      labels: {
+        'app.kubernetes.io/component': 'ingress',
+        'app.kubernetes.io/part-of': 'vcluster',
+        'app.kubernetes.io/name': 'vcluster-staging-ingress',
         'app.kubernetes.io/instance': 'staging'
       },
       syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'])
@@ -463,30 +499,19 @@ export const applicationConfigs: ApplicationConfig[] = [
       },
       syncPolicy: {
         automated: {
-          prune: true,
-          selfHeal: true
+          prune: false,           // Don't delete resources not in Git
+          selfHeal: false         // Don't auto-revert manual changes
         },
         syncOptions: [
-          'CreateNamespace=true', 
-          'ServerSideApply=true',  // Ensures idempotent Project creation
-          'Replace=true',          // Force replace if resources exist
-          'RespectIgnoreDifferences=true',  // Respect the ignore differences below
-          'PruneLast=true'         // Don't delete namespace until end
+          'CreateNamespace=false',        // Namespace already exists with Kargo label
+          'ApplyOutOfSyncOnly=true',      // Only sync resources that actually changed
+          'RespectIgnoreDifferences=true' // Respect the ignore differences below
         ]
       },
       ignoreDifferences: [
-        // Kargo controllers may mutate metadata (owner refs, labels/annotations)
-        { group: 'kargo.akuity.io', kind: 'Project', jsonPointers: ['/metadata'] },
-        { group: 'kargo.akuity.io', kind: 'ProjectConfig', jsonPointers: ['/metadata'] },
-        // Namespace labels/annotations may be injected by controllers
-        { group: '', kind: 'Namespace', name: 'kargo-pipelines', jsonPointers: ['/metadata/labels', '/metadata/annotations'] },
-        // Secret stringData becomes data; ignore data drift for this static helper secret
-        { group: '', kind: 'Secret', name: 'kargo-gitea-webhook-secret', jsonPointers: ['/data'] },
-        // RBAC resources may receive owner refs/labels
-        { group: 'rbac.authorization.k8s.io', kind: 'ClusterRole', name: 'kargo-pipelines-argocd-updater', jsonPointers: ['/metadata'] },
-        { group: 'rbac.authorization.k8s.io', kind: 'ClusterRoleBinding', name: 'kargo-pipelines-argocd-updater', jsonPointers: ['/metadata'] },
-        { group: 'rbac.authorization.k8s.io', kind: 'ClusterRoleBinding', name: 'kargo-admin-kargo-pipelines', jsonPointers: ['/metadata'] },
-        { group: 'rbac.authorization.k8s.io', kind: 'RoleBinding', name: 'kargo-project-admin', jsonPointers: ['/metadata'] },
+        // Only ignore status fields that are managed by controllers
+        { group: 'kargo.akuity.io', kind: 'Project', jsonPointers: ['/status'] },
+        { group: 'kargo.akuity.io', kind: 'ProjectConfig', jsonPointers: ['/status'] }
       ]
     }
   },

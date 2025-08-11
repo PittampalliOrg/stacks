@@ -10,6 +10,7 @@
 - [Deployment Process](#deployment-process)
 - [CI/CD Integration](#cicd-integration)
 - [Best Practices](#best-practices)
+ - [IdpBuilder Packages](#idpbuilder-packages)
 
 ## Overview
 
@@ -414,6 +415,17 @@ idpbuilder create --package dist/my-app
 for app in my-app other-app; do
   idpbuilder create --package dist/$app
 done
+
+## IdpBuilder Packages
+
+- Our synth step creates IdpBuilder-compatible packages under `cdk8s/dist/` with:
+  - `dist/<app>/manifests/` (Kubernetes YAML + kustomization.yaml)
+  - `dist/<app>.yaml` (ArgoCD Application referencing `cnoe://<app>/manifests` for local dev)
+- To deploy all packages:
+  - `idpbuilder create --package cdk8s/dist/`
+- To deploy a single package:
+  - `idpbuilder create --package cdk8s/dist/<app>`
+- See also: [CDK8s Architecture, Code Organization, and IdpBuilder Packaging](./cdk8s-architecture-and-packaging.md)
 ```
 
 ### Rollback Procedure

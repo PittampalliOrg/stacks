@@ -32,8 +32,8 @@ export class VclusterDevChart extends Chart {
         toHost: {
           // Sync service accounts to host for Azure Workload Identity
           serviceAccounts: { enabled: true },
-          // Sync ingresses from vcluster to host so they're accessible from outside
-          ingresses: { enabled: true },
+          // Disable ingress syncing - we manage the API ingress separately
+          ingresses: { enabled: false },
         },
       },
       controlPlane: {

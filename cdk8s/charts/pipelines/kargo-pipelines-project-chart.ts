@@ -214,7 +214,11 @@ export class KargoPipelinesProjectChart extends Chart {
         }
       },
       roleRef: { apiGroup: 'rbac.authorization.k8s.io', kind: 'ClusterRole', name: 'kargo-project-admin' },
-      subjects: [ { kind: 'Group', name: 'system:authenticated' } ]
+      subjects: [
+        { kind: 'Group', name: 'system:authenticated' },
+        { kind: 'ServiceAccount', name: 'kargo-api', namespace: 'kargo' },
+        { kind: 'ServiceAccount', name: 'kargo-admin', namespace: 'kargo' }
+      ]
     });
   }
 }
