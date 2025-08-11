@@ -282,7 +282,7 @@ class SmartWatcher {
     
     // Prepare environment variables
     const env = {
-      ...process.env.,
+      ...process.env,
       CDK8S_CHARTS: chartNames.join(','),
       CDK8S_SELECTIVE_SYNTHESIS: 'true'
     };

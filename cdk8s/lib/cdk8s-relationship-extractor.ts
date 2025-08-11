@@ -285,14 +285,14 @@ export class Cdk8sRelationshipExtractor {
         // Environment variables from ConfigMaps/Secrets
         if (container.env) {
           for (const env of container.env) {
-            if (process.env.valueFrom?.configMapKeyRef) {
-              const targetId = this.findResourceByName('ConfigMap', process.env.valueFrom.configMapKeyRef.name, resource);
+            if (env.valueFrom?.configMapKeyRef) {
+              const targetId = this.findResourceByName('ConfigMap', env.valueFrom.configMapKeyRef.name, resource);
               if (targetId) {
                 this.addRelationship(resource.id, targetId, ReferenceType.CONFIGMAP);
               }
             }
-            if (process.env.valueFrom?.secretKeyRef) {
-              const targetId = this.findResourceByName('Secret', process.env.valueFrom.secretKeyRef.name, resource);
+            if (env.valueFrom?.secretKeyRef) {
+              const targetId = this.findResourceByName('Secret', env.valueFrom.secretKeyRef.name, resource);
               if (targetId) {
                 this.addRelationship(resource.id, targetId, ReferenceType.SECRET);
               }

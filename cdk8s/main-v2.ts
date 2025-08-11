@@ -1,32 +1,30 @@
 import { App, YamlOutputType } from 'cdk8s';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ArgoApplicationsChartV2 } from './charts/apps/argo-applications-chart-v2';
+import { ArgoApplicationsChartV2 } from './charts/platform/argo-applications-chart-v2';
 import { IdpBuilderChartFactory } from './lib/idpbuilder-chart-factory';
 import { applicationConfigs } from './config/applications';
 
 // Register all available charts with the factory
-import { BootstrapSecretsChart } from './charts/bootstrap-secrets-chart';
-import { ExternalSecretsWorkloadIdentityChart } from './charts/external-secrets-workload-identity-chart';
-import { HeadlampChart } from './charts/headlamp-chart';
-import { HeadlampKeycloakSecretsChart } from './charts/headlamp-keycloak-secrets-chart';
-import { KeycloakHeadlampClientChart } from './charts/keycloak-headlamp-client-chart';
-import { NamespaceChart } from './charts/namespace-chart';
-import { NextJsChart } from './charts/nextjs-chart';
-import { NextJsSecretsChart } from './charts/nextjs-secrets-chart';
-import { PostgresChart } from './charts/postgres-chart';
-import { RedisChart } from './charts/redis-chart';
-import { KargoHelmChart } from './charts/kargo-helm-chart';
-import { KargoSecretsChart } from './charts/kargo-secrets-chart';
-import { KargoPipelinesProjectChart } from './charts/kargo-pipelines-project-chart';
-import { KargoPipelinesCredentialsChart } from './charts/kargo-pipelines-credentials-chart';
-import { KargoCACertificatesChart } from './charts/kargo-ca-certificates-chart';
-import { KargoNextjsPipelineChart } from './charts/kargo-nextjs-pipeline-chart';
-import { KargoBackstagePipelineChart } from './charts/kargo-backstage-pipeline-chart';
-import { KargoGiteaWebhookSetupChart } from './charts/kargo-gitea-webhook-setup-chart';
-import { KargoWebhookPatchChart } from './charts/kargo-webhook-patch-chart';
-import { DaggerInfraChart } from './charts/dagger-infra-chart';
-import { BackstageChart } from './charts/backstage-chart';
+import { BootstrapSecretsChart } from './charts/secrets/bootstrap-secrets-chart';
+import { ExternalSecretsWorkloadIdentityChart } from './charts/secrets/external-secrets-workload-identity-chart';
+import { HeadlampChart } from './charts/platform/headlamp-chart';
+import { HeadlampKeycloakSecretsChart } from './charts/secrets/headlamp-keycloak-secrets-chart';
+import { KeycloakHeadlampClientChart } from './charts/platform/keycloak-headlamp-client-chart';
+import { NamespaceChart } from './charts/platform/namespace-chart';
+import { NextJsSecretsChart } from './charts/secrets/nextjs-secrets-chart';
+import { PostgresChart } from './charts/apps/postgres-chart';
+import { RedisChart } from './charts/apps/redis-chart';
+import { KargoHelmChart } from './charts/pipelines/kargo-helm-chart';
+import { KargoSecretsChart } from './charts/pipelines/kargo-secrets-chart';
+import { KargoPipelinesProjectChart } from './charts/pipelines/kargo-pipelines-project-chart';
+import { KargoPipelinesCredentialsChart } from './charts/pipelines/kargo-pipelines-credentials-chart';
+import { KargoCACertificatesChart } from './charts/pipelines/kargo-ca-certificates-chart';
+import { KargoNextjsPipelineChart } from './charts/pipelines/kargo-nextjs-pipeline-chart';
+import { KargoBackstagePipelineChart } from './charts/pipelines/kargo-backstage-pipeline-chart';
+import { KargoGiteaWebhookSetupChart } from './charts/pipelines/kargo-gitea-webhook-setup-chart';
+import { KargoWebhookPatchChart } from './charts/pipelines/kargo-webhook-patch-chart';
+import { DaggerInfraChart } from './charts/infra/dagger-infra-chart';
 import { AiPlatformEngineeringChart } from './charts/ai-platform-engineering-chart';
 import { AiPlatformEngineeringChartV2 } from './charts/ai-platform-engineering-chart-v2';
 import { AiPlatformEngineeringAzureChart } from './charts/ai-platform-engineering-azure-chart';
@@ -40,7 +38,7 @@ import { NextJsParameterizedChart } from './charts/apps/nextjs-parameterized-cha
 import { BackstageParameterizedChart } from './charts/apps/backstage-parameterized-chart';
 import { BackstageDevApplicationChart } from './charts/apps/backstage-dev-application-chart';
 import { BackstageStagingApplicationChart } from './charts/apps/backstage-staging-application-chart';
-import { BackstageSecretsChart } from './charts/backstage-secrets-chart';
+import { BackstageSecretsChart } from './charts/secrets/backstage-secrets-chart';
 import { NextJsDevApplicationChart } from './charts/apps/nextjs-dev-application-chart';
 import { NextJsStagingApplicationChart } from './charts/apps/nextjs-staging-application-chart';
 
@@ -51,7 +49,6 @@ IdpBuilderChartFactory.register('HeadlampChart', HeadlampChart);
 IdpBuilderChartFactory.register('HeadlampKeycloakSecretsChart', HeadlampKeycloakSecretsChart);
 IdpBuilderChartFactory.register('KeycloakHeadlampClientChart', KeycloakHeadlampClientChart);
 IdpBuilderChartFactory.register('NamespaceChart', NamespaceChart);
-IdpBuilderChartFactory.register('NextJsChart', NextJsChart);
 IdpBuilderChartFactory.register('NextJsSecretsChart', NextJsSecretsChart);
 IdpBuilderChartFactory.register('PostgresChart', PostgresChart);
 IdpBuilderChartFactory.register('RedisChart', RedisChart);
@@ -65,7 +62,6 @@ IdpBuilderChartFactory.register('KargoBackstagePipelineChart', KargoBackstagePip
 IdpBuilderChartFactory.register('KargoGiteaWebhookSetupChart', KargoGiteaWebhookSetupChart);
 IdpBuilderChartFactory.register('KargoWebhookPatchChart', KargoWebhookPatchChart);
 IdpBuilderChartFactory.register('DaggerInfraChart', DaggerInfraChart);
-IdpBuilderChartFactory.register('BackstageChart', BackstageChart);
 IdpBuilderChartFactory.register('AiPlatformEngineeringChart', AiPlatformEngineeringChart);
 IdpBuilderChartFactory.register('AiPlatformEngineeringChartV2', AiPlatformEngineeringChartV2);
 IdpBuilderChartFactory.register('AiPlatformEngineeringAzureChart', AiPlatformEngineeringAzureChart);
@@ -103,6 +99,30 @@ interface SynthesisOptions {
    * Environment (dev, staging, production)
    */
   environment?: string;
+}
+
+/**
+ * Load environment variables from a simple KEY=VALUE file.
+ * Ignores blank lines and lines starting with '#'.
+ */
+function loadEnvFile(filePath: string): void {
+  try {
+    const abs = path.resolve(filePath);
+    if (!fs.existsSync(abs)) return;
+    const content = fs.readFileSync(abs, 'utf-8');
+    for (const line of content.split(/\r?\n/)) {
+      if (!line || line.trim().startsWith('#')) continue;
+      const idx = line.indexOf('=');
+      if (idx <= 0) continue;
+      const key = line.slice(0, idx).trim();
+      const value = line.slice(idx + 1).trim();
+      if (key && !(key in process.env)) {
+        process.env[key] = value;
+      }
+    }
+  } catch (e) {
+    console.warn('⚠ Could not load env file:', filePath, e);
+  }
 }
 
 /**
@@ -171,9 +191,11 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
     }
     
     // 2. Generate ArgoCD Application manifest (or ApplicationSet for special cases)
+    const argoOutDir = path.join(options.outputDir, '.argo', appConfig.name);
+    fs.mkdirSync(argoOutDir, { recursive: true });
     const argoApp = new App({
       yamlOutputType: YamlOutputType.FILE_PER_APP,
-      outdir: options.outputDir,
+      outdir: argoOutDir,
     });
     
     // Check if this is a parameterized application (NextJs or Backstage)
@@ -242,13 +264,12 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
     }
     
     argoApp.synth();
-    
-    // Clean up file naming
-    const argoFiles = fs.readdirSync(options.outputDir);
+    // Move generated Application YAML to root output dir with canonical name
+    const argoFiles = fs.readdirSync(argoOutDir);
     const argoAppFile = argoFiles.find(f => f === 'app.yaml' || f === 'app.k8s.yaml');
     if (argoAppFile) {
       fs.renameSync(
-        path.join(options.outputDir, argoAppFile),
+        path.join(argoOutDir, argoAppFile),
         path.join(options.outputDir, `${appConfig.name}.yaml`)
       );
     }
@@ -269,6 +290,10 @@ async function main() {
     environment: process.env.ENVIRONMENT || 'dev',
     helmOutput: process.env.HELM_OUTPUT === 'true'
   };
+  // Load environment configuration for secrets and stores
+  // Prefer wi.env for dev; allow overriding via ENV_FILE
+  const envFile = process.env.ENV_FILE || (options.environment === 'dev' ? '../.env-files/wi.env' : '../.env-files/production.env');
+  loadEnvFile(path.join(__dirname, envFile));
   
   // Clean output directory
   if (fs.existsSync(options.outputDir)) {
@@ -276,10 +301,21 @@ async function main() {
   }
   fs.mkdirSync(options.outputDir, { recursive: true });
   
-  // Process each application
-  for (const appConfig of applicationConfigs) {
-    await synthesizeApplication(appConfig, options);
+  // Simple concurrency pool for synthesis
+  const concurrency = parseInt(process.env.SYNTH_CONCURRENCY || '4', 10);
+  const queue = [...applicationConfigs];
+  const workers: Promise<void>[] = [];
+  async function worker() {
+    while (queue.length > 0) {
+      const cfg = queue.shift();
+      if (!cfg) break;
+      await synthesizeApplication(cfg, options);
+    }
   }
+  for (let i = 0; i < Math.max(1, concurrency); i++) {
+    workers.push(worker());
+  }
+  await Promise.all(workers);
   
   console.log('\nSynthesis complete!');
   console.log(`Output directory: ${options.outputDir}/`);

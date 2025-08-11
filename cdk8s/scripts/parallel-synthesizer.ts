@@ -288,7 +288,7 @@ export class ParallelSynthesizer {
       groupId: group.id,
       charts: group.charts,
       env: {
-        ...process.env.,
+        ...process.env,
         CDK8S_CHARTS: group.charts.join(','),
         CDK8S_SELECTIVE_SYNTHESIS: 'true'
       }

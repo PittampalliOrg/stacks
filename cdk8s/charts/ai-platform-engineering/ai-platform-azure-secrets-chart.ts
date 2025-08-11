@@ -6,6 +6,8 @@ import {
   ExternalSecretSpecTargetCreationPolicy,
   ExternalSecretSpecSecretStoreRefKind
 } from '../../imports/external-secrets.io';
+import { createEnvExternalSecret } from '../../lib/eso-helpers';
+import { JsonPatch } from 'cdk8s';
 
 export interface AiPlatformAzureSecretsChartProps extends ChartProps {
   namespace?: string;
@@ -24,243 +26,157 @@ export class AiPlatformAzureSecretsChart extends Chart {
     const namespace = props.namespace || 'ai-platform-engineering';
 
     // LLM secrets from Azure Key Vault (used by all agents)
-    new ExternalSecret(this, 'llm-secrets', {
-      metadata: {
-        name: 'llm-secret-external',
-        namespace,
-        labels: {
-          'app.kubernetes.io/name': 'ai-platform-engineering',
-          'app.kubernetes.io/component': 'external-secrets',
-          'app.kubernetes.io/managed-by': 'cdk8s'
-        },
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-60'  // Before Helm deployment
-        }
-      },
-      spec: {
-        refreshInterval: '1h',
-        secretStoreRef: {
-          name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        target: {
-          name: 'llm-secret',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER  // Create secret if it doesn't exist
-        },
-        data: [
-          { secretKey: 'LLM_PROVIDER', remoteRef: { key: 'ai-platform-engineering-global', property: 'LLM_PROVIDER' } },
-          { secretKey: 'OPENAI_API_KEY', remoteRef: { key: 'ai-platform-engineering-global', property: 'OPENAI_API_KEY' } },
-          { secretKey: 'OPENAI_ENDPOINT', remoteRef: { key: 'ai-platform-engineering-global', property: 'OPENAI_ENDPOINT' } },
-          { secretKey: 'OPENAI_MODEL_NAME', remoteRef: { key: 'ai-platform-engineering-global', property: 'OPENAI_MODEL_NAME' } },
-          { secretKey: 'AZURE_OPENAI_API_KEY', remoteRef: { key: 'ai-platform-engineering-global', property: 'AZURE_OPENAI_API_KEY' } },
-          { secretKey: 'AZURE_OPENAI_ENDPOINT', remoteRef: { key: 'ai-platform-engineering-global', property: 'AZURE_OPENAI_ENDPOINT' } },
-          { secretKey: 'AZURE_OPENAI_API_VERSION', remoteRef: { key: 'ai-platform-engineering-global', property: 'AZURE_OPENAI_API_VERSION' } },
-          { secretKey: 'AZURE_OPENAI_DEPLOYMENT', remoteRef: { key: 'ai-platform-engineering-global', property: 'AZURE_OPENAI_DEPLOYMENT' } },
-          { secretKey: 'AWS_ACCESS_KEY_ID', remoteRef: { key: 'ai-platform-engineering-global', property: 'AWS_ACCESS_KEY_ID' } },
-          { secretKey: 'AWS_SECRET_ACCESS_KEY', remoteRef: { key: 'ai-platform-engineering-global', property: 'AWS_SECRET_ACCESS_KEY' } },
-          { secretKey: 'AWS_REGION', remoteRef: { key: 'ai-platform-engineering-global', property: 'AWS_REGION' } },
-          { secretKey: 'AWS_BEDROCK_MODEL_ID', remoteRef: { key: 'ai-platform-engineering-global', property: 'AWS_BEDROCK_MODEL_ID' } },
-          { secretKey: 'AWS_BEDROCK_PROVIDER', remoteRef: { key: 'ai-platform-engineering-global', property: 'AWS_BEDROCK_PROVIDER' } }
-        ]
-      }
+    const llm = createEnvExternalSecret(this, 'llm-secrets-external', {
+      externalName: 'llm-secret-external',
+      name: 'llm-secret',
+      namespace,
+      refreshInterval: '1h',
+      secretStoreRef: { name: 'azure-keyvault-store', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      mappings: [
+        { key: 'LLM_PROVIDER', remoteRef: { key: 'ai-platform-engineering-global', property: 'LLM_PROVIDER' } },
+        { key: 'OPENAI_API_KEY', remoteRef: { key: 'ai-platform-engineering-global', property: 'OPENAI_API_KEY' } },
+        { key: 'OPENAI_ENDPOINT', remoteRef: { key: 'ai-platform-engineering-global', property: 'OPENAI_ENDPOINT' } },
+        { key: 'OPENAI_MODEL_NAME', remoteRef: { key: 'ai-platform-engineering-global', property: 'OPENAI_MODEL_NAME' } },
+        { key: 'AZURE_OPENAI_API_KEY', remoteRef: { key: 'ai-platform-engineering-global', property: 'AZURE_OPENAI_API_KEY' } },
+        { key: 'AZURE_OPENAI_ENDPOINT', remoteRef: { key: 'ai-platform-engineering-global', property: 'AZURE_OPENAI_ENDPOINT' } },
+        { key: 'AZURE_OPENAI_API_VERSION', remoteRef: { key: 'ai-platform-engineering-global', property: 'AZURE_OPENAI_API_VERSION' } },
+        { key: 'AZURE_OPENAI_DEPLOYMENT', remoteRef: { key: 'ai-platform-engineering-global', property: 'AZURE_OPENAI_DEPLOYMENT' } },
+        { key: 'AWS_ACCESS_KEY_ID', remoteRef: { key: 'ai-platform-engineering-global', property: 'AWS_ACCESS_KEY_ID' } },
+        { key: 'AWS_SECRET_ACCESS_KEY', remoteRef: { key: 'ai-platform-engineering-global', property: 'AWS_SECRET_ACCESS_KEY' } },
+        { key: 'AWS_REGION', remoteRef: { key: 'ai-platform-engineering-global', property: 'AWS_REGION' } },
+        { key: 'AWS_BEDROCK_MODEL_ID', remoteRef: { key: 'ai-platform-engineering-global', property: 'AWS_BEDROCK_MODEL_ID' } },
+        { key: 'AWS_BEDROCK_PROVIDER', remoteRef: { key: 'ai-platform-engineering-global', property: 'AWS_BEDROCK_PROVIDER' } },
+      ],
     });
+    llm.addJsonPatch(JsonPatch.add('/metadata/labels', {
+      'app.kubernetes.io/name': 'ai-platform-engineering',
+      'app.kubernetes.io/component': 'external-secrets',
+      'app.kubernetes.io/managed-by': 'cdk8s'
+    }));
+    llm.addJsonPatch(JsonPatch.add('/metadata/annotations', { 'argocd.argoproj.io/sync-wave': '-60' }));
 
     // GitHub secrets from Azure Key Vault
-    new ExternalSecret(this, 'github-secrets', {
-      metadata: {
-        name: 'agent-github-secret-external',
-        namespace,
-        labels: {
-          'app.kubernetes.io/name': 'agent-github',
-          'app.kubernetes.io/component': 'external-secrets',
-          'app.kubernetes.io/part-of': 'ai-platform-engineering',
-          'app.kubernetes.io/managed-by': 'cdk8s'
-        },
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-60'
-        }
-      },
-      spec: {
-        refreshInterval: '1h',
-        secretStoreRef: {
-          name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        target: {
-          name: 'agent-github-secret',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER
-        },
-        data: [
-          { secretKey: 'GITHUB_PERSONAL_ACCESS_TOKEN', remoteRef: { key: 'ai-platform-engineering-github', property: 'GITHUB_PERSONAL_ACCESS_TOKEN' } }
-        ]
-      }
+    const github = createEnvExternalSecret(this, 'agent-github-secret-external', {
+      externalName: 'agent-github-secret-external',
+      name: 'agent-github-secret',
+      namespace,
+      refreshInterval: '1h',
+      secretStoreRef: { name: 'azure-keyvault-store', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      mappings: [ { key: 'GITHUB_PERSONAL_ACCESS_TOKEN', remoteRef: { key: 'ai-platform-engineering-github', property: 'GITHUB_PERSONAL_ACCESS_TOKEN' } } ],
     });
+    github.addJsonPatch(JsonPatch.add('/metadata/labels', {
+      'app.kubernetes.io/name': 'agent-github',
+      'app.kubernetes.io/component': 'external-secrets',
+      'app.kubernetes.io/part-of': 'ai-platform-engineering',
+      'app.kubernetes.io/managed-by': 'cdk8s'
+    }));
+    github.addJsonPatch(JsonPatch.add('/metadata/annotations', { 'argocd.argoproj.io/sync-wave': '-60' }));
 
     // Jira secrets from Azure Key Vault
-    new ExternalSecret(this, 'jira-secrets', {
-      metadata: {
-        name: 'agent-jira-secret-external',
-        namespace,
-        labels: {
-          'app.kubernetes.io/name': 'agent-jira',
-          'app.kubernetes.io/component': 'external-secrets',
-          'app.kubernetes.io/part-of': 'ai-platform-engineering',
-          'app.kubernetes.io/managed-by': 'cdk8s'
-        },
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-60'
-        }
-      },
-      spec: {
-        refreshInterval: '1h',
-        secretStoreRef: {
-          name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        target: {
-          name: 'agent-jira-secret',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER
-        },
-        data: [
-          { secretKey: 'ATLASSIAN_TOKEN', remoteRef: { key: 'ai-platform-engineering-jira', property: 'ATLASSIAN_TOKEN' } },
-          { secretKey: 'ATLASSIAN_EMAIL', remoteRef: { key: 'ai-platform-engineering-jira', property: 'ATLASSIAN_EMAIL' } },
-          { secretKey: 'ATLASSIAN_API_URL', remoteRef: { key: 'ai-platform-engineering-jira', property: 'ATLASSIAN_API_URL' } },
-          { secretKey: 'ATLASSIAN_VERIFY_SSL', remoteRef: { key: 'ai-platform-engineering-jira', property: 'ATLASSIAN_VERIFY_SSL' } }
-        ]
-      }
+    const jira = createEnvExternalSecret(this, 'agent-jira-secret-external', {
+      externalName: 'agent-jira-secret-external',
+      name: 'agent-jira-secret',
+      namespace,
+      refreshInterval: '1h',
+      secretStoreRef: { name: 'azure-keyvault-store', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      mappings: [
+        { key: 'ATLASSIAN_TOKEN', remoteRef: { key: 'ai-platform-engineering-jira', property: 'ATLASSIAN_TOKEN' } },
+        { key: 'ATLASSIAN_EMAIL', remoteRef: { key: 'ai-platform-engineering-jira', property: 'ATLASSIAN_EMAIL' } },
+        { key: 'ATLASSIAN_API_URL', remoteRef: { key: 'ai-platform-engineering-jira', property: 'ATLASSIAN_API_URL' } },
+        { key: 'ATLASSIAN_VERIFY_SSL', remoteRef: { key: 'ai-platform-engineering-jira', property: 'ATLASSIAN_VERIFY_SSL' } },
+      ],
     });
+    jira.addJsonPatch(JsonPatch.add('/metadata/labels', {
+      'app.kubernetes.io/name': 'agent-jira',
+      'app.kubernetes.io/component': 'external-secrets',
+      'app.kubernetes.io/part-of': 'ai-platform-engineering',
+      'app.kubernetes.io/managed-by': 'cdk8s'
+    }));
+    jira.addJsonPatch(JsonPatch.add('/metadata/annotations', { 'argocd.argoproj.io/sync-wave': '-60' }));
 
     // PagerDuty secrets from Azure Key Vault
-    new ExternalSecret(this, 'pagerduty-secrets', {
-      metadata: {
-        name: 'agent-pagerduty-secret-external',
-        namespace,
-        labels: {
-          'app.kubernetes.io/name': 'agent-pagerduty',
-          'app.kubernetes.io/component': 'external-secrets',
-          'app.kubernetes.io/part-of': 'ai-platform-engineering',
-          'app.kubernetes.io/managed-by': 'cdk8s'
-        },
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-60'
-        }
-      },
-      spec: {
-        refreshInterval: '1h',
-        secretStoreRef: {
-          name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        target: {
-          name: 'agent-pagerduty-secret',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER
-        },
-        data: [
-          { secretKey: 'PAGERDUTY_API_KEY', remoteRef: { key: 'ai-platform-engineering-pagerduty', property: 'PAGERDUTY_API_KEY' } },
-          { secretKey: 'PAGERDUTY_API_URL', remoteRef: { key: 'ai-platform-engineering-pagerduty', property: 'PAGERDUTY_API_URL' } }
-        ]
-      }
+    const pagerduty = createEnvExternalSecret(this, 'agent-pagerduty-secret-external', {
+      externalName: 'agent-pagerduty-secret-external',
+      name: 'agent-pagerduty-secret',
+      namespace,
+      refreshInterval: '1h',
+      secretStoreRef: { name: 'azure-keyvault-store', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      mappings: [
+        { key: 'PAGERDUTY_API_KEY', remoteRef: { key: 'ai-platform-engineering-pagerduty', property: 'PAGERDUTY_API_KEY' } },
+        { key: 'PAGERDUTY_API_URL', remoteRef: { key: 'ai-platform-engineering-pagerduty', property: 'PAGERDUTY_API_URL' } },
+      ],
     });
+    pagerduty.addJsonPatch(JsonPatch.add('/metadata/labels', {
+      'app.kubernetes.io/name': 'agent-pagerduty',
+      'app.kubernetes.io/component': 'external-secrets',
+      'app.kubernetes.io/part-of': 'ai-platform-engineering',
+      'app.kubernetes.io/managed-by': 'cdk8s'
+    }));
+    pagerduty.addJsonPatch(JsonPatch.add('/metadata/annotations', { 'argocd.argoproj.io/sync-wave': '-60' }));
 
     // Slack secrets from Azure Key Vault
-    new ExternalSecret(this, 'slack-secrets', {
-      metadata: {
-        name: 'agent-slack-secret-external',
-        namespace,
-        labels: {
-          'app.kubernetes.io/name': 'agent-slack',
-          'app.kubernetes.io/component': 'external-secrets',
-          'app.kubernetes.io/part-of': 'ai-platform-engineering',
-          'app.kubernetes.io/managed-by': 'cdk8s'
-        },
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-60'
-        }
-      },
-      spec: {
-        refreshInterval: '1h',
-        secretStoreRef: {
-          name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        target: {
-          name: 'agent-slack-secret',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER
-        },
-        data: [
-          { secretKey: 'SLACK_BOT_TOKEN', remoteRef: { key: 'ai-platform-engineering-slack', property: 'SLACK_BOT_TOKEN' } },
-          { secretKey: 'SLACK_APP_TOKEN', remoteRef: { key: 'ai-platform-engineering-slack', property: 'SLACK_APP_TOKEN' } },
-          { secretKey: 'SLACK_SIGNING_SECRET', remoteRef: { key: 'ai-platform-engineering-slack', property: 'SLACK_SIGNING_SECRET' } },
-          { secretKey: 'SLACK_CLIENT_SECRET', remoteRef: { key: 'ai-platform-engineering-slack', property: 'SLACK_CLIENT_SECRET' } },
-          { secretKey: 'SLACK_TEAM_ID', remoteRef: { key: 'ai-platform-engineering-slack', property: 'SLACK_TEAM_ID' } }
-        ]
-      }
+    const slack = createEnvExternalSecret(this, 'agent-slack-secret-external', {
+      externalName: 'agent-slack-secret-external',
+      name: 'agent-slack-secret',
+      namespace,
+      refreshInterval: '1h',
+      secretStoreRef: { name: 'azure-keyvault-store', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      mappings: [
+        { key: 'SLACK_BOT_TOKEN', remoteRef: { key: 'ai-platform-engineering-slack', property: 'SLACK_BOT_TOKEN' } },
+        { key: 'SLACK_APP_TOKEN', remoteRef: { key: 'ai-platform-engineering-slack', property: 'SLACK_APP_TOKEN' } },
+        { key: 'SLACK_SIGNING_SECRET', remoteRef: { key: 'ai-platform-engineering-slack', property: 'SLACK_SIGNING_SECRET' } },
+        { key: 'SLACK_CLIENT_SECRET', remoteRef: { key: 'ai-platform-engineering-slack', property: 'SLACK_CLIENT_SECRET' } },
+        { key: 'SLACK_TEAM_ID', remoteRef: { key: 'ai-platform-engineering-slack', property: 'SLACK_TEAM_ID' } },
+      ],
     });
+    slack.addJsonPatch(JsonPatch.add('/metadata/labels', {
+      'app.kubernetes.io/name': 'agent-slack',
+      'app.kubernetes.io/component': 'external-secrets',
+      'app.kubernetes.io/part-of': 'ai-platform-engineering',
+      'app.kubernetes.io/managed-by': 'cdk8s'
+    }));
+    slack.addJsonPatch(JsonPatch.add('/metadata/annotations', { 'argocd.argoproj.io/sync-wave': '-60' }));
 
     // Backstage secrets from Azure Key Vault
-    new ExternalSecret(this, 'backstage-secrets', {
-      metadata: {
-        name: 'agent-backstage-secret-external',
-        namespace,
-        labels: {
-          'app.kubernetes.io/name': 'agent-backstage',
-          'app.kubernetes.io/component': 'external-secrets',
-          'app.kubernetes.io/part-of': 'ai-platform-engineering',
-          'app.kubernetes.io/managed-by': 'cdk8s'
-        },
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-60'
-        }
-      },
-      spec: {
-        refreshInterval: '1h',
-        secretStoreRef: {
-          name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        target: {
-          name: 'agent-backstage-secret',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER
-        },
-        data: [
-          { secretKey: 'BACKSTAGE_API_TOKEN', remoteRef: { key: 'ai-platform-engineering-backstage', property: 'BACKSTAGE_API_TOKEN' } },
-          { secretKey: 'BACKSTAGE_API_URL', remoteRef: { key: 'ai-platform-engineering-backstage', property: 'BACKSTAGE_API_URL' } },
-          { secretKey: 'BACKSTAGE_URL', remoteRef: { key: 'ai-platform-engineering-backstage', property: 'BACKSTAGE_URL' } }
-        ]
-      }
+    const backstage = createEnvExternalSecret(this, 'agent-backstage-secret-external', {
+      externalName: 'agent-backstage-secret-external',
+      name: 'agent-backstage-secret',
+      namespace,
+      refreshInterval: '1h',
+      secretStoreRef: { name: 'azure-keyvault-store', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      mappings: [
+        { key: 'BACKSTAGE_API_TOKEN', remoteRef: { key: 'ai-platform-engineering-backstage', property: 'BACKSTAGE_API_TOKEN' } },
+        { key: 'BACKSTAGE_API_URL', remoteRef: { key: 'ai-platform-engineering-backstage', property: 'BACKSTAGE_API_URL' } },
+        { key: 'BACKSTAGE_URL', remoteRef: { key: 'ai-platform-engineering-backstage', property: 'BACKSTAGE_URL' } },
+      ],
     });
+    backstage.addJsonPatch(JsonPatch.add('/metadata/labels', {
+      'app.kubernetes.io/name': 'agent-backstage',
+      'app.kubernetes.io/component': 'external-secrets',
+      'app.kubernetes.io/part-of': 'ai-platform-engineering',
+      'app.kubernetes.io/managed-by': 'cdk8s'
+    }));
+    backstage.addJsonPatch(JsonPatch.add('/metadata/annotations', { 'argocd.argoproj.io/sync-wave': '-60' }));
 
     // ArgoCD secrets from Azure Key Vault
-    new ExternalSecret(this, 'argocd-secrets', {
-      metadata: {
-        name: 'agent-argocd-secret-external',
-        namespace,
-        labels: {
-          'app.kubernetes.io/name': 'agent-argocd',
-          'app.kubernetes.io/component': 'external-secrets',
-          'app.kubernetes.io/part-of': 'ai-platform-engineering',
-          'app.kubernetes.io/managed-by': 'cdk8s'
-        },
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-60'
-        }
-      },
-      spec: {
-        refreshInterval: '1h',
-        secretStoreRef: {
-          name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        target: {
-          name: 'agent-argocd-secret',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER
-        },
-        data: [
-          { secretKey: 'ARGOCD_TOKEN', remoteRef: { key: 'ai-platform-engineering-argocd', property: 'ARGOCD_TOKEN' } },
-          { secretKey: 'ARGOCD_API_URL', remoteRef: { key: 'ai-platform-engineering-argocd', property: 'ARGOCD_API_URL' } },
-          { secretKey: 'ARGOCD_VERIFY_SSL', remoteRef: { key: 'ai-platform-engineering-argocd', property: 'ARGOCD_VERIFY_SSL' } }
-        ]
-      }
+    const argocd = createEnvExternalSecret(this, 'agent-argocd-secret-external', {
+      externalName: 'agent-argocd-secret-external',
+      name: 'agent-argocd-secret',
+      namespace,
+      refreshInterval: '1h',
+      secretStoreRef: { name: 'azure-keyvault-store', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      mappings: [
+        { key: 'ARGOCD_TOKEN', remoteRef: { key: 'ai-platform-engineering-argocd', property: 'ARGOCD_TOKEN' } },
+        { key: 'ARGOCD_API_URL', remoteRef: { key: 'ai-platform-engineering-argocd', property: 'ARGOCD_API_URL' } },
+        { key: 'ARGOCD_VERIFY_SSL', remoteRef: { key: 'ai-platform-engineering-argocd', property: 'ARGOCD_VERIFY_SSL' } },
+      ],
     });
   }
 }

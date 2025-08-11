@@ -1,4 +1,5 @@
 import { ApplicationConfig } from '../lib/idpbuilder-types';
+import { automatedSyncWithOptions } from '../lib/argocd-sync-builders';
 
 /**
  * IDPBuilder application configurations
@@ -19,13 +20,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'vcluster-registration',
         'app.kubernetes.io/name': 'vcluster-registration-rbac'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=false']  // external-secrets namespace should already exist
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=false'])
     }
   },
   // Dev VCluster - Wave 10
@@ -43,13 +38,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/name': 'vcluster-dev',
         'app.kubernetes.io/instance': 'dev'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'])
     }
   },
   // Staging VCluster - Wave 10
@@ -67,13 +56,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/name': 'vcluster-staging',
         'app.kubernetes.io/instance': 'staging'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'])
     }
   },
   // VCluster registration job - Wave 20 (after vclusters)
@@ -90,13 +73,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'vcluster-registration',
         'app.kubernetes.io/name': 'vcluster-registration-job'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=false']  // argocd namespace should exist
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=false'])
     }
   },
   // VCluster registration cronjob - Wave 25 (after initial job)
@@ -113,13 +90,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'vcluster-registration',
         'app.kubernetes.io/name': 'vcluster-registration-cronjob'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=false']  // argocd namespace should exist
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=false'])
     }
   },
   {
@@ -137,21 +108,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/name': 'nextjs-namespace',
         'app.kubernetes.io/environment': 'host'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true'],
-        retry: {
-          limit: 15,
-          backoff: {
-            duration: '10s',
-            factor: 2,
-            maxDuration: '5m'
-          }
-        }
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'], { limit: 15, backoff: { duration: '10s', factor: 2, maxDuration: '5m' } })
     }
   },
   {
@@ -167,13 +124,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'platform',
         'app.kubernetes.io/name': 'external-secrets-workload-identity'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['ServerSideApply=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['ServerSideApply=true'])
     }
   },
   
@@ -195,13 +146,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'platform',
         'app.kubernetes.io/name': 'bootstrap-secrets'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'])
     }
   },
   {
@@ -218,17 +163,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/name': 'nextjs-secrets',
         'app.kubernetes.io/environment': 'host'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true', 'SkipDryRunOnMissingResource=true'],
-        retry: {
-          limit: 10,
-          backoff: { duration: '10s', factor: 2, maxDuration: '5m' }
-        }
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true', 'SkipDryRunOnMissingResource=true'], { limit: 10, backoff: { duration: '10s', factor: 2, maxDuration: '5m' } })
     }
   },
   {
@@ -245,17 +180,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/name': 'backstage-secrets',
         'app.kubernetes.io/environment': 'host'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true', 'SkipDryRunOnMissingResource=true'],
-        retry: {
-          limit: 10,
-          backoff: { duration: '10s', factor: 2, maxDuration: '5m' }
-        }
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true', 'SkipDryRunOnMissingResource=true'], { limit: 10, backoff: { duration: '10s', factor: 2, maxDuration: '5m' } })
     }
   },
   // Replaced with multi-env version below
@@ -330,13 +255,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/name': 'postgres',
         'app.kubernetes.io/environment': 'host'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'])
     }
   },
   {
@@ -356,15 +275,10 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/name': 'redis',
         'app.kubernetes.io/environment': 'host'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'])
     }
   },
+  // Removed kargo-pipelines-namespace - namespace is created by kargo-pipelines-project chart
   {
     name: 'keycloak-headlamp-client',
     namespace: 'keycloak',
@@ -378,13 +292,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'keycloak',
         'app.kubernetes.io/name': 'keycloak-headlamp-client'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true', 'SkipDryRunOnMissingResource=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true', 'SkipDryRunOnMissingResource=true'])
     }
   },
   {
@@ -405,13 +313,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'headlamp',
         'app.kubernetes.io/name': 'headlamp-keycloak-secrets'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true'])
     }
   },
   {
@@ -442,13 +344,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'headlamp',
         'app.kubernetes.io/name': 'headlamp'
       },
-      syncPolicy: {
-        automated: {
-          prune: true,
-          selfHeal: true
-        },
-        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true', 'ServerSideApply=true'])
     }
   },
   {
@@ -870,10 +766,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'application-stack',
         'app.kubernetes.io/name': 'nextjs-dev'
       },
-      syncPolicy: {
-        automated: { prune: true, selfHeal: true },
-        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true', 'ServerSideApply=true'])
     }
   },
   {
@@ -892,10 +785,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'application-stack',
         'app.kubernetes.io/name': 'nextjs-staging'
       },
-      syncPolicy: {
-        automated: { prune: true, selfHeal: true },
-        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true', 'ServerSideApply=true'])
     }
   },
   {
@@ -914,10 +804,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'platform',
         'app.kubernetes.io/name': 'backstage-dev'
       },
-      syncPolicy: {
-        automated: { prune: true, selfHeal: true },
-        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true', 'ServerSideApply=true'])
     }
   },
   {
@@ -936,10 +823,7 @@ export const applicationConfigs: ApplicationConfig[] = [
         'app.kubernetes.io/part-of': 'platform',
         'app.kubernetes.io/name': 'backstage-staging'
       },
-      syncPolicy: {
-        automated: { prune: true, selfHeal: true },
-        syncOptions: ['CreateNamespace=true', 'ServerSideApply=true']
-      }
+      syncPolicy: automatedSyncWithOptions(['CreateNamespace=true', 'ServerSideApply=true'])
     }
   }
   // Add more applications here as needed

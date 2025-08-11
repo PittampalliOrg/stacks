@@ -1,7 +1,7 @@
 import { Chart, ChartProps } from 'cdk8s';
 import * as k8s from '../../imports/k8s';
 import { Construct } from 'constructs';
-import * as images from '../../../.env-files/images.json';
+import { BaseParameterizedAppChart, BaseParameterizedAppProps } from '../base/base-parameterized-app-chart';
 
 export interface NextJsParameterizedChartProps extends ChartProps {
   environmentName: string;
@@ -11,15 +11,15 @@ export interface NextJsParameterizedChartProps extends ChartProps {
  * Creates NextJS application resources for a specific environment
  * Generates complete manifests with environment-specific images
  */
-export class NextJsParameterizedChart extends Chart {
+export class NextJsParameterizedChart extends BaseParameterizedAppChart {
   constructor(scope: Construct, id: string, props: NextJsParameterizedChartProps) {
-    super(scope, id, props);
+    super(scope, id, { ...(props as BaseParameterizedAppProps), appKey: 'nextjs' });
 
-    const envName = props.environmentName;
+    const envName = this.props.environmentName as string;
     const namespace = 'nextjs';
     
-    // Get the appropriate image for this environment
-    const imageRef = images[envName as keyof typeof images]?.nextjs || images.dev.nextjs;
+    // Get the appropriate image for this environment (with dev fallback)
+    const imageRef = this.resolveImage();
     
     // Base configuration that's common across environments
     const baseHost = 'cnoe.localtest.me';

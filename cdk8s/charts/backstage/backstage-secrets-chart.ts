@@ -8,6 +8,8 @@ import {
   ExternalSecretSpecTargetTemplateEngineVersion,
   ExternalSecretSpecDataFromSourceRefGeneratorRefKind
 } from '../../imports/external-secrets.io';
+import { createDockerConfigJsonExternalSecret, createEnvExternalSecret } from '../../lib/eso-helpers';
+import { JsonPatch } from 'cdk8s';
 import { Password, GithubAccessToken } from '../../imports/generators.external-secrets.io';
 
 /**
@@ -103,145 +105,80 @@ export class BackstageSecretsChart extends Chart {
     // });
 
     // Main Backstage OIDC secret
-    new ExternalSecret(this, 'backstage-oidc', {
-      metadata: {
-        name: 'backstage-oidc',
-        namespace: 'backstage'
+    const backstageOidc = createEnvExternalSecret(this, 'backstage-oidc-external', {
+      externalName: 'backstage-oidc',
+      name: 'backstage-env-vars',
+      namespace: 'backstage',
+      refreshInterval: '0',
+      secretStoreRef: { name: 'keycloak', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
+      templateData: {
+        'BACKSTAGE_FRONTEND_URL': 'https://cnoe.localtest.me:8443/backstage',
+        'POSTGRES_HOST': 'postgresql.backstage.svc.cluster.local',
+        'POSTGRES_PORT': '5432',
+        'POSTGRES_DB': 'backstage',
+        'POSTGRES_USER': 'backstage',
+        'POSTGRES_PASSWORD': '{{.POSTGRES_PASSWORD}}',
+        'BACKSTAGE_SESSION_SECRET': '{{.SESSION_SECRET}}',
+        'ARGO_WORKFLOWS_URL': 'https://cnoe.localtest.me:8443/argo-workflows',
+        'KEYCLOAK_NAME_METADATA': 'https://cnoe.localtest.me:8443/keycloak/realms/cnoe/.well-known/openid-configuration',
+        'KEYCLOAK_CLIENT_SECRET': '{{.BACKSTAGE_CLIENT_SECRET}}',
+        'ARGOCD_AUTH_TOKEN': 'argocd.token={{.ARGOCD_SESSION_TOKEN}}',
+        'ARGO_CD_URL': 'https://argocd-server.argocd.svc.cluster.local/api/v1/',
+        'BACKSTAGE_SERVICE_TOKEN': '46Y8Je+VWx4djespJvjKg7Q1FKKE7eBM'
       },
-      spec: {
-        secretStoreRef: {
-          name: 'keycloak',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        refreshInterval: '0',
-        target: {
-          name: 'backstage-env-vars',
-          template: {
-            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
-            data: {
-              'BACKSTAGE_FRONTEND_URL': 'https://cnoe.localtest.me:8443/backstage',
-              'POSTGRES_HOST': 'postgresql.backstage.svc.cluster.local',
-              'POSTGRES_PORT': '5432',
-              'POSTGRES_DB': 'backstage',
-              'POSTGRES_USER': 'backstage',
-              'POSTGRES_PASSWORD': '{{.POSTGRES_PASSWORD}}',
-              'BACKSTAGE_SESSION_SECRET': '{{.SESSION_SECRET}}',
-              'ARGO_WORKFLOWS_URL': 'https://cnoe.localtest.me:8443/argo-workflows',
-              'KEYCLOAK_NAME_METADATA': 'https://cnoe.localtest.me:8443/keycloak/realms/cnoe/.well-known/openid-configuration',
-              'KEYCLOAK_CLIENT_SECRET': '{{.BACKSTAGE_CLIENT_SECRET}}',
-              'ARGOCD_AUTH_TOKEN': 'argocd.token={{.ARGOCD_SESSION_TOKEN}}',
-              'ARGO_CD_URL': 'https://argocd-server.argocd.svc.cluster.local/api/v1/',
-              'BACKSTAGE_SERVICE_TOKEN': '46Y8Je+VWx4djespJvjKg7Q1FKKE7eBM'
-            }
-          }
-        },
-        data: [
-          {
-            secretKey: 'ARGOCD_SESSION_TOKEN',
-            remoteRef: {
-              key: 'keycloak-clients',
-              property: 'ARGOCD_SESSION_TOKEN'
+      mappings: [
+        { key: 'ARGOCD_SESSION_TOKEN', remoteRef: { key: 'keycloak-clients', property: 'ARGOCD_SESSION_TOKEN' } },
+        { key: 'BACKSTAGE_CLIENT_SECRET', remoteRef: { key: 'keycloak-clients', property: 'BACKSTAGE_CLIENT_SECRET' } },
+      ],
+      dataFrom: [
+        {
+          sourceRef: {
+            generatorRef: {
+              apiVersion: 'generators.external-secrets.io/v1alpha1',
+              kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.PASSWORD,
+              name: 'backstage'
             }
           },
-          {
-            secretKey: 'BACKSTAGE_CLIENT_SECRET',
-            remoteRef: {
-              key: 'keycloak-clients',
-              property: 'BACKSTAGE_CLIENT_SECRET'
+          rewrite: [ { transform: { template: 'POSTGRES_PASSWORD' } } ]
+        },
+        {
+          sourceRef: {
+            generatorRef: {
+              apiVersion: 'generators.external-secrets.io/v1alpha1',
+              kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.PASSWORD,
+              name: 'backstage-session'
             }
-          }
-        ],
-        dataFrom: [
-          {
-            sourceRef: {
-              generatorRef: {
-                apiVersion: 'generators.external-secrets.io/v1alpha1',
-                kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.PASSWORD,
-                name: 'backstage'
-              }
-            },
-            rewrite: [
-              {
-                transform: {
-                  template: 'POSTGRES_PASSWORD'
-                }
-              }
-            ]
           },
-          {
-            sourceRef: {
-              generatorRef: {
-                apiVersion: 'generators.external-secrets.io/v1alpha1',
-                kind: ExternalSecretSpecDataFromSourceRefGeneratorRefKind.PASSWORD,
-                name: 'backstage-session'
-              }
-            },
-            rewrite: [
-              {
-                transform: {
-                  template: 'SESSION_SECRET'
-                }
-              }
-            ]
-          }
-        ]
-      }
+          rewrite: [ { transform: { template: 'SESSION_SECRET' } } ]
+        }
+      ],
     });
 
     // Gitea credentials - REMOVED: Not needed for public repositories
     // Authentication is handled by IDPBuilder for public repo access
 
     // GHCR Docker registry secret with retry policy
-    new ExternalSecret(this, 'ghcr-dockercfg', {
-      metadata: {
-        name: 'ghcr-dockercfg-external',
-        namespace: 'backstage',
-        labels: {
-          'app.kubernetes.io/name': 'ghcr-dockercfg',
-          'app.kubernetes.io/part-of': 'backstage'
-        },
-        annotations: {
-          'argocd.argoproj.io/sync-wave': '-10',
-          'argocd.argoproj.io/sync-options': 'Retry=true'
-        }
-      },
-      spec: {
-        // More frequent checks during bootstrap for better resilience
-        refreshInterval: '30s',
-        secretStoreRef: {
-          name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        target: {
-          name: 'ghcr-dockercfg',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
-          template: {
-            type: 'kubernetes.io/dockerconfigjson',
-            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
-            data: {
-              '.dockerconfigjson': `{
-  "auths": {
-    "ghcr.io": {
-      "username": "pittampalliorg",
-      "password": "{{ .pat }}",
-      "auth": "{{ printf "%s:%s" "pittampalliorg" .pat | b64enc }}"
-    }
-  }
-}`
-            }
-          }
-        },
-        data: [
-          {
-            secretKey: 'pat',
-            remoteRef: {
-              key: 'GITHUB-PAT',
-              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
-            }
-          }
-        ]
-      }
+    const ghcr = createDockerConfigJsonExternalSecret(this, 'ghcr-dockercfg-external', {
+      name: 'ghcr-dockercfg',
+      namespace: 'backstage',
+      registry: 'ghcr.io',
+      usernameTemplate: 'pittampalliorg',
+      passwordKey: 'GITHUB-PAT',
+      refreshInterval: '30s',
+      secretStoreRef: { name: 'azure-keyvault-store', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
     });
+    ghcr.addJsonPatch(JsonPatch.add('/metadata/labels', {
+      'app.kubernetes.io/name': 'ghcr-dockercfg',
+      'app.kubernetes.io/part-of': 'backstage'
+    }));
+    ghcr.addJsonPatch(JsonPatch.add('/metadata/annotations', {
+      'argocd.argoproj.io/sync-wave': '-10',
+      'argocd.argoproj.io/sync-options': 'Retry=true'
+    }));
 
     // GitHub App credentials from Azure Key Vault
     new ExternalSecret(this, 'backstage-github-app', {
@@ -325,48 +262,28 @@ export class BackstageSecretsChart extends Chart {
     });
 
     // Microsoft Auth credentials from Azure Key Vault
-    new ExternalSecret(this, 'backstage-auth', {
-      metadata: {
-        name: 'backstage-auth',
-        namespace: 'backstage',
-        labels: {
-          'app.kubernetes.io/name': 'backstage-auth',
-          'app.kubernetes.io/part-of': 'backstage'
-        }
+    const backstageAuth = createEnvExternalSecret(this, 'backstage-auth-external', {
+      externalName: 'backstage-auth',
+      name: 'backstage-auth',
+      namespace: 'backstage',
+      refreshInterval: '1h',
+      secretStoreRef: { name: 'azure-keyvault-store', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
+      templateData: {
+        'AUTH_MICROSOFT_CLIENT_ID': '{{ .backstageAuth | fromJson | dig "microsoft-client-id" "" }}',
+        'AUTH_MICROSOFT_CLIENT_SECRET': '{{ .backstageAuth | fromJson | dig "microsoft-client-secret" "" }}',
+        'AUTH_MICROSOFT_TENANT_ID': '{{ .backstageAuth | fromJson | dig "microsoft-tenant-id" "" }}',
+        'AUTH_MICROSOFT_DOMAIN_HINT': '{{ .backstageAuth | fromJson | dig "microsoft-domain-hint" "" }}',
+        'BACKSTAGE_BACKEND_SECRET': '{{ .backstageAuth | fromJson | dig "backend-secret" "" }}',
+        'BACKEND_SECRET': '{{ .backstageAuth | fromJson | dig "backend-secret" "" }}',
       },
-      spec: {
-        refreshInterval: '1h',
-        secretStoreRef: {
-          name: 'azure-keyvault-store',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        target: {
-          name: 'backstage-auth',
-          creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
-          template: {
-            engineVersion: ExternalSecretSpecTargetTemplateEngineVersion.V2,
-            data: {
-              'AUTH_MICROSOFT_CLIENT_ID': '{{ .backstageAuth | fromJson | dig "microsoft-client-id" "" }}',
-              'AUTH_MICROSOFT_CLIENT_SECRET': '{{ .backstageAuth | fromJson | dig "microsoft-client-secret" "" }}',
-              'AUTH_MICROSOFT_TENANT_ID': '{{ .backstageAuth | fromJson | dig "microsoft-tenant-id" "" }}',
-              'AUTH_MICROSOFT_DOMAIN_HINT': '{{ .backstageAuth | fromJson | dig "microsoft-domain-hint" "" }}',
-              'BACKSTAGE_BACKEND_SECRET': '{{ .backstageAuth | fromJson | dig "backend-secret" "" }}',
-              // Provide the generic BACKEND_SECRET env var expected by app-config.production.yaml
-              'BACKEND_SECRET': '{{ .backstageAuth | fromJson | dig "backend-secret" "" }}'
-            }
-          }
-        },
-        data: [
-          {
-            secretKey: 'backstageAuth',
-            remoteRef: {
-              key: 'BACKSTAGE-AUTH',
-              conversionStrategy: ExternalSecretSpecDataRemoteRefConversionStrategy.DEFAULT
-            }
-          }
-        ]
-      }
+      mappings: [ { key: 'backstageAuth', remote: 'BACKSTAGE-AUTH' } ],
     });
+    backstageAuth.addJsonPatch(JsonPatch.add('/metadata/labels', {
+      'app.kubernetes.io/name': 'backstage-auth',
+      'app.kubernetes.io/part-of': 'backstage'
+    }));
 
     // Gitea Docker registry secret - REMOVED: Not needed for public registry
     // The Gitea registry in IDPBuilder allows anonymous pulls for public images

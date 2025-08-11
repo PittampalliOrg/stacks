@@ -5,8 +5,11 @@ import {
   ExternalSecret,
   ClusterSecretStore,
   ClusterSecretStoreSpecProviderKubernetesServerCaProviderType as CaProviderType,
-  ExternalSecretSpecSecretStoreRefKind
+  ExternalSecretSpecSecretStoreRefKind,
+  ExternalSecretSpecTargetCreationPolicy
 } from '../../imports/external-secrets.io';
+import { createEnvExternalSecret } from '../../lib/eso-helpers';
+import { JsonPatch } from 'cdk8s';
 
 /**
  * Chart that creates ArgoCD-related resources for Backstage
@@ -93,30 +96,15 @@ export class BackstageArgoCDSecretsChart extends Chart {
     });
 
     // ArgoCD credentials ExternalSecret
-    new ExternalSecret(this, 'argocd-credentials', {
-      metadata: {
-        name: 'argocd-credentials',
-        namespace: 'backstage'
-      },
-      spec: {
-        secretStoreRef: {
-          name: 'argocd',
-          kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE
-        },
-        refreshInterval: '0',
-        target: {
-          name: 'argocd-credentials'
-        },
-        data: [
-          {
-            secretKey: 'ARGOCD_ADMIN_PASSWORD',
-            remoteRef: {
-              key: 'argocd-initial-admin-secret',
-              property: 'password'
-            }
-          }
-        ]
-      }
+    const argocdCreds = createEnvExternalSecret(this, 'argocd-credentials-external', {
+      externalName: 'argocd-credentials',
+      name: 'argocd-credentials',
+      namespace: 'backstage',
+      refreshInterval: '0',
+      secretStoreRef: { name: 'argocd', kind: ExternalSecretSpecSecretStoreRefKind.CLUSTER_SECRET_STORE },
+      creationPolicy: ExternalSecretSpecTargetCreationPolicy.OWNER,
+      mappings: [ { key: 'ARGOCD_ADMIN_PASSWORD', remoteRef: { key: 'argocd-initial-admin-secret', property: 'password' } } ],
     });
+    argocdCreds.addJsonPatch(JsonPatch.add('/metadata/annotations', {}));
   }
 }
