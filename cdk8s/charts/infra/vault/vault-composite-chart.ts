@@ -1,10 +1,10 @@
 import { Chart, ChartProps } from 'cdk8s';
 import { Construct } from 'constructs';
-import { VaultIngressChart } from './infra/vault/vault-ingress-chart';
-import { VaultSecretStoreChart } from './infra/vault/vault-secret-store-chart';
-import { VaultInitJobChart } from './infra/vault/vault-init-job-chart';
-import { VaultConfigJobChart } from './infra/vault/vault-config-job-chart';
-import { VaultUnsealerChart } from './infra/vault/vault-unsealer-chart';
+import { VaultIngressChart } from './vault-ingress-chart';
+import { VaultSecretStoreChart } from './vault-secret-store-chart';
+import { VaultInitJobChart } from './vault-init-job-chart';
+import { VaultConfigJobChart } from './vault-config-job-chart';
+import { VaultUnsealerChart } from './vault-unsealer-chart';
 
 export interface VaultChartProps extends ChartProps {
   namespace?: string;

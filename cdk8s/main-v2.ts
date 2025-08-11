@@ -25,10 +25,8 @@ import { KargoBackstagePipelineChart } from './charts/pipelines/kargo-backstage-
 import { KargoGiteaWebhookSetupChart } from './charts/pipelines/kargo-gitea-webhook-setup-chart';
 import { KargoWebhookPatchChart } from './charts/pipelines/kargo-webhook-patch-chart';
 import { DaggerInfraChart } from './charts/infra/dagger-infra-chart';
-import { AiPlatformEngineeringChart } from './charts/ai-platform-engineering-chart';
-import { AiPlatformEngineeringChartV2 } from './charts/ai-platform-engineering-chart-v2';
 import { AiPlatformEngineeringAzureChart } from './charts/ai-platform-engineering-azure-chart';
-import { VaultChart } from './charts/vault-chart';
+import { VaultChart } from './charts/infra/vault/vault-composite-chart';
 import { VclusterDevChart } from './charts/apps/vcluster-dev-chart';
 import { VclusterStagingChart } from './charts/apps/vcluster-staging-chart';
 import { VclusterRegistrationRbacChart } from './charts/vcluster-registration-rbac-chart';
@@ -62,8 +60,6 @@ IdpBuilderChartFactory.register('KargoBackstagePipelineChart', KargoBackstagePip
 IdpBuilderChartFactory.register('KargoGiteaWebhookSetupChart', KargoGiteaWebhookSetupChart);
 IdpBuilderChartFactory.register('KargoWebhookPatchChart', KargoWebhookPatchChart);
 IdpBuilderChartFactory.register('DaggerInfraChart', DaggerInfraChart);
-IdpBuilderChartFactory.register('AiPlatformEngineeringChart', AiPlatformEngineeringChart);
-IdpBuilderChartFactory.register('AiPlatformEngineeringChartV2', AiPlatformEngineeringChartV2);
 IdpBuilderChartFactory.register('AiPlatformEngineeringAzureChart', AiPlatformEngineeringAzureChart);
 IdpBuilderChartFactory.register('VaultChart', VaultChart);
 IdpBuilderChartFactory.register('VclusterDevChart', VclusterDevChart);
