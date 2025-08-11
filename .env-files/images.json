@@ -1,6 +1,6 @@
 {
   "dev": {
-    "nextjs": "ghcr.io/vpittamp/devspace-containers/typescript:20",
+    "nextjs": "ghcr.io/pittampalliorg/chat:79",
     "backstage": "ghcr.io/vpittamp/devspace-containers/typescript:20",
     "flagdUi": "ghcr.io/vpittamp/devspace-containers/typescript:20",
     "claudecodeui": "ghcr.io/vpittamp/devspace-containers/typescript:20"
