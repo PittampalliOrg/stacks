@@ -31,7 +31,7 @@ export class NextJsDevApplicationChart extends Chart {
       spec: {
         project: 'default',
         destination: {
-          name: 'dev-vcluster',
+          name: 'dev-vcluster',  // This will be registered by enrollment job
           namespace: 'nextjs'
         },
         source: {

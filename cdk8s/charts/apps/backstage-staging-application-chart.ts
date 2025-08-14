@@ -31,7 +31,7 @@ export class BackstageStagingApplicationChart extends Chart {
       spec: {
         project: 'default',
         destination: {
-          name: 'staging-vcluster',
+          name: 'staging-vcluster',  // This will be registered by enrollment job
           namespace: 'backstage'
         },
         source: {

@@ -1,6 +1,7 @@
 import { App, YamlOutputType } from 'cdk8s';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as YAML from 'yaml';
 import { ArgoApplicationsChartV2 } from './charts/platform/argo-applications-chart-v2';
 import { IdpBuilderChartFactory } from './lib/idpbuilder-chart-factory';
 import { applicationConfigs } from './config/applications';
@@ -27,13 +28,6 @@ import { KargoWebhookPatchChart } from './charts/pipelines/kargo-webhook-patch-c
 import { DaggerInfraChart } from './charts/infra/dagger-infra-chart';
 import { AiPlatformEngineeringAzureChart } from './charts/ai-platform-engineering-azure-chart';
 import { VaultChart } from './charts/infra/vault/vault-composite-chart';
-import { VclusterDevChart } from './charts/apps/vcluster-dev-chart';
-import { VclusterStagingChart } from './charts/apps/vcluster-staging-chart';
-import { VclusterDevIngressChart } from './charts/apps/vcluster-dev-ingress-chart';
-import { VclusterStagingIngressChart } from './charts/apps/vcluster-staging-ingress-chart';
-import { VclusterRegistrationRbacChart } from './charts/vcluster-registration-rbac-chart';
-import { VclusterRegistrationJobChart } from './charts/vcluster-registration-job-chart';
-import { VclusterRegistrationCronJobChart } from './charts/vcluster-registration-cronjob-chart';
 import { NextJsParameterizedChart } from './charts/apps/nextjs-parameterized-chart';
 import { BackstageParameterizedChart } from './charts/apps/backstage-parameterized-chart';
 import { BackstageDevApplicationChart } from './charts/apps/backstage-dev-application-chart';
@@ -64,13 +58,6 @@ IdpBuilderChartFactory.register('KargoWebhookPatchChart', KargoWebhookPatchChart
 IdpBuilderChartFactory.register('DaggerInfraChart', DaggerInfraChart);
 IdpBuilderChartFactory.register('AiPlatformEngineeringAzureChart', AiPlatformEngineeringAzureChart);
 IdpBuilderChartFactory.register('VaultChart', VaultChart);
-IdpBuilderChartFactory.register('VclusterDevChart', VclusterDevChart);
-IdpBuilderChartFactory.register('VclusterStagingChart', VclusterStagingChart);
-IdpBuilderChartFactory.register('VclusterDevIngressChart', VclusterDevIngressChart);
-IdpBuilderChartFactory.register('VclusterStagingIngressChart', VclusterStagingIngressChart);
-IdpBuilderChartFactory.register('VclusterRegistrationRbacChart', VclusterRegistrationRbacChart);
-IdpBuilderChartFactory.register('VclusterRegistrationJobChart', VclusterRegistrationJobChart);
-IdpBuilderChartFactory.register('VclusterRegistrationCronJobChart', VclusterRegistrationCronJobChart);
 IdpBuilderChartFactory.register('NextJsParameterizedChart', NextJsParameterizedChart);
 IdpBuilderChartFactory.register('BackstageParameterizedChart', BackstageParameterizedChart);
 IdpBuilderChartFactory.register('BackstageDevApplicationChart', BackstageDevApplicationChart);
@@ -227,22 +214,6 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
       
       new ApplicationChartClass(argoApp, `${appConfig.name}-app`, {});
       
-    } else if (appConfig.chart?.type === 'VclusterDevChart' || appConfig.chart?.type === 'VclusterStagingChart') {
-      // Generate vcluster Application directly without ArgoApplicationsChartV2 wrapper
-      // These charts already contain the full Application definition with Helm source
-      const ChartClass = appConfig.chart.type === 'VclusterDevChart' ? VclusterDevChart : VclusterStagingChart;
-      new ChartClass(argoApp, appConfig.name, appConfig.chart.props || {});
-    } else if (appConfig.chart?.type === 'VclusterRegistrationJobChart') {
-      // Registration job needs special handling - bypass wrapper to avoid cnoe:// URLs
-      // Just generate the manifests, ArgoCD app will be created separately
-      // For now, use standard approach but this needs to be fixed for production
-      new ArgoApplicationsChartV2(argoApp, appConfig.name, {
-        applicationName: appConfig.name,
-        applicationNamespace: appConfig.namespace,
-        manifestPath: 'manifests',
-        argoCdConfig: appConfig.argocd,
-        environment: options.environment
-      });
     } else if (appConfig.argocd?.sources && appConfig.argocd.sources.length > 0) {
       // Multi-source application
       new ArgoApplicationsChartV2(argoApp, appConfig.name, {
@@ -281,6 +252,374 @@ async function synthesizeApplication(appConfig: any, options: SynthesisOptions):
   }
 }
 
+interface EnvConfig {
+  name: string;
+}
+
+const envs: EnvConfig[] = [
+  { name: 'dev' },
+  { name: 'staging' },
+];
+
+/**
+ * Write vcluster ArgoCD Applications
+ */
+function writeVclusterApplications(outdir?: string): void {
+  const base = outdir ?? path.join(__dirname, '..', 'dist');
+  
+  // Ensure the output directory exists
+  fs.mkdirSync(base, { recursive: true });
+  
+  for (const e of envs) {
+    const ns = `${e.name}-vcluster`;
+    const rel = `${e.name}-vcluster-helm`;
+    const host = `${e.name}-vcluster.cnoe.localtest.me`;
+    const svcShort = `${e.name}-vcluster-helm.${ns}`;
+    const svcFqdn = `${svcShort}.svc`;
+
+    // vcluster helm application
+    const vclusterApp: any = {
+      apiVersion: 'argoproj.io/v1alpha1',
+      kind: 'Application',
+      metadata: {
+        name: `${e.name}-vcluster-helm`,
+        namespace: 'argocd',
+        annotations: { 'argocd.argoproj.io/sync-wave': '10' },
+        labels: { 
+          'app.kubernetes.io/name': `vcluster-${e.name}`,
+          'app.kubernetes.io/component': 'vcluster',
+          'app.kubernetes.io/instance': e.name,
+          'app.kubernetes.io/part-of': 'platform',
+        },
+        finalizers: ['resources-finalizer.argocd.argoproj.io'],
+      },
+      spec: {
+        project: 'default',
+        destination: { server: 'https://kubernetes.default.svc', namespace: ns },
+        source: {
+          repoURL: 'https://charts.loft.sh',
+          targetRevision: '0.26.0', // Keep newer version
+          chart: 'vcluster',
+          helm: {
+            valuesObject: {
+              sync: { 
+                fromHost: { 
+                  nodes: { enabled: true },
+                  ingressClasses: { enabled: true },
+                  secrets: {
+                    enabled: true,
+                    mappings: {
+                      byName: {
+                        'nextjs/*': 'nextjs/*',
+                        'backstage/*': 'backstage/*',
+                      },
+                    },
+                  },
+                },
+                toHost: {
+                  serviceAccounts: { enabled: true },
+                  ingresses: { enabled: false },
+                }
+              },
+              controlPlane: {
+                advanced: { virtualScheduler: { enabled: true } },
+                proxy: { 
+                  extraSANs: [host, svcShort, svcFqdn] 
+                },
+                statefulSet: { 
+                  scheduling: { podManagementPolicy: 'OrderedReady' } 
+                },
+              },
+              exportKubeConfig: { 
+                server: `https://${svcShort}:443` 
+              },
+            },
+          },
+        },
+        ignoreDifferences: [
+          {
+            group: 'apps',
+            kind: 'StatefulSet',
+            jsonPointers: ['/spec/volumeClaimTemplates']
+          }
+        ],
+        syncPolicy: { 
+          automated: {
+            selfHeal: true,
+            prune: true
+          }, 
+          syncOptions: [
+            'CreateNamespace=true',
+            'SkipDryRunOnMissingResource=true',
+            'ServerSideApply=true',
+            'RespectIgnoreDifferences=true'
+          ],
+          retry: {
+            limit: 5,
+            backoff: {
+              duration: '10s',
+              factor: 2,
+              maxDuration: '3m'
+            }
+          }
+        },
+      },
+    };
+    fs.writeFileSync(path.join(base, `${e.name}-vcluster-helm.yaml`), YAML.stringify(vclusterApp), 'utf8');
+  }
+}
+
+/**
+ * Write vcluster ingress manifests
+ */
+function writeVclusterIngressManifests(outdir?: string): void {
+  const base = outdir ?? path.join(__dirname, '..', 'dist');
+  const outBase = path.join(base, 'vcluster-ingress');
+  
+  for (const e of envs) {
+    const ns = `${e.name}-vcluster`;
+    const appName = `${e.name}-vcluster-helm`;
+    const host = `${e.name}-vcluster.cnoe.localtest.me`;
+    const dir = path.join(outBase, e.name);
+    fs.mkdirSync(dir, { recursive: true });
+    
+    const ingressYaml = `apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vcluster-ingress
+  namespace: ${ns}
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ${host}
+  rules:
+  - host: ${host}
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: ${appName}
+            port:
+              number: 443
+`;
+    fs.writeFileSync(path.join(dir, 'ingress.yaml'), ingressYaml, { encoding: 'utf8' });
+    
+    // Create ArgoCD application for ingress
+    const ingressApp: any = {
+      apiVersion: 'argoproj.io/v1alpha1',
+      kind: 'Application',
+      metadata: {
+        name: `${e.name}-vcluster-ingress`,
+        namespace: 'argocd',
+        annotations: { 'argocd.argoproj.io/sync-wave': '15' },
+        labels: {
+          'app.kubernetes.io/component': 'ingress',
+          'app.kubernetes.io/part-of': 'vcluster',
+          'app.kubernetes.io/name': `vcluster-${e.name}-ingress`,
+          'app.kubernetes.io/instance': e.name,
+        },
+        finalizers: ['resources-finalizer.argocd.argoproj.io'],
+      },
+      spec: {
+        project: 'default',
+        destination: { server: 'https://kubernetes.default.svc', namespace: ns },
+        source: { 
+          repoURL: `cnoe://vcluster-ingress/${e.name}`, 
+          targetRevision: 'HEAD', 
+          path: '.' 
+        },
+        syncPolicy: {
+          automated: {
+            selfHeal: true,
+            prune: true
+          },
+          syncOptions: ['CreateNamespace=true'],
+        },
+      },
+    };
+    fs.writeFileSync(path.join(base, `${e.name}-vcluster-ingress.yaml`), YAML.stringify(ingressApp), 'utf8');
+  }
+}
+
+/**
+ * Write enrollment manifests for vcluster registration
+ */
+function writeEnrollmentManifests(outdir?: string): void {
+  const base = outdir ?? path.join(__dirname, '..', 'dist');
+  const outBase = path.join(base, 'enroll');
+  
+  for (const e of envs) {
+    const dir = path.join(outBase, e.name);
+    fs.mkdirSync(dir, { recursive: true });
+    const ns = `${e.name}-vcluster`;
+    const rel = `${e.name}-vcluster-helm`;
+    
+    const jobYaml = `apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: enroll-vcluster-${e.name}
+  namespace: argocd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: enroll-vcluster-read-secrets-${e.name}
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get","list","watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: enroll-vcluster-read-secrets-binding-${e.name}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: enroll-vcluster-read-secrets-${e.name}
+subjects:
+- kind: ServiceAccount
+  name: enroll-vcluster-${e.name}
+  namespace: argocd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: enroll-vcluster-write-${e.name}
+  namespace: argocd
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create","update","patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: enroll-vcluster-write-binding-${e.name}
+  namespace: argocd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: enroll-vcluster-write-${e.name}
+subjects:
+- kind: ServiceAccount
+  name: enroll-vcluster-${e.name}
+  namespace: argocd
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: enroll-vcluster-${e.name}
+  namespace: argocd
+spec:
+  template:
+    metadata:
+      name: enroll-vcluster-${e.name}
+    spec:
+      serviceAccountName: enroll-vcluster-${e.name}
+      restartPolicy: OnFailure
+      containers:
+      - name: enroll
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          set -e
+          echo "Waiting for vcluster secret..."
+          until kubectl get secret vc-${rel} -n ${ns} 2>/dev/null; do
+            echo "Waiting for secret vc-${rel} in namespace ${ns}..."
+            sleep 5
+          done
+          
+          echo "Extracting vcluster kubeconfig..."
+          kubectl get secret vc-${rel} -n ${ns} -o jsonpath='{.data.config}' | base64 -d > /tmp/vc.yaml
+          
+          SERVER="https://${rel}.${ns}.svc:443"
+          CA_DATA=$(kubectl get secret vc-${rel} -n ${ns} -o jsonpath='{.data.certificate-authority}')
+          CLIENT_CERT=$(kubectl get secret vc-${rel} -n ${ns} -o jsonpath='{.data.client-certificate}')
+          CLIENT_KEY=$(kubectl get secret vc-${rel} -n ${ns} -o jsonpath='{.data.client-key}')
+          
+          echo "Creating ArgoCD cluster secret..."
+          
+          # Create the config JSON properly
+          CONFIG_JSON="{\\\"tlsClientConfig\\\":{\\\"caData\\\":\\\"$CA_DATA\\\",\\\"certData\\\":\\\"$CLIENT_CERT\\\",\\\"keyData\\\":\\\"$CLIENT_KEY\\\"}}"
+          
+          cat <<EOF | kubectl apply -f -
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: ${e.name}-vcluster
+            namespace: argocd
+            labels:
+              argocd.argoproj.io/secret-type: cluster
+          type: Opaque
+          data:
+            name: $(echo -n "${e.name}-vcluster" | base64 -w0)
+            server: $(echo -n "$SERVER" | base64 -w0)
+            config: $(echo -n "$CONFIG_JSON" | base64 -w0)
+          EOF
+          
+          echo "vCluster ${e.name} enrolled successfully"
+`;
+    fs.writeFileSync(path.join(dir, 'enroll-job.yaml'), jobYaml, { encoding: 'utf8' });
+    
+    // Create enrollment application
+    const enrollApp: any = {
+      apiVersion: 'argoproj.io/v1alpha1',
+      kind: 'Application',
+      metadata: {
+        name: `${e.name}-enroll`,
+        namespace: 'argocd',
+        annotations: { 'argocd.argoproj.io/sync-wave': '20' },
+        labels: { 
+          'app.kubernetes.io/component': 'registration',
+          'app.kubernetes.io/part-of': 'vcluster-registration',
+          'app.kubernetes.io/name': `vcluster-${e.name}-enroll`,
+        },
+        finalizers: ['resources-finalizer.argocd.argoproj.io'],
+      },
+      spec: {
+        project: 'default',
+        destination: { server: 'https://kubernetes.default.svc', namespace: 'argocd' },
+        source: { 
+          repoURL: `cnoe://enroll/${e.name}`, 
+          targetRevision: 'HEAD', 
+          path: '.' 
+        },
+        ignoreDifferences: [
+          {
+            group: 'batch',
+            kind: 'Job',
+            jqPathExpressions: [
+              '.spec.podReplacementPolicy',
+              '.status.terminating'
+            ]
+          }
+        ],
+        syncPolicy: {
+          automated: {
+            selfHeal: true,
+            prune: true
+          },
+          syncOptions: [
+            'CreateNamespace=false',
+            'RespectIgnoreDifferences=true'
+          ],
+        },
+      },
+    };
+    fs.writeFileSync(path.join(base, `${e.name}-enroll.yaml`), YAML.stringify(enrollApp), 'utf8');
+  }
+}
+
 /**
  * Main synthesis function with improved structure
  */
@@ -316,6 +655,12 @@ async function main() {
     workers.push(worker());
   }
   await Promise.all(workers);
+  
+  // Generate vcluster applications and manifests
+  console.log('\nGenerating vcluster applications...');
+  writeVclusterApplications(options.outputDir);
+  writeVclusterIngressManifests(options.outputDir);
+  writeEnrollmentManifests(options.outputDir);
   
   console.log('\nSynthesis complete!');
   console.log(`Output directory: ${options.outputDir}/`);

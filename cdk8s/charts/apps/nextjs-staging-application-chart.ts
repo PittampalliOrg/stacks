@@ -31,7 +31,7 @@ export class NextJsStagingApplicationChart extends Chart {
       spec: {
         project: 'default',
         destination: {
-          name: 'staging-vcluster',
+          name: 'staging-vcluster',  // This will be registered by enrollment job
           namespace: 'nextjs'
         },
         source: {
